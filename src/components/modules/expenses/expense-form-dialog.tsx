@@ -1,15 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useFieldArray } from "react-hook-form";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, BadgeCheck, Users, Globe, Lock } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Dialog } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils/cn";
+import { predictCategory } from "@/lib/expenses/category-predictor";
+import { assignExpenseToGroups, getExpenseGroupIds, type GroupRow } from "@/lib/data/groups";
 import type { CategoryOption } from "@/lib/scan/types";
 import type { ExpenseWithItems } from "@/lib/data/expenses";
+import { formatCurrency } from "@/lib/utils/currency";
 
 const PAYMENT_METHODS = [
   { value: "cash", label: "Nakit" },
@@ -22,6 +27,7 @@ interface FormValues {
   storeName: string;
   date: string;
   paymentMethod: string;
+  cardLabel: string;
   note: string;
   items: { name: string; category: string; price: number; quantity: number }[];
 }
@@ -32,35 +38,141 @@ export function ExpenseFormDialog({
   categories,
   expense,
   categoryNamesById,
+  groups,
 }: {
   open: boolean;
   onClose: () => void;
   categories: CategoryOption[];
   expense?: ExpenseWithItems;
   categoryNamesById: Map<string, string>;
+  groups: GroupRow[];
 }) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { register, control, handleSubmit, reset } = useForm<FormValues>({
+  const defaultCategoryName = categories.find((c) => c.name === "Diğer")?.name ?? categories[0]?.name ?? "Diğer";
+
+  const { register, control, handleSubmit, reset, watch, setValue } = useForm<FormValues>({
     values: {
       storeName: expense?.store_name ?? "",
       date: expense?.date ?? new Date().toISOString().slice(0, 10),
       paymentMethod: expense?.payment_method ?? "cash",
+      cardLabel: expense?.card_label ?? "",
       note: expense?.note ?? "",
       items: expense
         ? expense.expense_items.map((i) => ({
             name: i.name,
-            category: categoryNamesById.get(i.category_id ?? "") ?? "Diğer",
+            category: categoryNamesById.get(i.category_id ?? "") ?? defaultCategoryName,
             price: Number(i.price),
             quantity: i.quantity,
           }))
-        : [{ name: "", category: categories[0]?.name ?? "Diğer", price: 0, quantity: 1 }],
+        : [{ name: "", category: defaultCategoryName, price: 0, quantity: 1 }],
     },
   });
   const { fields, append, remove } = useFieldArray({ control, name: "items" });
-  const categoryNames = [...new Set(categories.map((c) => c.name))];
+  const categoryNames = useMemo(() => [...new Set(categories.map((c) => c.name))], [categories]);
+  const categoryEmojiByName = new Map(categories.map((c) => [c.name, c.emoji]));
+  const predictableCategories = useMemo(
+    () => categoryNames.map((name) => ({ id: name, name })),
+    [categoryNames],
+  );
+
+  const paymentMethod = watch("paymentMethod");
+  const items = watch("items");
+  const showCardLabel = paymentMethod === "credit_card" || paymentMethod === "debit_card";
+
+  // ── Taksitli Harcama state ────────────────────────────────────────────────
+  const [isInstallment, setIsInstallment] = useState(false);
+  const [installmentCount, setInstallmentCount] = useState("12");
+  const [customMode, setCustomMode] = useState(false);
+  const [monthlyAmount, setMonthlyAmount] = useState("");
+  const [customAmounts, setCustomAmounts] = useState<string[]>([]);
+
+  // ── Gruba Ekle state ──────────────────────────────────────────────────────
+  const [selectedGroupIds, setSelectedGroupIds] = useState<Set<string>>(new Set());
+  const [groupOnly, setGroupOnly] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const inst = expense?.installment ?? null;
+    setIsInstallment(!!inst);
+    setInstallmentCount(String(inst?.total_count ?? 12));
+    setCustomMode(!!inst?.custom_amounts && inst.custom_amounts.length > 0);
+    setMonthlyAmount(inst ? String(inst.monthly_amount) : "");
+    setCustomAmounts(inst?.custom_amounts?.map((a) => String(a)) ?? []);
+    setGroupOnly(expense?.visibility === "group_only");
+
+    if (expense) {
+      getExpenseGroupIds(createClient(), expense.id).then((ids) => setSelectedGroupIds(new Set(ids)));
+    } else {
+      setSelectedGroupIds(new Set());
+    }
+  }, [open, expense]);
+
+  function toggleInstallment(enabled: boolean) {
+    setIsInstallment(enabled);
+    if (enabled) {
+      if (paymentMethod === "cash") setValue("paymentMethod", "credit_card");
+    } else {
+      setInstallmentCount("12");
+      setCustomMode(false);
+      setMonthlyAmount("");
+      setCustomAmounts([]);
+    }
+  }
+
+  function toggleCustomMode(enabled: boolean) {
+    const count = Math.max(2, parseInt(installmentCount, 10) || 12);
+    setCustomMode(enabled);
+    if (enabled) {
+      setCustomAmounts(Array.from({ length: count }, (_, i) => customAmounts[i] ?? ""));
+      setMonthlyAmount("");
+    } else {
+      setCustomAmounts([]);
+    }
+  }
+
+  function onInstallmentCountChange(value: string) {
+    setInstallmentCount(value);
+    if (customMode) {
+      const count = Math.max(2, parseInt(value, 10) || 2);
+      setCustomAmounts((prev) => Array.from({ length: count }, (_, i) => prev[i] ?? ""));
+    }
+  }
+
+  const installmentTotal = useMemo(() => {
+    if (!isInstallment) return 0;
+    const count = Math.max(1, parseInt(installmentCount, 10) || 1);
+    if (customMode) {
+      return customAmounts.reduce((sum, a) => sum + (parseFloat(a.replace(",", ".")) || 0), 0);
+    }
+    return count * (parseFloat(monthlyAmount.replace(",", ".")) || 0);
+  }, [isInstallment, installmentCount, customMode, customAmounts, monthlyAmount]);
+
+  const itemsTotal = useMemo(
+    () => items.reduce((sum, i) => sum + Number(i.price || 0) * Number(i.quantity || 1), 0),
+    [items],
+  );
+
+  // ── Otomatik kategori tahmini (debounced, mobile'daki CategoryPredictor) ──
+  const debounceRefs = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
+  function handleItemNameChange(index: number, value: string) {
+    const existing = debounceRefs.current.get(index);
+    if (existing) clearTimeout(existing);
+    debounceRefs.current.set(
+      index,
+      setTimeout(() => {
+        const trimmed = value.trim();
+        if (trimmed.length < 2) return;
+        const predicted = predictCategory(trimmed, predictableCategories);
+        const currentCategory = watch(`items.${index}.category`);
+        if (predicted && (!currentCategory || currentCategory === defaultCategoryName)) {
+          setValue(`items.${index}.category`, predicted.name);
+        }
+      }, 400),
+    );
+  }
 
   async function onSubmit(values: FormValues) {
     setSaving(true);
@@ -76,9 +188,13 @@ export function ExpenseFormDialog({
       const categoryMap = new Map<string, string>(
         (rawCategories ?? []).map((c: { id: string; name: string }) => [c.name, c.id]),
       );
-      const total = values.items.reduce((sum, i) => sum + Number(i.price) * Number(i.quantity), 0);
 
+      const total = isInstallment ? installmentTotal : itemsTotal;
+      const cardLabel = showCardLabel && values.cardLabel.trim() ? values.cardLabel.trim() : null;
+
+      let expenseId: string;
       if (expense) {
+        expenseId = expense.id;
         await supabase
           .from("expenses")
           .update({
@@ -86,19 +202,11 @@ export function ExpenseFormDialog({
             date: values.date,
             total,
             payment_method: values.paymentMethod,
+            card_label: cardLabel,
             note: values.note || null,
           })
           .eq("id", expense.id);
         await supabase.from("expense_items").delete().eq("expense_id", expense.id);
-        await supabase.from("expense_items").insert(
-          values.items.map((item) => ({
-            expense_id: expense.id,
-            name: item.name,
-            category_id: categoryMap.get(item.category) ?? null,
-            price: item.price,
-            quantity: item.quantity,
-          })),
-        );
       } else {
         const { data: created, error: insertError } = await supabase
           .from("expenses")
@@ -108,21 +216,60 @@ export function ExpenseFormDialog({
             date: values.date,
             total,
             payment_method: values.paymentMethod,
+            card_label: cardLabel,
             note: values.note || null,
           })
           .select("id")
           .single();
         if (insertError || !created) throw insertError ?? new Error("Kaydedilemedi");
+        expenseId = created.id as string;
+      }
 
-        await supabase.from("expense_items").insert(
-          values.items.map((item) => ({
-            expense_id: created.id,
-            name: item.name,
-            category_id: categoryMap.get(item.category) ?? null,
-            price: item.price,
-            quantity: item.quantity,
-          })),
+      await supabase.from("expense_items").insert(
+        values.items.map((item) => ({
+          expense_id: expenseId,
+          name: item.name,
+          category_id: categoryMap.get(item.category) ?? null,
+          price: item.price,
+          quantity: item.quantity,
+        })),
+      );
+
+      if (isInstallment) {
+        const count = Math.max(2, parseInt(installmentCount, 10) || 2);
+        const custom = customMode
+          ? customAmounts.map((a) => parseFloat(a.replace(",", ".")) || 0)
+          : null;
+        const monthly = custom
+          ? Number((custom.reduce((s, a) => s + a, 0) / count).toFixed(2))
+          : Number((parseFloat(monthlyAmount.replace(",", ".")) || total / count).toFixed(2));
+
+        await supabase.from("installment_plans").upsert(
+          {
+            expense_id: expenseId,
+            user_id: user.id,
+            total_count: count,
+            monthly_amount: monthly,
+            paid_count: expense?.installment?.paid_count ?? 1,
+            start_date: values.date,
+            paid_states: expense?.installment?.paid_states ?? null,
+            custom_amounts: custom,
+          },
+          { onConflict: "expense_id" },
         );
+      } else if (expense?.installment) {
+        await supabase.from("installment_plans").delete().eq("expense_id", expenseId);
+      }
+
+      try {
+        await assignExpenseToGroups(
+          supabase,
+          expenseId,
+          [...selectedGroupIds],
+          groupOnly ? "group_only" : "public",
+        );
+      } catch {
+        // best-effort, mirrors mobile — the expense itself is already saved
       }
 
       reset();
@@ -136,8 +283,75 @@ export function ExpenseFormDialog({
   }
 
   return (
-    <Dialog open={open} onClose={onClose} title={expense ? "Harcamayı Düzenle" : "Manuel Harcama Ekle"}>
+    <Dialog open={open} onClose={onClose} title={expense ? "Harcamayı Düzenle" : "Manuel Harcama Ekle"} className="max-w-2xl">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div className="rounded-control border border-accent/30 bg-accent/5 p-3">
+          <Switch
+            checked={isInstallment}
+            onChange={toggleInstallment}
+            label="Taksitli Harcama"
+            description="Aylık ödeme planı oluştur"
+          />
+        </div>
+
+        {isInstallment && (
+          <div className="space-y-3 rounded-control border border-border bg-bg p-3">
+            <div className="flex items-center gap-2 text-sm font-medium text-text-primary">
+              <BadgeCheck className="h-4 w-4 text-accent" /> Taksit Planı
+            </div>
+            <div>
+              <Label htmlFor="installmentCount">Taksit Sayısı</Label>
+              <Input
+                id="installmentCount"
+                type="number"
+                min={2}
+                value={installmentCount}
+                onChange={(e) => onInstallmentCountChange(e.target.value)}
+              />
+            </div>
+            <Switch
+              checked={customMode}
+              onChange={toggleCustomMode}
+              label="Her taksit farklı tutar"
+            />
+            {customMode ? (
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {customAmounts.map((amount, i) => (
+                  <div key={i}>
+                    <Label className="text-xs">{i + 1}. Taksit</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={amount}
+                      onChange={(e) =>
+                        setCustomAmounts((prev) => prev.map((a, idx) => (idx === i ? e.target.value : a)))
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div>
+                <Label htmlFor="monthlyAmount">Aylık Ödeme</Label>
+                <Input
+                  id="monthlyAmount"
+                  type="number"
+                  step="0.01"
+                  placeholder="₺"
+                  value={monthlyAmount}
+                  onChange={(e) => setMonthlyAmount(e.target.value)}
+                />
+                <p className="mt-1 text-xs text-text-secondary">
+                  Aylık ödeme tutarını girin — toplam otomatik hesaplanır
+                </p>
+              </div>
+            )}
+            <p className="text-sm font-medium text-text-primary">
+              Toplam: <span className="text-accent">{formatCurrency(installmentTotal)}</span>
+            </p>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <Label htmlFor="storeName">İşyeri</Label>
@@ -157,7 +371,14 @@ export function ExpenseFormDialog({
               ))}
             </Select>
           </div>
-          <div>
+          {showCardLabel && (
+            <div>
+              <Label htmlFor="cardLabel">Kart (isteğe bağlı)</Label>
+              <Input id="cardLabel" placeholder="örn. GARANTİ1234" {...register("cardLabel")} />
+              <p className="mt-1 text-xs text-text-secondary">Limit takibinde kullanılır</p>
+            </div>
+          )}
+          <div className={showCardLabel ? "sm:col-span-2" : ""}>
             <Label htmlFor="note">Not (opsiyonel)</Label>
             <Input id="note" {...register("note")} />
           </div>
@@ -168,9 +389,7 @@ export function ExpenseFormDialog({
             <Label className="mb-0">Kalemler</Label>
             <button
               type="button"
-              onClick={() =>
-                append({ name: "", category: categories[0]?.name ?? "Diğer", price: 0, quantity: 1 })
-              }
+              onClick={() => append({ name: "", category: defaultCategoryName, price: 0, quantity: 1 })}
               className="flex items-center gap-1 text-sm font-medium text-accent hover:underline"
             >
               <Plus className="h-3.5 w-3.5" /> Kalem ekle
@@ -182,12 +401,14 @@ export function ExpenseFormDialog({
                 <Input
                   className="flex-[2]"
                   placeholder="Ürün adı"
-                  {...register(`items.${index}.name`)}
+                  {...register(`items.${index}.name`, {
+                    onChange: (e) => handleItemNameChange(index, e.target.value),
+                  })}
                 />
                 <Select className="flex-1" {...register(`items.${index}.category`)}>
                   {categoryNames.map((name) => (
                     <option key={name} value={name}>
-                      {name}
+                      {categoryEmojiByName.get(name) ?? ""} {name}
                     </option>
                   ))}
                 </Select>
@@ -216,7 +437,67 @@ export function ExpenseFormDialog({
               </div>
             ))}
           </div>
+          {!isInstallment && (
+            <p className="mt-2 text-sm text-text-secondary">
+              Toplam: <span className="font-medium text-text-primary">{formatCurrency(itemsTotal)}</span>
+            </p>
+          )}
         </div>
+
+        {groups.length > 0 && (
+          <div className={cn("rounded-control border p-3", selectedGroupIds.size > 0 ? "border-accent" : "border-border")}>
+            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-text-primary">
+              <Users className="h-4 w-4" /> Gruba Ekle <span className="font-normal text-text-secondary">(isteğe bağlı)</span>
+            </div>
+            <div className="space-y-2">
+              {groups.map((g) => (
+                <label key={g.id} className="flex cursor-pointer items-center gap-2 text-sm text-text-primary">
+                  <input
+                    type="checkbox"
+                    checked={selectedGroupIds.has(g.id)}
+                    onChange={(e) =>
+                      setSelectedGroupIds((prev) => {
+                        const next = new Set(prev);
+                        if (e.target.checked) next.add(g.id);
+                        else next.delete(g.id);
+                        return next;
+                      })
+                    }
+                  />
+                  {g.name}
+                </label>
+              ))}
+            </div>
+            {selectedGroupIds.size > 0 ? (
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setGroupOnly(false)}
+                  className={cn(
+                    "flex items-center justify-center gap-1.5 rounded-control border px-2 py-2 text-xs font-medium",
+                    !groupOnly ? "border-accent bg-accent text-on-accent" : "border-border text-text-secondary",
+                  )}
+                >
+                  <Globe className="h-3.5 w-3.5" /> İkisinde de
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGroupOnly(true)}
+                  className={cn(
+                    "flex items-center justify-center gap-1.5 rounded-control border px-2 py-2 text-xs font-medium",
+                    groupOnly ? "border-accent bg-accent text-on-accent" : "border-border text-text-secondary",
+                  )}
+                >
+                  <Lock className="h-3.5 w-3.5" /> Sadece grupta
+                </button>
+              </div>
+            ) : (
+              <p className="mt-2 text-xs text-text-secondary">
+                Seçim yapılmazsa harcama sadece kişisel bütçende görünür.
+              </p>
+            )}
+          </div>
+        )}
 
         {error && <p className="text-sm text-danger">{error}</p>}
 

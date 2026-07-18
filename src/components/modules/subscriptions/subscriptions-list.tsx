@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { DeleteButton } from "@/components/ui/delete-button";
 import { formatCurrency } from "@/lib/utils/currency";
+import { subscriptionMonthlyAmount } from "@/lib/subscriptions/analytics";
 import { deleteSubscription, updateSubscriptionStatus } from "@/lib/data/subscriptions";
 import type { SubscriptionsRow } from "@/lib/types/database";
 import { SubscriptionFormDialog } from "./subscription-form-dialog";
@@ -23,10 +24,21 @@ const STATUS_LABEL: Record<string, string> = {
 export function SubscriptionsList({ subscriptions }: { subscriptions: SubscriptionsRow[] }) {
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editing, setEditing] = useState<SubscriptionsRow | undefined>(undefined);
 
   const monthlyTotal = subscriptions
     .filter((s) => s.status === "active")
-    .reduce((sum, s) => sum + Number(s.amount) / (s.frequency === "yearly" ? 12 : 1), 0);
+    .reduce((sum, s) => sum + subscriptionMonthlyAmount(s), 0);
+
+  function openAdd() {
+    setEditing(undefined);
+    setDialogOpen(true);
+  }
+
+  function openEdit(sub: SubscriptionsRow) {
+    setEditing(sub);
+    setDialogOpen(true);
+  }
 
   return (
     <div className="space-y-4">
@@ -38,7 +50,7 @@ export function SubscriptionsList({ subscriptions }: { subscriptions: Subscripti
       </Card>
 
       <div className="flex justify-end">
-        <Button onClick={() => setDialogOpen(true)} className="gap-1.5">
+        <Button onClick={openAdd} className="gap-1.5">
           <Plus className="h-4 w-4" /> Abonelik Ekle
         </Button>
       </div>
@@ -50,7 +62,7 @@ export function SubscriptionsList({ subscriptions }: { subscriptions: Subscripti
           <ul className="divide-y divide-border">
             {subscriptions.map((sub) => (
               <li key={sub.id} className="flex items-center justify-between gap-3 py-3">
-                <div className="min-w-0 flex-1">
+                <button type="button" onClick={() => openEdit(sub)} className="min-w-0 flex-1 text-left">
                   <div className="flex items-center gap-2">
                     <p className="truncate font-medium text-text-primary">{sub.name}</p>
                     <Badge tone={sub.status === "active" ? "success" : "neutral"}>
@@ -59,8 +71,9 @@ export function SubscriptionsList({ subscriptions }: { subscriptions: Subscripti
                   </div>
                   <p className="text-sm text-text-secondary">
                     {sub.frequency === "yearly" ? "Yıllık" : "Aylık"} · Yenilenme: {sub.renewal_date}
+                    {sub.card_label ? ` · ${sub.card_label}` : ""}
                   </p>
-                </div>
+                </button>
                 <span className="font-medium text-text-primary">
                   {formatCurrency(Number(sub.amount))}
                 </span>
@@ -97,7 +110,15 @@ export function SubscriptionsList({ subscriptions }: { subscriptions: Subscripti
         )}
       </Card>
 
-      <SubscriptionFormDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
+      <SubscriptionFormDialog
+        key={editing?.id ?? "new"}
+        open={dialogOpen}
+        onClose={() => {
+          setDialogOpen(false);
+          setEditing(undefined);
+        }}
+        subscription={editing}
+      />
     </div>
   );
 }

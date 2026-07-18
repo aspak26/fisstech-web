@@ -9,6 +9,7 @@ import {
   YAxis,
   Tooltip,
   CartesianGrid,
+  ReferenceLine,
 } from "recharts";
 import type { MonthlyBalancePoint } from "@/lib/data/balance";
 import { formatCurrency } from "@/lib/utils/currency";
@@ -35,6 +36,7 @@ export function BalanceTrendChart({ data }: { data: MonthlyBalancePoint[] }) {
             tickLine={false}
             width={0}
           />
+          <ReferenceLine y={0} stroke="var(--color-border)" strokeWidth={1.5} strokeOpacity={0.9} />
           <Tooltip
             formatter={(value) => formatCurrency(Number(value))}
             contentStyle={{

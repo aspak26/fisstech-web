@@ -67,6 +67,7 @@ export interface ExpensesRow {
   receipt_image_url: string | null; // comma-joined signed URLs (mobile format — not an array)
   card_label: string | null;
   note: string | null;
+  visibility: "public" | "group_only" | "private";
   created_at: string;
 }
 
@@ -155,4 +156,24 @@ export interface FamilyMembershipsRow {
   member_id: string;
   invited_at: string;
   accepted_at: string | null;
+}
+
+export interface InstallmentPlansRow {
+  expense_id: string; // PK, -> expenses.id
+  user_id: string;
+  total_count: number;
+  monthly_amount: number;
+  paid_count: number;
+  start_date: string;
+  paid_states: boolean[] | null;
+  custom_amounts: number[] | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ExpenseGroupsRow {
+  id: string;
+  expense_id: string;
+  group_id: string;
+  created_at: string;
 }
