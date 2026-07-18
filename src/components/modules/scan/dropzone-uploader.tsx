@@ -10,6 +10,11 @@ interface DropzoneUploaderProps {
   disabled?: boolean;
   onFiles: (files: File[]) => void;
   onRejected: (message: string) => void;
+  /** Defaults to the receipt-scan copy (Fiş Tara). Override for other
+   * document-scanning contexts (e.g. Evrak Arşivi). */
+  title?: string;
+  subtitle?: string;
+  multiSubtitle?: string;
 }
 
 export function DropzoneUploader({
@@ -17,6 +22,9 @@ export function DropzoneUploader({
   disabled,
   onFiles,
   onRejected,
+  title = "Fiş fotoğrafını buraya sürükle veya tıkla",
+  subtitle = "JPEG veya PNG, maks. 5 MB",
+  multiSubtitle = "Uzun fişin tüm sayfalarını seçebilirsin (JPEG/PNG, sayfa başına maks. 5 MB)",
 }: DropzoneUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -71,13 +79,9 @@ export function DropzoneUploader({
         <ImagePlus className="absolute -bottom-1 -right-2 h-6 w-6 rounded-full bg-accent p-1 text-on-accent" />
       </div>
       <div>
-        <p className="font-medium text-text-primary">
-          Fiş fotoğrafını buraya sürükle veya tıkla
-        </p>
+        <p className="font-medium text-text-primary">{title}</p>
         <p className="mt-1 text-sm text-text-secondary">
-          {multiple
-            ? "Uzun fişin tüm sayfalarını seçebilirsin (JPEG/PNG, sayfa başına maks. 5 MB)"
-            : "JPEG veya PNG, maks. 5 MB"}
+          {multiple ? multiSubtitle : subtitle}
         </p>
       </div>
       <input
