@@ -1,19 +1,20 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { formatMonthLabel, isCurrentOrFutureMonth, shiftMonth } from "@/lib/utils/date";
 import { cn } from "@/lib/utils/cn";
 
 export function MonthSelector({ month }: { month: string }) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const isCurrent = isCurrentOrFutureMonth(month);
 
   function go(delta: number) {
     const params = new URLSearchParams(searchParams);
     params.set("month", shiftMonth(month, delta));
-    router.push(`/dashboard?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`);
   }
 
   return (

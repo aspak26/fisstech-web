@@ -23,9 +23,9 @@ export function NavLink({ item, collapsed }: { item: NavItem; collapsed?: boolea
       title={collapsed ? item.label : undefined}
     >
       <Icon className="h-5 w-5 shrink-0" strokeWidth={1.75} />
-      <span className={cn("truncate", collapsed && "lg:hidden")}>{item.label}</span>
+      <span className={cn("truncate", collapsed && "hidden lg:inline")}>{item.label}</span>
       {item.status === "soon" && (
-        <Badge tone="neutral" className={cn("ml-auto shrink-0", collapsed && "lg:hidden")}>
+        <Badge tone="neutral" className={cn("ml-auto shrink-0", collapsed && "hidden lg:inline-flex")}>
           Yakında
         </Badge>
       )}

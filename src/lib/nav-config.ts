@@ -32,21 +32,21 @@ export const primaryNavItems: NavItem[] = [
 ];
 
 export const upcomingNavItems: NavItem[] = [
-  { label: "Harcamalarım", href: "/expenses", icon: Receipt, status: "soon" },
-  { label: "Gelirlerim", href: "/income", icon: Wallet, status: "soon" },
-  { label: "Net Bakiye & Gelir-Gider", href: "/balance", icon: Scale, status: "soon" },
-  { label: "Borçlarım", href: "/debts", icon: HandCoins, status: "soon" },
-  { label: "Hedeflerim", href: "/goals", icon: Target, status: "soon" },
-  { label: "Yatırımlarım", href: "/investments", icon: TrendingUp, status: "soon" },
-  { label: "Abonelikler", href: "/subscriptions", icon: CreditCard, status: "soon" },
-  { label: "Gruplarım", href: "/groups", icon: Users, status: "soon" },
-  { label: "Analizler & Raporlar", href: "/analytics", icon: BarChart3, status: "soon" },
-  { label: "AI Sohbet", href: "/ai-chat", icon: MessageCircle, status: "soon" },
-  { label: "Notlar", href: "/notes", icon: StickyNote, status: "soon" },
+  { label: "Harcamalarım", href: "/expenses", icon: Receipt, status: "active" },
+  { label: "Gelirlerim", href: "/income", icon: Wallet, status: "active" },
+  { label: "Net Bakiye & Gelir-Gider", href: "/balance", icon: Scale, status: "active" },
+  { label: "Borçlarım", href: "/debts", icon: HandCoins, status: "active" },
+  { label: "Hedeflerim", href: "/goals", icon: Target, status: "active" },
+  { label: "Yatırımlarım", href: "/investments", icon: TrendingUp, status: "active" },
+  { label: "Abonelikler", href: "/subscriptions", icon: CreditCard, status: "active" },
+  { label: "Gruplarım", href: "/groups", icon: Users, status: "active" },
+  { label: "Analizler & Raporlar", href: "/analytics", icon: BarChart3, status: "active" },
+  { label: "AI Sohbet", href: "/ai-chat", icon: MessageCircle, status: "active" },
+  { label: "Notlar", href: "/notes", icon: StickyNote, status: "active" },
 ];
 
 export const bottomNavItems: NavItem[] = [
-  { label: "Ayarlar", href: "/settings", icon: Settings, status: "soon" },
+  { label: "Ayarlar", href: "/settings", icon: Settings, status: "active" },
   { label: "Esnaf Modu", href: "/esnaf", icon: Store, status: "soon" },
 ];
 

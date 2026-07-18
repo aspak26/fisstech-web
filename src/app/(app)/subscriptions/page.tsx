@@ -1,5 +1,18 @@
-import { ComingSoonPage } from "@/components/ui/coming-soon-page";
+import { createClient } from "@/lib/supabase/server";
+import { getSubscriptions } from "@/lib/data/subscriptions";
+import { SubscriptionsList } from "@/components/modules/subscriptions/subscriptions-list";
 
-export default function SubscriptionsPage() {
-  return <ComingSoonPage title="Abonelikler" />;
+export default async function SubscriptionsPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const subscriptions = await getSubscriptions(supabase, user!.id);
+
+  return (
+    <div className="mx-auto max-w-3xl">
+      <h1 className="mb-6 font-display text-2xl font-semibold text-text-primary">Abonelikler</h1>
+      <SubscriptionsList subscriptions={subscriptions} />
+    </div>
+  );
 }

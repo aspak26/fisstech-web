@@ -6,7 +6,7 @@ import { NavLink } from "./nav-link";
 
 export function Sidebar() {
   return (
-    <aside className="hidden shrink-0 flex-col border-r border-border bg-surface md:flex md:w-18 lg:w-64">
+    <aside className="hidden shrink-0 flex-col border-r border-border bg-surface md:flex md:w-16 lg:w-64">
       <div className="flex h-16 items-center border-b border-border px-4 lg:px-5">
         <Link href="/dashboard" className="font-display text-xl font-bold text-accent">
           <span className="lg:hidden">F</span>

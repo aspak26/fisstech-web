@@ -21,14 +21,18 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex h-full min-h-screen bg-bg">
-      <Sidebar />
+      <div className="print:hidden">
+        <Sidebar />
+      </div>
       <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar
-          name={profile?.name ?? ""}
-          email={profile?.email ?? user.email ?? ""}
-          planType={profile?.plan_type ?? "free"}
-        />
-        <main className="flex-1 overflow-y-auto p-4 lg:p-8">{children}</main>
+        <div className="print:hidden">
+          <Topbar
+            name={profile?.name ?? ""}
+            email={profile?.email ?? user.email ?? ""}
+            planType={profile?.plan_type ?? "free"}
+          />
+        </div>
+        <main className="flex-1 overflow-y-auto p-4 lg:p-8 print:p-0">{children}</main>
       </div>
     </div>
   );

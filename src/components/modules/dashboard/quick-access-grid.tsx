@@ -12,11 +12,11 @@ import { cn } from "@/lib/utils/cn";
 
 const items = [
   { label: "Fiş Tara", href: "/scan", icon: ScanLine, active: true },
-  { label: "Manuel Giriş", href: "/expenses", icon: PencilLine, active: false },
-  { label: "Abonelikler", href: "/subscriptions", icon: CreditCard, active: false },
-  { label: "Gelir & Gider", href: "/balance", icon: Wallet, active: false },
-  { label: "Net Bakiye", href: "/balance", icon: Scale, active: false },
-  { label: "Hedeflerim", href: "/goals", icon: Target, active: false },
+  { label: "Manuel Giriş", href: "/expenses", icon: PencilLine, active: true },
+  { label: "Abonelikler", href: "/subscriptions", icon: CreditCard, active: true },
+  { label: "Gelir & Gider", href: "/balance", icon: Wallet, active: true },
+  { label: "Net Bakiye", href: "/balance", icon: Scale, active: true },
+  { label: "Hedeflerim", href: "/goals", icon: Target, active: true },
 ];
 
 export function QuickAccessGrid() {
