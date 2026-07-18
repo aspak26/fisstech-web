@@ -1,0 +1,23 @@
+@import "tailwindcss";
+@import "../../styles/tokens.css";
+
+/* next-themes toggles a "dark" class on <html>; opt Tailwind's dark: variant
+   into class-strategy so it stays usable for the rare non-token-driven case. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

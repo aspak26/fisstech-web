@@ -1,0 +1,77 @@
+/* Fişştech Web — design tokens. Single source of truth for color/type/spacing/radius.
+   Never hardcode hex values in components — always reference the Tailwind utilities
+   generated from these tokens (bg-surface, text-text-primary, border-border, ...). */
+
+:root {
+  /* Light mode (default) */
+  --bg: #f8f5f2;
+  --surface: #ffffff;
+  --accent: #b23a65;
+  --accent-hover: #96284f;
+  --on-accent: #ffffff;
+  --text-primary: #241a1e;
+  --text-secondary: #6b5a60;
+  --border: #e7dfdb;
+  --success: #2e7d32;
+  --danger: #c0392b;
+  --warning: #f5a623;
+}
+
+.dark {
+  /* Dark mode — warm antrasit base, brightened rose accent for AA contrast.
+     Not the mobile app's "Karanlık" green — see Fisstech_Web_Blueprint.md §5.1. */
+  --bg: #1b1417;
+  --surface: #241b1f;
+  --accent: #e85d8a;
+  --accent-hover: #c94770;
+  --on-accent: #1b1417;
+  --text-primary: #f5edef;
+  --text-secondary: #b8a8ae;
+  --border: #3a2e33;
+  --success: #4c9a52;
+  --danger: #e05252;
+  --warning: #f5a623;
+}
+
+@theme inline {
+  /* Colors — exposed as bg-*, text-*, border-* Tailwind utilities */
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-on-accent: var(--on-accent);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-border: var(--border);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+
+  /* Fonts */
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+
+  /* Radius */
+  --radius-card: 20px;
+  --radius-control: 12px;
+
+  /* Type scale — one definition, reused everywhere (8pt-aligned line heights) */
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5rem;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.75rem;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.75rem;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 2rem;
+  --text-3xl: 1.875rem;
+  --text-3xl--line-height: 2.25rem;
+  --text-4xl: 2.25rem;
+  --text-4xl--line-height: 2.5rem;
+  --text-hero: 3rem;
+  --text-hero--line-height: 3.25rem;
+}
