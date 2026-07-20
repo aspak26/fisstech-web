@@ -204,6 +204,17 @@ export interface ServiceJobPartRow {
   created_at: string;
 }
 
+export interface MaintenanceReminder {
+  customerId: string;
+  customerName: string;
+  customerPhone: string | null;
+  customerVehiclePlate: string | null;
+  lastService: string;
+  completedAt: string;
+  daysSince: number;
+  intervalLabel: string;
+}
+
 // ─── Serbest Meslek & Proje (migration 033_freelance_proje.sql) ────────────
 
 export interface FreelanceClientRow {

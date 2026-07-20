@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
   AppointmentRow,
   HizmetCustomerRow,
+  MaintenanceReminder,
   ServiceCatalogRow,
   ServiceJobPartRow,
   ServiceJobRow,
@@ -304,5 +305,77 @@ export async function getTodayServiceRevenue(
     return { total: rows.reduce((s, r) => s + Number(r.total_amount), 0), count: rows.length };
   } catch {
     return { total: 0, count: 0 };
+  }
+}
+
+// ─── Akıllı Bildirimler (bakım hatırlatmaları) ─────────────────────────────
+
+/** Ported from mobile's ServiceJobService.getMaintenanceReminders — for each
+ * customer's most recently completed job (within the last 210 days), flags
+ * it as a reminder if it falls in one of three "about due" windows
+ * (~monthly / ~3-monthly / ~6-monthly maintenance cadence). */
+export async function getMaintenanceReminders(
+  supabase: SupabaseClient,
+  businessId: string,
+): Promise<MaintenanceReminder[]> {
+  try {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 210);
+
+    const { data } = await supabase
+      .from("service_jobs")
+      .select("id, title, completed_at, customer_id, hizmet_customers(name, phone, vehicle_plate)")
+      .eq("business_id", businessId)
+      .eq("status", "tamamlandi")
+      .not("customer_id", "is", null)
+      .gte("completed_at", cutoff.toISOString())
+      .order("completed_at", { ascending: false });
+
+    interface Row {
+      id: string;
+      title: string;
+      completed_at: string | null;
+      customer_id: string;
+      hizmet_customers: { name: string; phone: string | null; vehicle_plate: string | null } | null;
+    }
+    const rows = ((data ?? []) as unknown as (Omit<Row, "hizmet_customers"> & {
+      hizmet_customers: Row["hizmet_customers"] | Row["hizmet_customers"][];
+    })[]).map((r) => ({
+      ...r,
+      hizmet_customers: Array.isArray(r.hizmet_customers) ? (r.hizmet_customers[0] ?? null) : r.hizmet_customers,
+    }));
+
+    // Her müşteri için en son tamamlanan işi tut (zaten completed_at desc sıralı).
+    const latestByCustomer = new Map<string, Row>();
+    for (const row of rows) {
+      if (!latestByCustomer.has(row.customer_id)) latestByCustomer.set(row.customer_id, row);
+    }
+
+    const now = Date.now();
+    const reminders: MaintenanceReminder[] = [];
+    for (const row of latestByCustomer.values()) {
+      if (!row.completed_at) continue;
+      const days = Math.floor((now - new Date(row.completed_at).getTime()) / 86400000);
+
+      let label: string | null = null;
+      if (days >= 25 && days <= 42) label = "aylık bakım";
+      else if (days >= 85 && days <= 100) label = "3 aylık bakım";
+      else if (days >= 160 && days <= 200) label = "6 aylık bakım";
+      if (!label) continue;
+
+      reminders.push({
+        customerId: row.customer_id,
+        customerName: row.hizmet_customers?.name ?? "Müşteri",
+        customerPhone: row.hizmet_customers?.phone ?? null,
+        customerVehiclePlate: row.hizmet_customers?.vehicle_plate ?? null,
+        lastService: row.title,
+        completedAt: row.completed_at,
+        daysSince: days,
+        intervalLabel: label,
+      });
+    }
+    return reminders;
+  } catch {
+    return [];
   }
 }

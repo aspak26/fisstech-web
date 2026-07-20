@@ -1,9 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { getActiveBusiness } from "@/lib/esnaf/active-business";
 import { getBusinessIncomes, getBusinessExpenses, getMonthlyTotals } from "@/lib/data/esnaf";
+import { getMaintenanceReminders } from "@/lib/data/hizmet";
 import { currentMonthString, getMonthRange } from "@/lib/utils/date";
 import { formatCurrency } from "@/lib/utils/currency";
 import { Card } from "@/components/ui/card";
+import { SmartRemindersSection } from "@/components/modules/esnaf/smart-reminders-section";
 import { ArrowDownCircle, ArrowUpCircle, TrendingUp } from "lucide-react";
 
 export default async function EsnafPanoPage() {
@@ -12,10 +14,12 @@ export default async function EsnafPanoPage() {
 
   const supabase = await createClient();
   const { start, end } = getMonthRange(currentMonthString());
-  const [totals, recentIncomes, recentExpenses] = await Promise.all([
+  const isHizmet = business.business_type === "hizmet";
+  const [totals, recentIncomes, recentExpenses, reminders] = await Promise.all([
     getMonthlyTotals(supabase, business.id, start, end),
     getBusinessIncomes(supabase, business.id, 5),
     getBusinessExpenses(supabase, business.id, 5),
+    isHizmet ? getMaintenanceReminders(supabase, business.id) : Promise.resolve([]),
   ]);
   const profit = totals.income - totals.expense;
 
@@ -71,6 +75,8 @@ export default async function EsnafPanoPage() {
           </div>
         </Card>
       </div>
+
+      {isHizmet && <SmartRemindersSection reminders={reminders} />}
 
       <Card>
         <h2 className="mb-3 font-display text-lg font-semibold text-text-primary">
