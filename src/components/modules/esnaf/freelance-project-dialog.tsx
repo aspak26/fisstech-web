@@ -254,7 +254,12 @@ export function FreelanceProjectDialog({
                   value={m.dueDate ?? ""}
                   onChange={(e) => updateMilestoneLine(m.key, { dueDate: e.target.value || null })}
                 />
-                <button type="button" onClick={() => removeMilestoneLine(m.key)} className="text-text-secondary hover:text-danger">
+                <button
+                  type="button"
+                  aria-label="Aşamayı kaldır"
+                  onClick={() => removeMilestoneLine(m.key)}
+                  className="text-text-secondary hover:text-danger"
+                >
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>

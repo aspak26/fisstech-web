@@ -2,7 +2,7 @@
 
 > Bu dosya projenin neresinde olduğumuzu gösterir. Her önemli aşama tamamlandığında güncellenmeli. En son güncelleme tarihini üstte tut.
 
-**Son güncelleme:** 19 Temmuz 2026
+**Son güncelleme:** 20 Temmuz 2026
 
 ---
 
@@ -99,7 +99,7 @@ Mobilde de önce ortak altyapı, sonra sektörel modüller sırasıyla inşa edi
 ## Faz 5 — Cilalama & Yayına Hazırlık
 
 - [x] Responsive test (mobil ~390px / tablet ~768px / masaüstü ~1440px) — auth ekranlarında Playwright ile, Dashboard'da gerçek kullanıcı hesabıyla doğrulandı
-- [ ] Erişilebilirlik kontrolü (klavye odağı, kontrast, azaltılmış hareket) — renk kontrastları hesaplanarak doğrulandı (bkz. Kararlar Günlüğü), `prefers-reduced-motion` desteği eklendi; tam a11y taraması bekleniyor
+- [x] Erişilebilirlik kontrolü (klavye odağı, kontrast, azaltılmış hareket) — renk kontrastları hesaplanarak doğrulandı, `prefers-reduced-motion` desteği eklendi, 20 Temmuz 2026'da tam bir a11y taraması yapıldı (bkz. Kararlar Günlüğü): eksik `aria-label`'lar, paylaşılan `Dialog` bileşenine focus trap/restore, skip-to-content linki, `aria-current="page"`, nav landmark'ları.
 - [ ] Performans/yükleme hızı kontrolü
 - [ ] Gerçek içerik/metin geçişi
 - [ ] Yayına alma
@@ -201,4 +201,5 @@ Mobilde de önce ortak altyapı, sonra sektörel modüller sırasıyla inşa edi
 - **Yüksek Hacimli Satış'ın gerçek kullanıcı hesabıyla (gerçek işletme + portföy + müşteri + satış + taksit + PDF indirme) tarayıcıda uçtan uca teyidi henüz yapılmadı** — build/lint/type-check temiz.
 - **Faz 3 TAMAMLANDI — 6 sektörün 6'sı da web'de.** Kullanıcının kendi kuralına göre ("faz 3 tamamlandıysa faz 4'e geç") artık Faz 4'e geçilebilir — kod tarafı zaten hazır (bkz. üstteki Genel Durum), tek kalan iş `docs/sql/047_web_realtime.sql`'in Supabase Dashboard'da çalıştırılması ve gerçek kullanıcı hesabıyla uçtan uca teyit.
 
+- **20 Temmuz 2026:** Kullanıcı "hepsini sırayla yap" dedi (Faz 5 → gerçek hesapla tarayıcı doğrulaması → Açık Sorular listesi, sırayla) — Faz 5'in erişilebilirlik denetimiyle başlandı. Icon-only butonlarda eksik `aria-label` taraması yapıldı, 4 esnaf dosyasında (`freelance-project-detail.tsx`, `freelance-project-dialog.tsx`, `hizmet-sihirbaz-dialog.tsx`, `toplu-siparis.tsx`) 6 eksik etiket eklendi. Paylaşılan `src/components/ui/dialog.tsx` (uygulamadaki onlarca dialog'un ortak bileşeni) klavye erişilebilirliği için yeniden yazıldı: Tab/Shift+Tab focus trap, açılışta ilk odaklanabilir öğeye otomatik focus, kapanışta önceki odağa geri dönüş, tekrarlı `aria-label={title}` yerine `useId()` ile `aria-labelledby`. `(app)/layout.tsx`'e skip-to-content linki (`#main-content`) eklendi. `NavLink`'e `aria-current={isActive ? "page" : undefined}` eklendi (aktif menü öğesi artık ekran okuyuculara bildiriliyor). `Sidebar` ve `MobileNavDrawer`'daki `<nav>` öğelerine `aria-label="Ana menü"` eklendi; mobil çekmece paneline `role="dialog" aria-modal="true" aria-label="Ana menü"` eklendi (tam focus trap'i yok, sadece landmark/semantik — ESC ile kapanma zaten vardı). Tüm değişiklikler sonrası `npx tsc --noEmit` / `npm run lint` / `npm run build` temiz geçti, dev server ayakta.
 **Çözülen (referans için tutuluyor):** Supabase projesinde e-posta doğrulamasının açık olup olmadığı — canlı testte `signUp()` çağrısının e-posta gönderme rate-limitine takılması bunun AÇIK olduğunu doğruladı.

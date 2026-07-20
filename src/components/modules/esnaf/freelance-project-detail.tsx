@@ -198,7 +198,12 @@ export function FreelanceProjectDetail({
                   {t.is_completed ? <CheckCircle2 className="h-4 w-4 shrink-0 text-success" /> : <Circle className="h-4 w-4 shrink-0 text-text-secondary" />}
                   <span className={cn("truncate", t.is_completed ? "text-text-secondary line-through" : "text-text-primary")}>{t.title}</span>
                 </button>
-                <button type="button" onClick={() => handleDeleteTask(t)} className="text-text-secondary hover:text-danger">
+                <button
+                  type="button"
+                  aria-label={`"${t.title}" görevini sil`}
+                  onClick={() => handleDeleteTask(t)}
+                  className="text-text-secondary hover:text-danger"
+                >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
               </li>

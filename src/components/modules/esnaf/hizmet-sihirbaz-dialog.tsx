@@ -301,6 +301,7 @@ export function HizmetSihirbazDialog({
                     />
                     <button
                       type="button"
+                      aria-label="Parçayı kaldır"
                       onClick={() => removePart(p.id)}
                       className="flex h-9 w-9 shrink-0 items-center justify-center rounded-control text-text-secondary hover:bg-danger/10 hover:text-danger"
                     >

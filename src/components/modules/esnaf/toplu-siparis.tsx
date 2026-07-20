@@ -148,13 +148,19 @@ export function TopluSiparis({
               <li key={line.key} className="space-y-1.5 border-b border-border pb-2 text-sm">
                 <div className="flex items-center justify-between gap-2">
                   <p className="min-w-0 flex-1 truncate text-text-primary">{line.name}</p>
-                  <button type="button" onClick={() => removeLine(line.key)} className="text-text-secondary hover:text-danger">
+                  <button
+                    type="button"
+                    aria-label={`"${line.name}" satırını kaldır`}
+                    onClick={() => removeLine(line.key)}
+                    className="text-text-secondary hover:text-danger"
+                  >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
+                    aria-label="Azalt"
                     onClick={() => updateLine(line.key, { quantity: Math.max(0.001, line.quantity - 1) })}
                     className="flex h-6 w-6 items-center justify-center rounded-control border border-border text-text-secondary"
                   >
@@ -163,6 +169,7 @@ export function TopluSiparis({
                   <span className="w-10 text-center">{line.quantity}</span>
                   <button
                     type="button"
+                    aria-label="Artır"
                     onClick={() => updateLine(line.key, { quantity: line.quantity + 1 })}
                     className="flex h-6 w-6 items-center justify-center rounded-control border border-border text-text-secondary"
                   >

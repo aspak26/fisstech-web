@@ -38,7 +38,12 @@ export function MobileNavDrawer() {
             className="absolute inset-0 bg-black/40"
             onClick={() => setOpen(false)}
           />
-          <div className="absolute inset-y-0 left-0 flex w-72 flex-col bg-surface p-3 shadow-xl">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Ana menü"
+            className="absolute inset-y-0 left-0 flex w-72 flex-col bg-surface p-3 shadow-xl"
+          >
             <div className="flex h-12 items-center justify-between px-2">
               <Link
                 href="/dashboard"
@@ -57,7 +62,11 @@ export function MobileNavDrawer() {
               </button>
             </div>
 
-            <nav className="mt-2 flex flex-1 flex-col gap-1 overflow-y-auto" onClick={() => setOpen(false)}>
+            <nav
+              aria-label="Ana menü"
+              className="mt-2 flex flex-1 flex-col gap-1 overflow-y-auto"
+              onClick={() => setOpen(false)}
+            >
               {primaryNavItems.map((item) => (
                 <NavLink key={item.href} item={item} />
               ))}

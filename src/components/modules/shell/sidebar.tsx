@@ -14,7 +14,7 @@ export function Sidebar() {
         </Link>
       </div>
 
-      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
+      <nav aria-label="Ana menü" className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
         {primaryNavItems.map((item) => (
           <NavLink key={item.href} item={item} collapsed />
         ))}
