@@ -1,22 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Play, Square, CheckCircle2, Circle, Timer } from "lucide-react";
+import { Play, Square, CheckCircle2, Circle, Timer, Hourglass } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/empty-state";
+import { cn } from "@/lib/utils/cn";
 import { formatCurrency } from "@/lib/utils/currency";
 import { startTimeLog, stopTimeLog, toggleTaskCompleted } from "@/lib/data/freelance";
 import type { FreelanceProjectRow, FreelanceTimeLogRow, ProjectTaskRow } from "@/lib/types/esnaf";
 
-function formatElapsed(startedAt: string): string {
-  const seconds = Math.max(0, Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000));
+const POMODORO_PRESETS = [25, 50, 90];
+
+function formatDuration(totalSeconds: number): string {
+  const seconds = Math.max(0, totalSeconds);
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
+  const s = Math.floor(seconds % 60);
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
@@ -35,19 +38,55 @@ export function FreelanceGorevler({
 }) {
   const router = useRouter();
   const projectMap = new Map(projects.map((p) => [p.id, p]));
-  const [elapsed, setElapsed] = useState(activeLog ? formatElapsed(activeLog.started_at) : "00:00:00");
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [projectId, setProjectId] = useState(projects[0]?.id ?? "");
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  // ── Pomodoro (mobildeki gorevler_screen.dart ile aynı: Kronometre/Pomodoro
+  // mod seçici, aktif kayıt varken kilitli, hedef dolunca otomatik durdurur) ──
+  const [isPomodoroMode, setIsPomodoroMode] = useState(false);
+  const [targetMinutes, setTargetMinutes] = useState(25);
+  const [isCustomTarget, setIsCustomTarget] = useState(false);
+  const [customTarget, setCustomTarget] = useState("");
+  const pomodoroCompletedRef = useRef(false);
 
   useEffect(() => {
     if (!activeLog) return;
-    const interval = setInterval(() => setElapsed(formatElapsed(activeLog.started_at)), 1000);
+    const log = activeLog;
+    pomodoroCompletedRef.current = false;
+    const startedAtMs = new Date(log.started_at).getTime();
+
+    function tick() {
+      const seconds = Math.floor((Date.now() - startedAtMs) / 1000);
+      setElapsedSeconds(seconds);
+      if (isPomodoroMode && !pomodoroCompletedRef.current && seconds >= targetMinutes * 60) {
+        pomodoroCompletedRef.current = true;
+        stopTimeLog(createClient(), log).then(() => {
+          setNotice(`Pomodoro tamamlandı! ${targetMinutes} dakika odaklandınız.`);
+          router.refresh();
+        });
+      }
+    }
+
+    tick();
+    const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
-  }, [activeLog]);
+  }, [activeLog, isPomodoroMode, targetMinutes, router]);
+
+  const displayTime = activeLog
+    ? isPomodoroMode
+      ? formatDuration(targetMinutes * 60 - elapsedSeconds)
+      : formatDuration(elapsedSeconds)
+    : "00:00:00";
 
   async function handleStart() {
     if (!projectId) return;
+    if (isPomodoroMode && isCustomTarget) {
+      const n = Number(customTarget);
+      if (n > 0) setTargetMinutes(n);
+    }
     setSaving(true);
     try {
       const supabase = createClient();
@@ -93,11 +132,44 @@ export function FreelanceGorevler({
         <CardHeader>
           <CardTitle>Zaman Takibi</CardTitle>
         </CardHeader>
+
+        {notice && (
+          <p className="mb-3 rounded-control border border-accent/30 bg-accent/5 px-3 py-2 text-sm text-accent">
+            {notice}
+          </p>
+        )}
+
+        <div className="mb-3 flex overflow-hidden rounded-control border border-border">
+          <button
+            type="button"
+            disabled={!!activeLog}
+            onClick={() => setIsPomodoroMode(false)}
+            className={cn(
+              "flex flex-1 items-center justify-center gap-1.5 py-2 text-sm font-semibold disabled:cursor-not-allowed",
+              !isPomodoroMode ? "bg-accent text-on-accent" : "bg-surface text-text-secondary",
+            )}
+          >
+            <Timer className="h-3.5 w-3.5" /> Kronometre
+          </button>
+          <button
+            type="button"
+            disabled={!!activeLog}
+            onClick={() => setIsPomodoroMode(true)}
+            className={cn(
+              "flex flex-1 items-center justify-center gap-1.5 py-2 text-sm font-semibold disabled:cursor-not-allowed",
+              isPomodoroMode ? "bg-accent text-on-accent" : "bg-surface text-text-secondary",
+            )}
+          >
+            <Hourglass className="h-3.5 w-3.5" /> Pomodoro
+          </button>
+        </div>
+
         {activeLog ? (
           <div className="flex items-center justify-between rounded-control border border-accent bg-accent/5 p-4">
             <div>
-              <p className="font-display text-2xl font-bold text-accent">{elapsed}</p>
+              <p className="font-display text-2xl font-bold text-accent">{displayTime}</p>
               <p className="text-sm text-text-secondary">{projectMap.get(activeLog.project_id)?.name ?? "Proje"}</p>
+              {isPomodoroMode && <p className="text-xs text-text-secondary">Pomodoro · {targetMinutes} dk geri sayım</p>}
             </div>
             <Button variant="danger" size="sm" disabled={saving} onClick={handleStop} className="gap-1.5">
               <Square className="h-3.5 w-3.5" /> Durdur
@@ -106,18 +178,64 @@ export function FreelanceGorevler({
         ) : projects.length === 0 ? (
           <EmptyState icon={Timer} title="Zaman takibi için önce bir proje oluştur" />
         ) : (
-          <div className="flex flex-wrap items-end gap-2">
-            <Select value={projectId} onChange={(e) => setProjectId(e.target.value)} className="flex-1">
-              {projects.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </Select>
-            <Input placeholder="Açıklama (isteğe bağlı)" value={description} onChange={(e) => setDescription(e.target.value)} className="flex-1" />
-            <Button size="sm" disabled={saving || !projectId} onClick={handleStart} className="gap-1.5">
-              <Play className="h-3.5 w-3.5" /> Başlat
-            </Button>
+          <div className="space-y-3">
+            {isPomodoroMode && (
+              <div>
+                <p className="mb-1.5 text-xs font-medium text-text-secondary">Süre</p>
+                <div className="flex flex-wrap gap-2">
+                  {POMODORO_PRESETS.map((min) => (
+                    <button
+                      key={min}
+                      type="button"
+                      onClick={() => {
+                        setTargetMinutes(min);
+                        setIsCustomTarget(false);
+                      }}
+                      className={cn(
+                        "rounded-control border px-3 py-1.5 text-sm font-medium",
+                        !isCustomTarget && targetMinutes === min
+                          ? "border-accent bg-accent/10 text-accent"
+                          : "border-border text-text-secondary hover:border-accent",
+                      )}
+                    >
+                      {min} dk
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setIsCustomTarget(true)}
+                    className={cn(
+                      "rounded-control border px-3 py-1.5 text-sm font-medium",
+                      isCustomTarget ? "border-accent bg-accent/10 text-accent" : "border-border text-text-secondary hover:border-accent",
+                    )}
+                  >
+                    Özel
+                  </button>
+                </div>
+                {isCustomTarget && (
+                  <Input
+                    type="number"
+                    placeholder="Dakika"
+                    value={customTarget}
+                    onChange={(e) => setCustomTarget(e.target.value)}
+                    className="mt-2 w-32"
+                  />
+                )}
+              </div>
+            )}
+            <div className="flex flex-wrap items-end gap-2">
+              <Select value={projectId} onChange={(e) => setProjectId(e.target.value)} className="flex-1">
+                {projects.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </Select>
+              <Input placeholder="Açıklama (isteğe bağlı)" value={description} onChange={(e) => setDescription(e.target.value)} className="flex-1" />
+              <Button size="sm" disabled={saving || !projectId} onClick={handleStart} className="gap-1.5">
+                <Play className="h-3.5 w-3.5" /> Başlat
+              </Button>
+            </div>
           </div>
         )}
 
