@@ -67,4 +67,12 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.wholesale_order_items;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.b2b_transactions;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.b2b_payments;
 
+-- ── Esnaf Modu — Serbest Meslek & Proje ──────────────────────
+ALTER PUBLICATION supabase_realtime ADD TABLE public.freelance_clients;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.freelance_projects;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.project_milestones;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.project_tasks;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.freelance_time_logs;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.project_expenses;
+
 NOTIFY pgrst, 'reload schema';

@@ -35,6 +35,12 @@ const ESNAF_REALTIME_TABLES = [
   "wholesale_order_items",
   "b2b_transactions",
   "b2b_payments",
+  "freelance_clients",
+  "freelance_projects",
+  "project_milestones",
+  "project_tasks",
+  "freelance_time_logs",
+  "project_expenses",
 ];
 
 export default async function EsnafDashboardLayout({

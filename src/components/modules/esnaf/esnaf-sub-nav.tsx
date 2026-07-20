@@ -21,6 +21,9 @@ import {
   Warehouse,
   Building2,
   Truck,
+  FolderKanban,
+  ListChecks,
+  Receipt,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -53,6 +56,12 @@ const SECTOR_TABS: Record<string, { href: string; label: string; icon: typeof Wa
     { href: "/esnaf/toptan/siparis", label: "Toplu Sipariş", icon: ShoppingCart },
     { href: "/esnaf/toptan/sevkiyat", label: "Sevkiyat", icon: Truck },
     { href: "/esnaf/toptan/bayiler", label: "Bayiler", icon: Building2 },
+  ],
+  freelance: [
+    { href: "/esnaf/freelance/projeler", label: "Projeler", icon: FolderKanban },
+    { href: "/esnaf/freelance/gorevler", label: "Görevler", icon: ListChecks },
+    { href: "/esnaf/freelance/musteri", label: "Müşteriler", icon: Contact },
+    { href: "/esnaf/freelance/finans", label: "Finans", icon: Receipt },
   ],
 };
 

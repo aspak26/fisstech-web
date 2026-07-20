@@ -203,6 +203,98 @@ export interface ServiceJobPartRow {
   created_at: string;
 }
 
+// ─── Serbest Meslek & Proje (migration 033_freelance_proje.sql) ────────────
+
+export interface FreelanceClientRow {
+  id: string;
+  business_id: string;
+  user_id: string;
+  name: string;
+  company_name: string | null;
+  phone: string | null;
+  email: string | null;
+  address: string | null;
+  tax_id: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type FreelanceProjectStatus = "planning" | "in_progress" | "completed" | "cancelled";
+
+export interface FreelanceProjectRow {
+  id: string;
+  business_id: string;
+  user_id: string;
+  client_id: string;
+  name: string;
+  description: string | null;
+  total_budget: number;
+  paid_amount: number;
+  hourly_rate: number;
+  status: FreelanceProjectStatus;
+  deadline: string | null;
+  completion_percentage: number;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProjectMilestoneRow {
+  id: string;
+  project_id: string;
+  business_id: string;
+  user_id: string;
+  name: string;
+  amount: number;
+  due_date: string | null;
+  is_paid: boolean;
+  paid_at: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface ProjectTaskRow {
+  id: string;
+  project_id: string;
+  business_id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  is_completed: boolean;
+  sort_order: number;
+  completed_at: string | null;
+  created_at: string;
+}
+
+export interface FreelanceTimeLogRow {
+  id: string;
+  project_id: string;
+  business_id: string;
+  user_id: string;
+  task_id: string | null;
+  description: string | null;
+  started_at: string;
+  ended_at: string | null;
+  duration_minutes: number;
+  hourly_rate: number;
+  total_amount: number;
+  created_at: string;
+}
+
+export interface ProjectExpenseRow {
+  id: string;
+  project_id: string;
+  business_id: string;
+  user_id: string;
+  category: string | null;
+  description: string | null;
+  amount: number;
+  expense_date: string;
+  is_ai_scanned: boolean;
+  created_at: string;
+}
+
 // ─── Toptancı & İmalatçı (migration 032_toptan_imalat.sql) ─────────────────
 
 export interface InventoryRow {
