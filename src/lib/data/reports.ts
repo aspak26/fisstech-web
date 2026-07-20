@@ -1,6 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ExpenseWithItems } from "./expenses";
-import type { IncomesRow, FixedExpensesRow, SubscriptionsRow } from "@/lib/types/database";
+import type {
+  IncomesRow,
+  FixedExpensesRow,
+  SubscriptionsRow,
+  IncomeCategoriesRow,
+  FixedExpenseCategoriesRow,
+} from "@/lib/types/database";
 import type { UserDebtRow } from "./debts";
 import type { GoalRow } from "./goals";
 
@@ -14,6 +20,8 @@ export interface ReportData {
   goals: GoalRow[];
   subscriptions: SubscriptionsRow[];
   categoryNamesByItemCategoryId: Map<string, string>;
+  incomeCategoryMap: Map<string, IncomeCategoriesRow>;
+  fixedCategoryMap: Map<string, FixedExpenseCategoriesRow>;
 }
 
 /** Mirrors ReportService.generateReport() in fisle_app report_service.dart —
@@ -24,7 +32,7 @@ export async function getReportData(
   start: string,
   end: string,
 ): Promise<ReportData> {
-  const [expensesRes, incomesRes, fixedRes, debtsRes, goalsRes, subsRes, categoriesRes] =
+  const [expensesRes, incomesRes, fixedRes, debtsRes, goalsRes, subsRes, categoriesRes, incomeCatRes, fixedCatRes] =
     await Promise.allSettled([
       supabase
         .from("expenses")
@@ -49,6 +57,8 @@ export async function getReportData(
         .lte("created_at", `${end}T23:59:59`),
       supabase.from("subscriptions").select("*").eq("user_id", userId),
       supabase.from("categories").select("id, name"),
+      supabase.from("income_categories").select("*"),
+      supabase.from("fixed_expense_categories").select("*"),
     ]);
 
   const expenses =
@@ -65,6 +75,10 @@ export async function getReportData(
     categoriesRes.status === "fulfilled"
       ? (categoriesRes.value.data as { id: string; name: string }[] | null) ?? []
       : [];
+  const incomeCategories =
+    incomeCatRes.status === "fulfilled" ? ((incomeCatRes.value.data ?? []) as IncomeCategoriesRow[]) : [];
+  const fixedCategories =
+    fixedCatRes.status === "fulfilled" ? ((fixedCatRes.value.data ?? []) as FixedExpenseCategoriesRow[]) : [];
 
   // Active subscriptions overlapping the period (mirrors mobile's filter).
   const subscriptions = allSubs.filter((s) => {
@@ -83,6 +97,8 @@ export async function getReportData(
     goals,
     subscriptions,
     categoryNamesByItemCategoryId: new Map(categories.map((c) => [c.id, c.name])),
+    incomeCategoryMap: new Map(incomeCategories.map((c) => [c.id, c])),
+    fixedCategoryMap: new Map(fixedCategories.map((c) => [c.id, c])),
   };
 }
 

@@ -12,6 +12,7 @@ import {
 } from "@/lib/data/reports";
 import { CategoryDonutChart } from "@/components/modules/analytics/category-donut-chart";
 import { PrintButton } from "./print-button";
+import { ExcelExportButton } from "./excel-export-button";
 
 const PALETTE = ["#B23A65", "#2E7D32", "#F5A623", "#1565C0", "#6A1B9A", "#00838F", "#C0392B", "#546E7A"];
 
@@ -36,7 +37,10 @@ export function ReportView({ data }: { data: ReportData }) {
             {data.start} — {data.end}
           </p>
         </div>
-        <PrintButton />
+        <div className="flex items-center gap-2">
+          <ExcelExportButton data={data} />
+          <PrintButton />
+        </div>
       </div>
 
       <div className="hidden print:block">
