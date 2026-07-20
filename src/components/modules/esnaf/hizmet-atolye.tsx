@@ -12,6 +12,7 @@ import { whatsappLink } from "@/lib/esnaf/whatsapp";
 import { updateServiceJobStatus } from "@/lib/data/hizmet";
 import type { EmployeeRow, HizmetCustomerRow, ServiceCatalogRow, ServiceJobRow, ServiceJobStatus } from "@/lib/types/esnaf";
 import { HizmetSihirbazDialog } from "./hizmet-sihirbaz-dialog";
+import { ServiceJobCompleteDialog } from "./service-job-complete-dialog";
 
 const COLUMNS: { status: ServiceJobStatus; title: string; nextLabel: string | null; next: ServiceJobStatus | null }[] = [
   { status: "bekliyor", title: "Bekliyor", nextLabel: "Başlat", next: "devam" },
@@ -34,17 +35,28 @@ export function HizmetAtolye({
 }) {
   const router = useRouter();
   const [wizardOpen, setWizardOpen] = useState(false);
+  const [completingJob, setCompletingJob] = useState<ServiceJobRow | null>(null);
   const [completedNotice, setCompletedNotice] = useState<{ job: ServiceJobRow; phone: string } | null>(null);
 
   const customerMap = new Map(customers.map((c) => [c.id, c]));
   const staffMap = new Map(employees.map((e) => [e.id, e]));
 
   async function advance(job: ServiceJobRow, next: ServiceJobStatus) {
-    await updateServiceJobStatus(createClient(), job.id, next);
     if (next === "tamamlandi") {
+      setCompletingJob(job);
+      return;
+    }
+    await updateServiceJobStatus(createClient(), job.id, next);
+    router.refresh();
+  }
+
+  function handleJobCompleted() {
+    const job = completingJob;
+    if (job) {
       const customer = job.customer_id ? customerMap.get(job.customer_id) : null;
       if (customer?.phone) setCompletedNotice({ job, phone: customer.phone });
     }
+    setCompletingJob(null);
     router.refresh();
   }
 
@@ -110,6 +122,14 @@ export function HizmetAtolye({
         customers={customers}
         catalog={catalog}
         employees={employees}
+      />
+
+      <ServiceJobCompleteDialog
+        job={completingJob}
+        businessId={businessId}
+        employees={employees}
+        onClose={() => setCompletingJob(null)}
+        onCompleted={handleJobCompleted}
       />
 
       {completedNotice && (

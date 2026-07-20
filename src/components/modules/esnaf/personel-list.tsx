@@ -12,6 +12,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { DeleteButton } from "@/components/ui/delete-button";
 import { formatCurrency } from "@/lib/utils/currency";
 import { deleteEmployee, toggleSalaryPaid } from "@/lib/data/esnaf";
+import type { StaffCommissionSummary } from "@/lib/data/hizmet";
 import type { BusinessRow, EmployeeRow, SalaryPaymentRow } from "@/lib/types/esnaf";
 import { EmployeeFormDialog } from "./employee-form-dialog";
 
@@ -19,10 +20,12 @@ export function PersonelList({
   business,
   employees,
   salaryPayments,
+  commissionSummary,
 }: {
   business: BusinessRow;
   employees: EmployeeRow[];
   salaryPayments: SalaryPaymentRow[];
+  commissionSummary: StaffCommissionSummary[];
 }) {
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -80,6 +83,20 @@ export function PersonelList({
           </ul>
         )}
       </Card>
+
+      {commissionSummary.length > 0 && (
+        <Card>
+          <h2 className="mb-3 font-display text-base font-semibold text-text-primary">Bu Ay Primler</h2>
+          <ul className="divide-y divide-border">
+            {commissionSummary.map((c) => (
+              <li key={c.staffId} className="flex items-center justify-between py-2.5">
+                <span className="text-text-primary">{c.name}</span>
+                <span className="font-medium text-accent">{formatCurrency(c.total)}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
 
       <EmployeeFormDialog open={dialogOpen} onClose={() => setDialogOpen(false)} business={business} />
     </div>

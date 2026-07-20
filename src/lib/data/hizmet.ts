@@ -286,6 +286,101 @@ export async function updateServiceJobStatus(
     .eq("id", id);
 }
 
+/** Ported from mobile's atolye_screen.dart _showCompletionDialog confirm
+ * handler — marks the job complete, optionally reassigns staff + records
+ * their commission, and if it was "açık hesap" (open tab) and a real
+ * payment method was chosen, finalizes it as real income. */
+export async function completeServiceJob(
+  supabase: SupabaseClient,
+  businessId: string,
+  userId: string,
+  job: ServiceJobRow,
+  params: {
+    staffId: string | null;
+    commissionRate: number;
+    paymentMethod: string;
+  },
+): Promise<void> {
+  await supabase
+    .from("service_jobs")
+    .update({ status: "tamamlandi", completed_at: new Date().toISOString() })
+    .eq("id", job.id);
+
+  if (params.staffId) {
+    await supabase.from("service_jobs").update({ staff_id: params.staffId }).eq("id", job.id);
+    if (params.commissionRate > 0) {
+      const now = new Date();
+      const periodMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
+      await supabase.from("staff_commissions").insert({
+        business_id: businessId,
+        user_id: userId,
+        staff_id: params.staffId,
+        job_id: job.id,
+        amount: (Number(job.total_amount) * params.commissionRate) / 100,
+        commission_rate: params.commissionRate,
+        period_month: periodMonth,
+      });
+    }
+  }
+
+  if (job.payment_method === "acik_hesap" && params.paymentMethod !== "acik_hesap") {
+    await supabase.from("service_jobs").update({ payment_method: params.paymentMethod }).eq("id", job.id);
+    await supabase.from("business_incomes").insert({
+      business_id: businessId,
+      user_id: userId,
+      amount: Number(job.total_amount),
+      description: job.title,
+      payment_method: params.paymentMethod === "kart" ? "card" : "cash",
+      vat_rate: 0,
+      vat_amount: 0,
+      transaction_date: new Date().toISOString().slice(0, 10),
+    });
+  }
+}
+
+export interface StaffCommissionSummary {
+  staffId: string;
+  name: string;
+  total: number;
+}
+
+/** Ported from mobile's StaffCommissionService.getStaffSummary. */
+export async function getStaffCommissionSummary(
+  supabase: SupabaseClient,
+  businessId: string,
+  month: string,
+): Promise<StaffCommissionSummary[]> {
+  try {
+    const periodMonth = `${month}-01`;
+    const { data } = await supabase
+      .from("staff_commissions")
+      .select("staff_id, amount, employees(full_name)")
+      .eq("business_id", businessId)
+      .eq("period_month", periodMonth);
+
+    interface Row {
+      staff_id: string;
+      amount: number;
+      employees: { full_name: string } | { full_name: string }[] | null;
+    }
+    const rows = (data ?? []) as unknown as Row[];
+    const summary = new Map<string, StaffCommissionSummary>();
+    for (const row of rows) {
+      const emp = Array.isArray(row.employees) ? row.employees[0] : row.employees;
+      const existing = summary.get(row.staff_id);
+      const amount = Number(row.amount);
+      if (existing) {
+        existing.total += amount;
+      } else {
+        summary.set(row.staff_id, { staffId: row.staff_id, name: emp?.full_name ?? row.staff_id, total: amount });
+      }
+    }
+    return [...summary.values()].sort((a, b) => b.total - a.total);
+  } catch {
+    return [];
+  }
+}
+
 // ─── Pano ───────────────────────────────────────────────────────────────────
 
 export async function getTodayServiceRevenue(
