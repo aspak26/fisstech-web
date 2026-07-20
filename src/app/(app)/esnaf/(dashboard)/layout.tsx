@@ -29,6 +29,12 @@ const ESNAF_REALTIME_TABLES = [
   "appointments",
   "service_jobs",
   "service_job_parts",
+  "inventory",
+  "b2b_customers",
+  "wholesale_orders",
+  "wholesale_order_items",
+  "b2b_transactions",
+  "b2b_payments",
 ];
 
 export default async function EsnafDashboardLayout({

@@ -18,6 +18,9 @@ import {
   Wrench,
   Contact,
   BookOpen,
+  Warehouse,
+  Building2,
+  Truck,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -33,29 +36,33 @@ const BASE_TABS = [
 
 const MENU_TAB = { href: "/esnaf/menu", label: "Menü", icon: UtensilsCrossed };
 
-const PERAKENDE_TABS = [
-  { href: "/esnaf/perakende/urunler", label: "Ürünler", icon: Tags },
-  { href: "/esnaf/perakende/kasa", label: "Hızlı Kasa", icon: ShoppingCart },
-  { href: "/esnaf/perakende/veresiye", label: "Veresiye", icon: HandCoins },
-];
-
-const HIZMET_TABS = [
-  { href: "/esnaf/hizmet/ajanda", label: "Ajanda", icon: CalendarClock },
-  { href: "/esnaf/hizmet/atolye", label: "Atölye", icon: Wrench },
-  { href: "/esnaf/hizmet/musteri", label: "Müşteriler", icon: Contact },
-  { href: "/esnaf/hizmet/katalog", label: "Katalog", icon: BookOpen },
-];
+const SECTOR_TABS: Record<string, { href: string; label: string; icon: typeof Wallet }[]> = {
+  perakende: [
+    { href: "/esnaf/perakende/urunler", label: "Ürünler", icon: Tags },
+    { href: "/esnaf/perakende/kasa", label: "Hızlı Kasa", icon: ShoppingCart },
+    { href: "/esnaf/perakende/veresiye", label: "Veresiye", icon: HandCoins },
+  ],
+  hizmet: [
+    { href: "/esnaf/hizmet/ajanda", label: "Ajanda", icon: CalendarClock },
+    { href: "/esnaf/hizmet/atolye", label: "Atölye", icon: Wrench },
+    { href: "/esnaf/hizmet/musteri", label: "Müşteriler", icon: Contact },
+    { href: "/esnaf/hizmet/katalog", label: "Katalog", icon: BookOpen },
+  ],
+  toptan: [
+    { href: "/esnaf/toptan/depo", label: "Depo", icon: Warehouse },
+    { href: "/esnaf/toptan/siparis", label: "Toplu Sipariş", icon: ShoppingCart },
+    { href: "/esnaf/toptan/sevkiyat", label: "Sevkiyat", icon: Truck },
+    { href: "/esnaf/toptan/bayiler", label: "Bayiler", icon: Building2 },
+  ],
+};
 
 export function EsnafSubNav({ businessType }: { businessType: string }) {
   const pathname = usePathname();
+  const extraTabs = businessType === "kafe" ? [] : (SECTOR_TABS[businessType] ?? []);
   const tabs =
     businessType === "kafe"
       ? [...BASE_TABS.slice(0, 3), MENU_TAB, ...BASE_TABS.slice(3)]
-      : businessType === "perakende"
-        ? [...BASE_TABS.slice(0, 2), ...PERAKENDE_TABS, ...BASE_TABS.slice(2)]
-        : businessType === "hizmet"
-          ? [...BASE_TABS.slice(0, 2), ...HIZMET_TABS, ...BASE_TABS.slice(2)]
-          : BASE_TABS;
+      : [...BASE_TABS.slice(0, 2), ...extraTabs, ...BASE_TABS.slice(2)];
 
   return (
     <nav className="mb-6 flex gap-1 overflow-x-auto border-b border-border">

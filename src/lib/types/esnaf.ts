@@ -203,6 +203,104 @@ export interface ServiceJobPartRow {
   created_at: string;
 }
 
+// ─── Toptancı & İmalatçı (migration 032_toptan_imalat.sql) ─────────────────
+
+export interface InventoryRow {
+  id: string;
+  business_id: string;
+  user_id: string;
+  name: string;
+  category: string | null;
+  unit_type: string;
+  current_stock: number;
+  critical_level: number;
+  cost_price: number;
+  selling_price: number;
+  barcode: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type RiskLevel = "low" | "medium" | "high";
+
+export interface B2bCustomerRow {
+  id: string;
+  business_id: string;
+  user_id: string;
+  company_name: string;
+  contact_name: string | null;
+  phone: string | null;
+  email: string | null;
+  address: string | null;
+  tax_id: string | null;
+  credit_limit: number;
+  current_debt: number;
+  risk_level: RiskLevel;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type WholesaleOrderStatus = "pending" | "preparing" | "shipped" | "delivered" | "cancelled";
+
+export interface WholesaleOrderRow {
+  id: string;
+  business_id: string;
+  user_id: string;
+  customer_id: string;
+  status: WholesaleOrderStatus;
+  total_amount: number;
+  delivery_address: string | null;
+  notes: string | null;
+  shipped_at: string | null;
+  delivered_at: string | null;
+  created_at: string;
+}
+
+export interface WholesaleOrderItemRow {
+  id: string;
+  order_id: string;
+  business_id: string;
+  user_id: string;
+  inventory_id: string | null;
+  name: string;
+  unit_type: string;
+  quantity: number;
+  unit_price: number;
+  discount_rate: number;
+  total_amount: number;
+  created_at: string;
+}
+
+/** type: 'borc' | 'alacak'. */
+export interface B2bTransactionRow {
+  id: string;
+  business_id: string;
+  user_id: string;
+  customer_id: string;
+  order_id: string | null;
+  type: "borc" | "alacak";
+  amount: number;
+  description: string | null;
+  transaction_date: string;
+  created_at: string;
+}
+
+export interface B2bPaymentRow {
+  id: string;
+  business_id: string;
+  user_id: string;
+  customer_id: string;
+  amount: number;
+  payment_type: "nakit" | "havale" | "cek";
+  reference_no: string | null;
+  due_date: string | null;
+  notes: string | null;
+  payment_date: string;
+  created_at: string;
+}
+
 // ─── Hızlı Perakende (migration 029_perakende_modulu.sql) ──────────────────
 
 export interface ProductCategoryRow {

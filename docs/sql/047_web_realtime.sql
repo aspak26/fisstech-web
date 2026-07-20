@@ -59,4 +59,12 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.appointments;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.service_jobs;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.service_job_parts;
 
+-- ── Esnaf Modu — Toptancı & İmalatçı ─────────────────────────
+ALTER PUBLICATION supabase_realtime ADD TABLE public.inventory;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.b2b_customers;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.wholesale_orders;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.wholesale_order_items;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.b2b_transactions;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.b2b_payments;
+
 NOTIFY pgrst, 'reload schema';
