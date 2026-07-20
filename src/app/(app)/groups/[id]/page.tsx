@@ -13,10 +13,9 @@ export default async function GroupDetailPage({
 }) {
   const { id } = await params;
   const supabase = await createClient();
-  const group = await getGroup(supabase, id);
+  const [group, expenses] = await Promise.all([getGroup(supabase, id), getGroupExpenses(supabase, id)]);
   if (!group) notFound();
 
-  const expenses = await getGroupExpenses(supabase, id);
   const total = expenses.reduce((sum, e) => sum + Number(e.total), 0);
 
   return (

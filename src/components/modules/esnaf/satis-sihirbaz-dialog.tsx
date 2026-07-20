@@ -161,7 +161,7 @@ export function SatisSihirbazDialog({
         notes: null,
       });
 
-      downloadSaleReceipt({
+      await downloadSaleReceipt({
         businessName,
         customerName: isGuest ? "Misafir Müşteri" : (selectedCustomer?.full_name ?? "—"),
         itemTitle: itemTitle || "—",

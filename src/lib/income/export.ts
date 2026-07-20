@@ -1,4 +1,3 @@
-import * as XLSX from "xlsx";
 import type {
   FixedExpenseCategoriesRow,
   FixedExpensesRow,
@@ -32,8 +31,11 @@ function fileTimestamp(): string {
 
 /** Ported from mobile's ExportService.exportToExcel — same 5 sheets, same
  * columns, same NET BAKİYE formula (income - fixed - variable). Triggers a
- * browser download instead of the native share sheet. */
-export function exportBudgetToExcel({
+ * browser download instead of the native share sheet.
+ *
+ * `xlsx` is lazy-loaded here (not at module top) so its ~600KB doesn't ship
+ * in the initial JS for every /income page load — only when this is called. */
+export async function exportBudgetToExcel({
   periodLabel,
   incomes,
   fixedExpenses,
@@ -50,6 +52,7 @@ export function exportBudgetToExcel({
   fixedCategoryMap: Map<string, FixedExpenseCategoriesRow>;
   itemCategoryNamesById: Map<string, string>;
 }) {
+  const XLSX = await import("xlsx");
   const totalIncome = incomes.reduce((s, i) => s + Number(i.amount), 0);
   const totalFixed = fixedExpenses.reduce((s, f) => s + Number(f.amount), 0);
   const totalVariable = expenses.reduce((s, e) => s + Number(e.total), 0);

@@ -1,11 +1,14 @@
-import { jsPDF } from "jspdf";
 import { formatCurrency } from "@/lib/utils/currency";
 
 /** Generates and downloads a simple sale receipt PDF — web equivalent of
  * mobile's SalePdfService.generateReceipt + native share sheet. Uses jsPDF
  * (client-side, no server round-trip) since the receipt is plain text/
- * numbers, not a design-heavy document. */
-export function downloadSaleReceipt(payload: {
+ * numbers, not a design-heavy document.
+ *
+ * `jspdf` is lazy-loaded here (not at module top) so it doesn't ship in the
+ * initial JS for every sale-wizard mount — only when a receipt is actually
+ * downloaded. */
+export async function downloadSaleReceipt(payload: {
   businessName: string;
   customerName: string;
   itemTitle: string;
@@ -16,6 +19,7 @@ export function downloadSaleReceipt(payload: {
   saleDate: string;
   staffName: string | null;
 }) {
+  const { jsPDF } = await import("jspdf");
   const doc = new jsPDF();
   let y = 20;
 

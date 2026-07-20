@@ -89,10 +89,10 @@ export function IncomePanel({
     [itemCategoryNamesById],
   );
 
-  function handleExport() {
+  async function handleExport() {
     setExporting(true);
     try {
-      exportBudgetToExcel({
+      await exportBudgetToExcel({
         periodLabel,
         incomes,
         fixedExpenses,
