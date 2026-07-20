@@ -35,6 +35,18 @@ export interface CategoriesRow {
   created_at: string;
 }
 
+export interface CategoryLimitsRow {
+  id: string;
+  user_id: string;
+  group_id: string | null;
+  category_id: string | null;
+  limit_type: "category" | "monthly" | "payment_method";
+  payment_method: "cash" | "credit_card" | "debit_card" | null;
+  card_label: string | null;
+  amount: number;
+  month: string; // "YYYY-MM"
+}
+
 export interface IncomeCategoriesRow {
   id: string;
   user_id: string | null;

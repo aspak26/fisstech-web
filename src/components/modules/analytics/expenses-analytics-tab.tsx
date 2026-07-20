@@ -5,18 +5,27 @@ import { ChartCarousel } from "./chart-carousel";
 import { DonutBreakdown } from "./donut-breakdown";
 import { StoreBreakdownChart } from "./store-breakdown-chart";
 import { TrendLineChart } from "./trend-line-chart";
+import { BudgetLimitsCard } from "./budget-limits-card";
 import type { CategoryBreakdownPoint, MonthlyTotalPoint, StoreBreakdownPoint } from "@/lib/data/analytics";
+import type { CategoryLimitData } from "@/lib/data/limits";
+import type { CategoriesRow } from "@/lib/types/database";
 
 export function ExpensesAnalyticsTab({
   breakdown,
   parentBreakdown,
   storeBreakdown,
   monthlyTrend,
+  limits,
+  categories,
+  currentMonth,
 }: {
   breakdown: CategoryBreakdownPoint[];
   parentBreakdown: CategoryBreakdownPoint[];
   storeBreakdown: StoreBreakdownPoint[];
   monthlyTrend: MonthlyTotalPoint[];
+  limits: CategoryLimitData[];
+  categories: CategoriesRow[];
+  currentMonth: string;
 }) {
   const pages = [
     breakdown.length > 0 && { title: "Kategori Dağılımı", content: <DonutBreakdown data={breakdown} /> },
@@ -43,6 +52,8 @@ export function ExpensesAnalyticsTab({
         </CardHeader>
         <TrendLineChart data={monthlyTrend} />
       </Card>
+
+      <BudgetLimitsCard limits={limits} categories={categories} currentMonth={currentMonth} />
     </div>
   );
 }

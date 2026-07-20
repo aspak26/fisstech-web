@@ -9,7 +9,10 @@ import {
 import { getMonthlyBalanceTrend } from "@/lib/data/balance";
 import { getSubscriptions } from "@/lib/data/subscriptions";
 import { getGroups, getMemberSpendTotals } from "@/lib/data/groups";
+import { getCategoryLimits } from "@/lib/data/limits";
+import { getCategoriesFull } from "@/lib/data/categories";
 import { DEFAULT_BUDGET_PERIOD } from "@/lib/utils/period";
+import { currentMonthString } from "@/lib/utils/date";
 import { PeriodSelector } from "@/components/ui/period-selector";
 import { AnalyticsTabsNav } from "@/components/modules/analytics/analytics-tabs-nav";
 import { ExpensesAnalyticsTab } from "@/components/modules/analytics/expenses-analytics-tab";
@@ -48,11 +51,13 @@ export default async function AnalyticsPage({
     const totals = groupId ? await getMemberSpendTotals(supabase, groupId, period) : [];
     content = <GroupAnalyticsTab groups={groups} groupId={groupId ?? ""} totals={totals} />;
   } else {
-    const [breakdown, parentBreakdown, storeBreakdown, monthlyTrend] = await Promise.all([
+    const [breakdown, parentBreakdown, storeBreakdown, monthlyTrend, limits, categories] = await Promise.all([
       getCategoryBreakdown(supabase, userId, period),
       getParentCategoryBreakdown(supabase, userId, period),
       getStoreBreakdown(supabase, userId, period),
       getMonthlyExpenseTrend(supabase, userId, 6),
+      getCategoryLimits(supabase, userId),
+      getCategoriesFull(supabase),
     ]);
     content = (
       <ExpensesAnalyticsTab
@@ -60,6 +65,9 @@ export default async function AnalyticsPage({
         parentBreakdown={parentBreakdown}
         storeBreakdown={storeBreakdown}
         monthlyTrend={monthlyTrend}
+        limits={limits}
+        categories={categories}
+        currentMonth={currentMonthString()}
       />
     );
   }
