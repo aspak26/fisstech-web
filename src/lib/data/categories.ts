@@ -23,3 +23,25 @@ export async function getCategoriesFull(supabase: SupabaseClient): Promise<Categ
     .order("name");
   return (data ?? []) as CategoriesRow[];
 }
+
+/** Ported from mobile's ExpenseService.addCustomCategory — same fixed
+ * placeholder color (#546E7A), default icon (📦) when none given. */
+export async function createCategory(
+  supabase: SupabaseClient,
+  userId: string,
+  { name, parentGroup, icon }: { name: string; parentGroup: string; icon: string },
+): Promise<CategoriesRow> {
+  const { data, error } = await supabase
+    .from("categories")
+    .insert({
+      name: name.trim(),
+      icon: icon.trim() || "📦",
+      color: "#546E7A",
+      parent_group: parentGroup,
+      user_id: userId,
+    })
+    .select("*")
+    .single();
+  if (error || !data) throw error ?? new Error("Kategori eklenemedi");
+  return data as CategoriesRow;
+}
