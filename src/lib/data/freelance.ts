@@ -388,6 +388,7 @@ export async function addProjectExpense(
     description: string | null;
     amount: number;
     expenseDate: string;
+    isAiScanned?: boolean;
   },
 ): Promise<void> {
   await supabase.from("project_expenses").insert({
@@ -398,6 +399,7 @@ export async function addProjectExpense(
     description: payload.description,
     amount: payload.amount,
     expense_date: payload.expenseDate,
+    is_ai_scanned: payload.isAiScanned ?? false,
   });
 }
 

@@ -42,3 +42,55 @@ export async function scanBusinessDocument(
     amount: data.total ?? 0,
   };
 }
+
+export interface ProjectExpenseDraft {
+  amount: number;
+  date: string;
+  category: string;
+}
+
+interface ScanReceiptItemsRaw extends ScanReceiptRaw {
+  items?: { category?: string }[];
+}
+
+/** Ported from mobile's freelance_pano_screen.dart _ScanExpenseSheet — same
+ * scan-receipt call (categories sent as {name, group: 'Proje Masrafı', emoji})
+ * and the same "does the detected category loosely match one of ours"
+ * fallback matching (substring either direction) against the fixed 5-category
+ * list, defaulting to the first category if nothing matches. */
+export async function scanProjectExpense(
+  supabase: SupabaseClient,
+  file: File,
+  categories: string[],
+): Promise<ProjectExpenseDraft> {
+  const base64 = await fileToBase64(file);
+  const { data, error } = await supabase.functions.invoke<ScanReceiptItemsRaw>("scan-receipt", {
+    body: {
+      image_base64: base64,
+      categories: categories.map((name) => ({ name, group: "Proje Masrafı", emoji: "💰" })),
+    },
+  });
+
+  if (error || !data || data.error) {
+    throw new Error("Fiş okunamadı");
+  }
+
+  let detectedCategory = categories[0];
+  for (const item of data.items ?? []) {
+    const cat = item.category?.trim();
+    if (!cat) continue;
+    const match = categories.find(
+      (c) => c.toLowerCase().includes(cat.toLowerCase()) || cat.toLowerCase().includes(c.split(" ")[0].toLowerCase()),
+    );
+    if (match) {
+      detectedCategory = match;
+      break;
+    }
+  }
+
+  return {
+    amount: data.total ?? 0,
+    date: normalizeDate(data.date || ""),
+    category: detectedCategory,
+  };
+}
