@@ -24,6 +24,8 @@ import {
   FolderKanban,
   ListChecks,
   Receipt,
+  Image as ImageIcon,
+  GitBranch,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -62,6 +64,11 @@ const SECTOR_TABS: Record<string, { href: string; label: string; icon: typeof Wa
     { href: "/esnaf/freelance/gorevler", label: "Görevler", icon: ListChecks },
     { href: "/esnaf/freelance/musteri", label: "Müşteriler", icon: Contact },
     { href: "/esnaf/freelance/finans", label: "Finans", icon: Receipt },
+  ],
+  satis: [
+    { href: "/esnaf/satis/portfoy", label: "Portföy", icon: ImageIcon },
+    { href: "/esnaf/satis/surecler", label: "Süreçler", icon: GitBranch },
+    { href: "/esnaf/satis/musteri", label: "Müşteriler", icon: Contact },
   ],
 };
 

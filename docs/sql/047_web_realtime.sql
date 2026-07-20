@@ -11,68 +11,54 @@
 -- router.refresh() tetikliyor — varsayılan (primary key) replica
 -- identity bu senaryo için yeterli.
 --
--- Supabase Dashboard → SQL Editor'da çalıştırın (idempotent — ADD TABLE
--- IF NOT EXISTS deseni yok ama zaten ekli bir tabloyu tekrar eklemeye
--- çalışmak hataya sebep olur; komutları paylı çalıştırıyorsanız 'already
--- member of publication' hatası alırsanız o satırı atlayabilirsiniz).
+-- TAM İDEMPOTENT: her tablo publication'a eklenmeden önce kontrol
+-- ediliyor, zaten ekli olan (örn. `expenses` — daha önce başka bir
+-- yoldan eklenmiş) sessizce atlanıyor. Script'in tamamını defalarca
+-- güvenle çalıştırabilirsiniz.
+--
+-- Supabase Dashboard → SQL Editor'da çalıştırın.
 -- ============================================================
 
--- ── Kişisel modüller ─────────────────────────────────────────
-ALTER PUBLICATION supabase_realtime ADD TABLE public.expenses;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.expense_items;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.installment_plans;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.incomes;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.fixed_expenses;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.user_debts;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.goals;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.goal_transactions;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.investments;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.subscriptions;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.user_notes;
+DO $$
+DECLARE
+  tbl text;
+BEGIN
+  FOREACH tbl IN ARRAY ARRAY[
+    -- ── Kişisel modüller ──────────────────────────────────────
+    'expenses', 'expense_items', 'installment_plans', 'incomes', 'fixed_expenses',
+    'user_debts', 'goals', 'goal_transactions', 'investments', 'subscriptions', 'user_notes',
 
--- ── Esnaf Modu — ortak altyapı ───────────────────────────────
-ALTER PUBLICATION supabase_realtime ADD TABLE public.businesses;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.business_incomes;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.business_expenses;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.business_service_chips;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.invoices;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.employees;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.salary_payments;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.stock_items;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.stock_movements;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.menu_categories;
--- menu_items zaten mobil migration 040'ta eklenmişti — burada tekrar
--- eklemeye çalışmayın, "already member of publication" hatası verir.
+    -- ── Esnaf Modu — ortak altyapı ────────────────────────────
+    'businesses', 'business_incomes', 'business_expenses', 'business_service_chips',
+    'invoices', 'employees', 'salary_payments', 'stock_items', 'stock_movements', 'menu_categories',
 
--- ── Esnaf Modu — Hızlı Perakende ─────────────────────────────
-ALTER PUBLICATION supabase_realtime ADD TABLE public.product_categories;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.quick_products;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.perakende_customers;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.perakende_debts;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.perakende_transactions;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.perakende_transaction_items;
+    -- ── Esnaf Modu — Hızlı Perakende ──────────────────────────
+    'product_categories', 'quick_products', 'perakende_customers', 'perakende_debts',
+    'perakende_transactions', 'perakende_transaction_items',
 
--- ── Esnaf Modu — Hizmet & Bakım ──────────────────────────────
-ALTER PUBLICATION supabase_realtime ADD TABLE public.hizmet_customers;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.service_catalog;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.appointments;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.service_jobs;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.service_job_parts;
+    -- ── Esnaf Modu — Hizmet & Bakım ───────────────────────────
+    'hizmet_customers', 'service_catalog', 'appointments', 'service_jobs', 'service_job_parts',
 
--- ── Esnaf Modu — Toptancı & İmalatçı ─────────────────────────
-ALTER PUBLICATION supabase_realtime ADD TABLE public.inventory;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.b2b_customers;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.wholesale_orders;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.wholesale_order_items;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.b2b_transactions;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.b2b_payments;
+    -- ── Esnaf Modu — Toptancı & İmalatçı ──────────────────────
+    'inventory', 'b2b_customers', 'wholesale_orders', 'wholesale_order_items',
+    'b2b_transactions', 'b2b_payments',
 
--- ── Esnaf Modu — Serbest Meslek & Proje ──────────────────────
-ALTER PUBLICATION supabase_realtime ADD TABLE public.freelance_clients;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.freelance_projects;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.project_milestones;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.project_tasks;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.freelance_time_logs;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.project_expenses;
+    -- ── Esnaf Modu — Serbest Meslek & Proje ───────────────────
+    'freelance_clients', 'freelance_projects', 'project_milestones', 'project_tasks',
+    'freelance_time_logs', 'project_expenses',
+
+    -- ── Esnaf Modu — Yüksek Hacimli Satış ─────────────────────
+    -- sale_documents web'e taşınmadı (mobilde de placeholder) — dahil değil.
+    'sale_portfolios', 'sale_customers', 'sale_transactions', 'sale_installments'
+  ]
+  LOOP
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_publication_tables
+      WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = tbl
+    ) THEN
+      EXECUTE format('ALTER PUBLICATION supabase_realtime ADD TABLE public.%I', tbl);
+    END IF;
+  END LOOP;
+END $$;
 
 NOTIFY pgrst, 'reload schema';

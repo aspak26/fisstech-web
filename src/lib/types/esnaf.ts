@@ -295,6 +295,85 @@ export interface ProjectExpenseRow {
   created_at: string;
 }
 
+// ─── Yüksek Hacimli Satış (migration 028_satis_modulu.sql) ─────────────────
+
+export type PortfolioCategory = "konut" | "arsa" | "arac" | "kuyum" | "sanat" | "doviz" | "diger";
+export type PortfolioStatus = "satista" | "rezerve" | "satildi";
+
+export interface SalePortfolioRow {
+  id: string;
+  business_id: string;
+  user_id: string;
+  title: string;
+  category: PortfolioCategory;
+  description: string | null;
+  list_price: number;
+  cost_price: number | null;
+  status: PortfolioStatus;
+  sold_price: number | null;
+  image_urls: string[] | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SaleCustomerRow {
+  id: string;
+  business_id: string;
+  user_id: string;
+  full_name: string;
+  phone: string | null;
+  email: string | null;
+  tc_or_vat: string | null;
+  address: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SaleTransactionRow {
+  id: string;
+  business_id: string;
+  user_id: string;
+  portfolio_item_id: string | null;
+  customer_id: string | null;
+  staff_employee_id: string | null;
+  total_amount: number;
+  down_payment: number;
+  remaining_amount: number;
+  payment_type: "tek_cekim" | "taksitli";
+  installment_count: number;
+  sale_date: string;
+  notes: string | null;
+  pdf_url: string | null;
+  created_at: string;
+}
+
+export interface SaleInstallmentRow {
+  id: string;
+  transaction_id: string;
+  business_id: string;
+  user_id: string;
+  installment_no: number;
+  amount: number;
+  due_date: string;
+  is_paid: boolean;
+  paid_date: string | null;
+  paid_amount: number | null;
+  notes: string | null;
+  created_at: string;
+}
+
+export const PORTFOLIO_CATEGORIES: { value: PortfolioCategory; label: string; emoji: string }[] = [
+  { value: "konut", label: "Konut", emoji: "🏠" },
+  { value: "arsa", label: "Arsa", emoji: "🗺️" },
+  { value: "arac", label: "Araç", emoji: "🚗" },
+  { value: "kuyum", label: "Kuyum", emoji: "💍" },
+  { value: "sanat", label: "Sanat", emoji: "🎨" },
+  { value: "doviz", label: "Döviz", emoji: "💱" },
+  { value: "diger", label: "Diğer", emoji: "📦" },
+];
+
 // ─── Toptancı & İmalatçı (migration 032_toptan_imalat.sql) ─────────────────
 
 export interface InventoryRow {
