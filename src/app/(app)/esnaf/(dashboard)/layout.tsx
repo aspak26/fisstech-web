@@ -2,6 +2,34 @@ import { redirect } from "next/navigation";
 import { getActiveBusiness, getUserBusinesses } from "@/lib/esnaf/active-business";
 import { EsnafSubNav } from "@/components/modules/esnaf/esnaf-sub-nav";
 import { BusinessSwitcher } from "@/components/modules/esnaf/business-switcher";
+import { RealtimeRefresh } from "@/components/ui/realtime-refresh";
+
+/** Esnaf Modu tablo listesi — docs/sql/047_web_realtime.sql çalıştırılmadan
+ * bu abonelikler sessizce hiçbir olay almaz (no-op). */
+const ESNAF_REALTIME_TABLES = [
+  "businesses",
+  "business_incomes",
+  "business_expenses",
+  "business_service_chips",
+  "invoices",
+  "employees",
+  "salary_payments",
+  "stock_items",
+  "stock_movements",
+  "menu_categories",
+  "menu_items",
+  "product_categories",
+  "quick_products",
+  "perakende_customers",
+  "perakende_debts",
+  "perakende_transactions",
+  "perakende_transaction_items",
+  "hizmet_customers",
+  "service_catalog",
+  "appointments",
+  "service_jobs",
+  "service_job_parts",
+];
 
 export default async function EsnafDashboardLayout({
   children,
@@ -16,6 +44,7 @@ export default async function EsnafDashboardLayout({
 
   return (
     <div className="mx-auto max-w-5xl">
+      <RealtimeRefresh tables={ESNAF_REALTIME_TABLES} />
       <div className="mb-4">
         <BusinessSwitcher businesses={businesses} activeId={business.id} />
       </div>

@@ -2,6 +2,24 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/modules/shell/sidebar";
 import { Topbar } from "@/components/modules/shell/topbar";
+import { RealtimeRefresh } from "@/components/ui/realtime-refresh";
+
+/** Kişisel modüllerin tablo listesi — docs/sql/047_web_realtime.sql
+ * çalıştırılmadan bu abonelikler sessizce hiçbir olay almaz (no-op),
+ * asla sahte bir "canlı" görünüm üretmez. */
+const PERSONAL_REALTIME_TABLES = [
+  "expenses",
+  "expense_items",
+  "installment_plans",
+  "incomes",
+  "fixed_expenses",
+  "user_debts",
+  "goals",
+  "goal_transactions",
+  "investments",
+  "subscriptions",
+  "user_notes",
+];
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -21,6 +39,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex h-full min-h-screen bg-bg">
+      <RealtimeRefresh tables={PERSONAL_REALTIME_TABLES} />
       <div className="print:hidden">
         <Sidebar />
       </div>
