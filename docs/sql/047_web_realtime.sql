@@ -26,7 +26,7 @@ BEGIN
   FOREACH tbl IN ARRAY ARRAY[
     -- ── Kişisel modüller ──────────────────────────────────────
     'expenses', 'expense_items', 'installment_plans', 'incomes', 'fixed_expenses',
-    'user_debts', 'goals', 'goal_transactions', 'investments', 'subscriptions', 'user_notes',
+    'user_debts', 'goals', 'goal_transactions', 'savings_pool', 'investments', 'subscriptions', 'user_notes',
 
     -- ── Esnaf Modu — ortak altyapı ────────────────────────────
     'businesses', 'business_incomes', 'business_expenses', 'business_service_chips',

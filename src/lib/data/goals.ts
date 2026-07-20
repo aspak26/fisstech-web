@@ -27,28 +27,73 @@ export async function getGoals(supabase: SupabaseClient, userId: string): Promis
   }
 }
 
-export async function deleteGoal(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("goals").delete().eq("id", id);
+export interface SavingsPoolRow {
+  id: string;
+  user_id: string;
+  balance: number;
+  created_at: string;
+  updated_at: string;
 }
 
-export async function contributeToGoal(
-  supabase: SupabaseClient,
-  userId: string,
-  goal: GoalRow,
-  amount: number,
-): Promise<void> {
-  const newSaved = Number(goal.saved_amount) + amount;
-  await supabase
-    .from("goals")
-    .update({
-      saved_amount: newSaved,
-      completed_at: newSaved >= Number(goal.target_amount) ? new Date().toISOString() : null,
-    })
-    .eq("id", goal.id);
+export async function getSavingsPool(supabase: SupabaseClient, userId: string): Promise<SavingsPoolRow> {
+  try {
+    const { data } = await supabase.from("savings_pool").select("*").eq("user_id", userId).maybeSingle();
+    if (data) return data as SavingsPoolRow;
+  } catch {
+    // fall through to empty pool below
+  }
+  return { id: "", user_id: userId, balance: 0, created_at: "", updated_at: "" };
+}
+
+/** Net bakiyeden birikim havuzuna para aktarır — GoalsService.transferToPool ile aynı. */
+export async function transferToPool(supabase: SupabaseClient, userId: string, amount: number): Promise<void> {
+  const pool = await getSavingsPool(supabase, userId);
+  await supabase.from("savings_pool").upsert({
+    user_id: userId,
+    balance: Number(pool.balance) + amount,
+    updated_at: new Date().toISOString(),
+  });
   await supabase.from("goal_transactions").insert({
     user_id: userId,
-    goal_id: goal.id,
-    type: "to_goal",
+    type: "to_pool",
     amount,
   });
+}
+
+/** Havuzdan belirli bir hedefe para aktarır — atomik `allocate_to_goal` RPC
+ * (havuz bakiyesini ve hedef limitini sunucu tarafında doğruluyor). */
+export async function allocateToGoal(
+  supabase: SupabaseClient,
+  userId: string,
+  goalId: string,
+  amount: number,
+): Promise<void> {
+  const { error } = await supabase.rpc("allocate_to_goal", {
+    p_user_id: userId,
+    p_goal_id: goalId,
+    p_amount: amount,
+  });
+  if (error) throw error;
+}
+
+/** Silinecek hedefin biriken tutarını havuza iade eder. */
+export async function returnSavedAmountToPool(
+  supabase: SupabaseClient,
+  userId: string,
+  amount: number,
+): Promise<void> {
+  if (amount <= 0) return;
+  const pool = await getSavingsPool(supabase, userId);
+  await supabase.from("savings_pool").upsert({
+    user_id: userId,
+    balance: Number(pool.balance) + amount,
+    updated_at: new Date().toISOString(),
+  });
+}
+
+export async function deleteGoal(supabase: SupabaseClient, userId: string, goal: GoalRow): Promise<void> {
+  if (Number(goal.saved_amount) > 0) {
+    await returnSavedAmountToPool(supabase, userId, Number(goal.saved_amount));
+  }
+  await supabase.from("goals").delete().eq("id", goal.id);
 }

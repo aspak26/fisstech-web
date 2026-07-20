@@ -16,6 +16,7 @@ const PERSONAL_REALTIME_TABLES = [
   "user_debts",
   "goals",
   "goal_transactions",
+  "savings_pool",
   "investments",
   "subscriptions",
   "user_notes",
