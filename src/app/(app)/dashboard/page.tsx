@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { currentMonthString } from "@/lib/utils/date";
 import {
+  getActiveSubscriptions,
   getFixedExpenses,
   getGroupMembershipCount,
   getMonthlyExpenseSummary,
@@ -15,6 +16,7 @@ import { SummaryTriple } from "@/components/modules/dashboard/summary-triple";
 import { GroupBudgetSection } from "@/components/modules/dashboard/group-budget-section";
 import { QuickAccessGrid } from "@/components/modules/dashboard/quick-access-grid";
 import { NotesTeaser } from "@/components/modules/dashboard/notes-teaser";
+import { SubscriptionsSection } from "@/components/modules/dashboard/subscriptions-section";
 import { SummaryReportCard } from "@/components/modules/dashboard/summary-report-card";
 import { FixedExpensesList } from "@/components/modules/dashboard/fixed-expenses-list";
 import { RecentExpensesList } from "@/components/modules/dashboard/recent-expenses-list";
@@ -33,7 +35,7 @@ export default async function DashboardPage({
   } = await supabase.auth.getUser();
   const userId = user!.id;
 
-  const [expenseSummary, incomeTotal, fixedExpenses, recentExpenses, notes, groupCount] =
+  const [expenseSummary, incomeTotal, fixedExpenses, recentExpenses, notes, groupCount, activeSubscriptions] =
     await Promise.all([
       getMonthlyExpenseSummary(supabase, userId, month),
       getMonthlyIncomeTotal(supabase, userId, month),
@@ -41,6 +43,7 @@ export default async function DashboardPage({
       getRecentExpenses(supabase, userId),
       getNotesTeaser(supabase, userId),
       getGroupMembershipCount(supabase, userId),
+      getActiveSubscriptions(supabase, userId),
     ]);
 
   return (
@@ -63,6 +66,8 @@ export default async function DashboardPage({
       </div>
 
       <FixedExpensesList items={fixedExpenses} />
+
+      <SubscriptionsSection subscriptions={activeSubscriptions} />
 
       <RecentExpensesList expenses={recentExpenses} />
     </div>

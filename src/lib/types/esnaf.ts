@@ -7,6 +7,7 @@ export interface BusinessRow {
   tax_id: string | null;
   address: string | null;
   phone: string | null;
+  logo_url: string | null;
   currency: string;
   vat_enabled: boolean;
   default_vat: number;

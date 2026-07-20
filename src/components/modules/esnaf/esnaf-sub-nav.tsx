@@ -26,6 +26,7 @@ import {
   Receipt,
   Image as ImageIcon,
   GitBranch,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -37,6 +38,7 @@ const BASE_TABS = [
   { href: "/esnaf/personel", label: "Personel", icon: Users },
   { href: "/esnaf/stok", label: "Stok", icon: Package },
   { href: "/esnaf/raporlar", label: "Raporlar", icon: BarChart3 },
+  { href: "/esnaf/ayarlar", label: "Ayarlar", icon: Settings },
 ];
 
 const MENU_TAB = { href: "/esnaf/menu", label: "Menü", icon: UtensilsCrossed };

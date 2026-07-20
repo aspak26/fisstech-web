@@ -3,6 +3,7 @@ import { getMonthRange } from "@/lib/utils/date";
 import type {
   ExpensesRow,
   FixedExpensesRow,
+  SubscriptionsRow,
   UserNotesRow,
   UsersRow,
 } from "@/lib/types/database";
@@ -128,6 +129,23 @@ export async function getNotesTeaser(
       .order("updated_at", { ascending: false })
       .limit(limit);
     return (data ?? []) as UserNotesRow[];
+  } catch {
+    return [];
+  }
+}
+
+export async function getActiveSubscriptions(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<SubscriptionsRow[]> {
+  try {
+    const { data } = await supabase
+      .from("subscriptions")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("status", "active")
+      .order("renewal_date");
+    return (data ?? []) as SubscriptionsRow[];
   } catch {
     return [];
   }

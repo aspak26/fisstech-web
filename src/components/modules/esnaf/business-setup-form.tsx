@@ -15,6 +15,7 @@ interface FormValues {
   name: string;
   taxId: string;
   phone: string;
+  address: string;
   defaultVat: number;
 }
 
@@ -25,7 +26,7 @@ export function BusinessSetupForm() {
   );
   const [saving, setSaving] = useState(false);
   const { register, handleSubmit } = useForm<FormValues>({
-    defaultValues: { name: "", taxId: "", phone: "", defaultVat: 20 },
+    defaultValues: { name: "", taxId: "", phone: "", address: "", defaultVat: 20 },
   });
 
   async function onSubmit(values: FormValues) {
@@ -46,6 +47,7 @@ export function BusinessSetupForm() {
           business_type: businessTypeForSector(sectorKey),
           tax_id: values.taxId || null,
           phone: values.phone || null,
+          address: values.address || null,
           default_vat: Number(values.defaultVat),
         })
         .select("id")
@@ -107,6 +109,16 @@ export function BusinessSetupForm() {
             <Label htmlFor="phone">Telefon (opsiyonel)</Label>
             <Input id="phone" {...register("phone")} />
           </div>
+        </div>
+        <div>
+          <Label htmlFor="biz-address">Adres (opsiyonel)</Label>
+          <textarea
+            id="biz-address"
+            rows={3}
+            placeholder="Mahalle, sokak, il..."
+            className="w-full rounded-control border border-border bg-surface px-3.5 py-2.5 text-base text-text-primary placeholder:text-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            {...register("address")}
+          />
         </div>
         <div>
           <Label htmlFor="defaultVat">Varsayılan KDV Oranı (%)</Label>
