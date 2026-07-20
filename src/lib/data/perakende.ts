@@ -1,0 +1,292 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type {
+  PerakendeCustomerRow,
+  PerakendeDebtRow,
+  PerakendeTransactionRow,
+  ProductCategoryRow,
+  QuickProductRow,
+} from "@/lib/types/esnaf";
+
+// ─── Kategoriler ────────────────────────────────────────────────────────────
+
+export async function getProductCategories(
+  supabase: SupabaseClient,
+  businessId: string,
+): Promise<ProductCategoryRow[]> {
+  try {
+    const { data } = await supabase
+      .from("product_categories")
+      .select("*")
+      .eq("business_id", businessId)
+      .order("sort_order");
+    return (data ?? []) as ProductCategoryRow[];
+  } catch {
+    return [];
+  }
+}
+
+export async function createProductCategory(
+  supabase: SupabaseClient,
+  businessId: string,
+  userId: string,
+  name: string,
+  emoji: string,
+): Promise<void> {
+  await supabase.from("product_categories").insert({ business_id: businessId, user_id: userId, name, emoji });
+}
+
+export async function deleteProductCategory(supabase: SupabaseClient, id: string): Promise<void> {
+  await supabase.from("product_categories").delete().eq("id", id);
+}
+
+// ─── Ürünler ────────────────────────────────────────────────────────────────
+
+export async function getQuickProducts(
+  supabase: SupabaseClient,
+  businessId: string,
+): Promise<QuickProductRow[]> {
+  try {
+    const { data } = await supabase
+      .from("quick_products")
+      .select("*")
+      .eq("business_id", businessId)
+      .eq("is_active", true)
+      .order("sale_count", { ascending: false });
+    return (data ?? []) as QuickProductRow[];
+  } catch {
+    return [];
+  }
+}
+
+export async function createQuickProduct(
+  supabase: SupabaseClient,
+  payload: {
+    businessId: string;
+    userId: string;
+    categoryId: string | null;
+    name: string;
+    price: number;
+    unitType: string;
+  },
+): Promise<void> {
+  await supabase.from("quick_products").insert({
+    business_id: payload.businessId,
+    user_id: payload.userId,
+    category_id: payload.categoryId,
+    name: payload.name,
+    price: payload.price,
+    unit_type: payload.unitType,
+  });
+}
+
+export async function updateQuickProduct(
+  supabase: SupabaseClient,
+  id: string,
+  patch: { name?: string; price?: number; categoryId?: string | null; unitType?: string },
+): Promise<void> {
+  await supabase
+    .from("quick_products")
+    .update({
+      ...(patch.name !== undefined ? { name: patch.name } : {}),
+      ...(patch.price !== undefined ? { price: patch.price } : {}),
+      ...(patch.categoryId !== undefined ? { category_id: patch.categoryId } : {}),
+      ...(patch.unitType !== undefined ? { unit_type: patch.unitType } : {}),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+}
+
+export async function deleteQuickProduct(supabase: SupabaseClient, id: string): Promise<void> {
+  await supabase.from("quick_products").delete().eq("id", id);
+}
+
+// ─── Veresiye Müşterileri ───────────────────────────────────────────────────
+
+export async function getPerakendeCustomers(
+  supabase: SupabaseClient,
+  businessId: string,
+): Promise<PerakendeCustomerRow[]> {
+  try {
+    const { data } = await supabase
+      .from("perakende_customers")
+      .select("*")
+      .eq("business_id", businessId)
+      .order("name");
+    return (data ?? []) as PerakendeCustomerRow[];
+  } catch {
+    return [];
+  }
+}
+
+export async function createPerakendeCustomer(
+  supabase: SupabaseClient,
+  businessId: string,
+  userId: string,
+  name: string,
+  phone: string | null,
+): Promise<string> {
+  const { data, error } = await supabase
+    .from("perakende_customers")
+    .insert({ business_id: businessId, user_id: userId, name, phone })
+    .select("id")
+    .single();
+  if (error || !data) throw error ?? new Error("Müşteri eklenemedi");
+  return data.id as string;
+}
+
+/** customer_id -> açık bakiye (Σ perakende_debts.amount — pozitif = borç). */
+export async function getCustomerBalances(
+  supabase: SupabaseClient,
+  businessId: string,
+): Promise<Map<string, number>> {
+  try {
+    const { data } = await supabase
+      .from("perakende_debts")
+      .select("customer_id, amount")
+      .eq("business_id", businessId);
+    const balances = new Map<string, number>();
+    for (const row of (data ?? []) as { customer_id: string; amount: number }[]) {
+      balances.set(row.customer_id, (balances.get(row.customer_id) ?? 0) + Number(row.amount));
+    }
+    return balances;
+  } catch {
+    return new Map();
+  }
+}
+
+export async function getCustomerDebtHistory(
+  supabase: SupabaseClient,
+  customerId: string,
+): Promise<PerakendeDebtRow[]> {
+  try {
+    const { data } = await supabase
+      .from("perakende_debts")
+      .select("*")
+      .eq("customer_id", customerId)
+      .order("debt_date", { ascending: false })
+      .order("created_at", { ascending: false });
+    return (data ?? []) as PerakendeDebtRow[];
+  } catch {
+    return [];
+  }
+}
+
+/** Tahsilat kaydı — negatif tutarla perakende_debts'e yazılır. */
+export async function addDebtPayment(
+  supabase: SupabaseClient,
+  businessId: string,
+  userId: string,
+  customerId: string,
+  amount: number,
+  description: string | null,
+): Promise<void> {
+  await supabase.from("perakende_debts").insert({
+    business_id: businessId,
+    user_id: userId,
+    customer_id: customerId,
+    amount: -Math.abs(amount),
+    description,
+  });
+}
+
+// ─── Kasa (POS) ─────────────────────────────────────────────────────────────
+
+export interface CartLine {
+  productId: string | null;
+  productName: string;
+  quantity: number;
+  unitPrice: number;
+}
+
+/** Bir POS satışını kaydeder: transaction + items, satılan ürünlerin
+ * sale_count'unu artırır, veresiye ise borç hareketi ekler. */
+export async function createTransaction(
+  supabase: SupabaseClient,
+  payload: {
+    businessId: string;
+    userId: string;
+    customerId: string | null;
+    paymentMethod: "nakit" | "kart" | "veresiye";
+    lines: CartLine[];
+    notes?: string | null;
+  },
+): Promise<string> {
+  const total = payload.lines.reduce((s, l) => s + l.unitPrice * l.quantity, 0);
+
+  const { data: created, error } = await supabase
+    .from("perakende_transactions")
+    .insert({
+      business_id: payload.businessId,
+      user_id: payload.userId,
+      customer_id: payload.customerId,
+      total_amount: total,
+      payment_method: payload.paymentMethod,
+      notes: payload.notes ?? null,
+    })
+    .select("id")
+    .single();
+  if (error || !created) throw error ?? new Error("Satış kaydedilemedi");
+
+  const transactionId = created.id as string;
+
+  await supabase.from("perakende_transaction_items").insert(
+    payload.lines.map((line) => ({
+      transaction_id: transactionId,
+      business_id: payload.businessId,
+      user_id: payload.userId,
+      product_id: line.productId,
+      product_name: line.productName,
+      quantity: line.quantity,
+      unit_price: line.unitPrice,
+      total_price: line.unitPrice * line.quantity,
+    })),
+  );
+
+  // Bump sale_count for "Sık Satanlar" sorting — best-effort, read-then-write
+  // (fine for a single-user POS; no concurrent-write contention in practice).
+  for (const line of payload.lines) {
+    if (!line.productId) continue;
+    const { data: product } = await supabase
+      .from("quick_products")
+      .select("sale_count")
+      .eq("id", line.productId)
+      .maybeSingle();
+    if (product) {
+      await supabase
+        .from("quick_products")
+        .update({ sale_count: Number(product.sale_count) + Math.max(1, Math.round(line.quantity)) })
+        .eq("id", line.productId);
+    }
+  }
+
+  if (payload.paymentMethod === "veresiye" && payload.customerId) {
+    await supabase.from("perakende_debts").insert({
+      business_id: payload.businessId,
+      user_id: payload.userId,
+      customer_id: payload.customerId,
+      amount: total,
+      description: "Veresiye satış",
+    });
+  }
+
+  return transactionId;
+}
+
+export async function getRecentTransactions(
+  supabase: SupabaseClient,
+  businessId: string,
+  limit = 50,
+): Promise<PerakendeTransactionRow[]> {
+  try {
+    const { data } = await supabase
+      .from("perakende_transactions")
+      .select("*")
+      .eq("business_id", businessId)
+      .order("transaction_date", { ascending: false })
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    return (data ?? []) as PerakendeTransactionRow[];
+  } catch {
+    return [];
+  }
+}

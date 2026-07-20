@@ -130,6 +130,158 @@ export interface StockMovementRow {
   created_at: string;
 }
 
+// ─── Hizmet & Bakım (migration 030_hizmet_modulu.sql) ───────────────────────
+
+export interface HizmetCustomerRow {
+  id: string;
+  business_id: string;
+  user_id: string;
+  name: string;
+  phone: string | null;
+  notes: string | null;
+  vehicle_plate: string | null;
+  device_model: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ServiceCatalogRow {
+  id: string;
+  business_id: string;
+  user_id: string;
+  name: string;
+  default_price: number;
+  duration_minutes: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface AppointmentRow {
+  id: string;
+  business_id: string;
+  user_id: string;
+  customer_id: string | null;
+  staff_id: string | null;
+  service_catalog_id: string | null;
+  appointment_start: string;
+  appointment_end: string | null;
+  status: string;
+  notes: string | null;
+  created_at: string;
+}
+
+export type ServiceJobStatus = "bekliyor" | "devam" | "hazir" | "tamamlandi";
+
+export interface ServiceJobRow {
+  id: string;
+  business_id: string;
+  user_id: string;
+  customer_id: string | null;
+  appointment_id: string | null;
+  staff_id: string | null;
+  title: string;
+  labor_cost: number;
+  parts_cost: number;
+  total_amount: number;
+  payment_method: string;
+  status: ServiceJobStatus;
+  is_ai_scanned: boolean;
+  completed_at: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface ServiceJobPartRow {
+  id: string;
+  job_id: string;
+  business_id: string;
+  user_id: string;
+  part_name: string;
+  quantity: number;
+  unit_cost: number;
+  total_cost: number;
+  created_at: string;
+}
+
+// ─── Hızlı Perakende (migration 029_perakende_modulu.sql) ──────────────────
+
+export interface ProductCategoryRow {
+  id: string;
+  business_id: string;
+  user_id: string;
+  name: string;
+  emoji: string;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface QuickProductRow {
+  id: string;
+  business_id: string;
+  user_id: string;
+  category_id: string | null;
+  name: string;
+  price: number;
+  unit_type: "adet" | "gram" | "kg" | "litre";
+  product_code: string | null;
+  has_variations: boolean;
+  sale_count: number;
+  image_url: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PerakendeCustomerRow {
+  id: string;
+  business_id: string;
+  user_id: string;
+  name: string;
+  phone: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PerakendeTransactionRow {
+  id: string;
+  business_id: string;
+  user_id: string;
+  customer_id: string | null;
+  total_amount: number;
+  payment_method: "nakit" | "kart" | "veresiye";
+  is_ai_scanned: boolean;
+  transaction_date: string;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface PerakendeTransactionItemRow {
+  id: string;
+  transaction_id: string;
+  business_id: string;
+  user_id: string;
+  product_id: string | null;
+  product_name: string;
+  variation_label: string | null;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  created_at: string;
+}
+
+/** amount: pozitif = borç, negatif = tahsilat. */
+export interface PerakendeDebtRow {
+  id: string;
+  business_id: string;
+  user_id: string;
+  customer_id: string;
+  amount: number;
+  description: string | null;
+  debt_date: string;
+  created_at: string;
+}
+
 /** Ported verbatim from fisle_app business_model.dart's BusinessSectors. */
 export const BUSINESS_SECTORS = [
   { key: "hizmet_bakim", label: "Hizmet & Bakım", desc: "(Berber, Oto Yıkama, Tamir...)", emoji: "✂️", type: "hizmet" },

@@ -11,6 +11,13 @@ import {
   BarChart3,
   UtensilsCrossed,
   FolderOpen,
+  Tags,
+  ShoppingCart,
+  HandCoins,
+  CalendarClock,
+  Wrench,
+  Contact,
+  BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -26,12 +33,29 @@ const BASE_TABS = [
 
 const MENU_TAB = { href: "/esnaf/menu", label: "Menü", icon: UtensilsCrossed };
 
+const PERAKENDE_TABS = [
+  { href: "/esnaf/perakende/urunler", label: "Ürünler", icon: Tags },
+  { href: "/esnaf/perakende/kasa", label: "Hızlı Kasa", icon: ShoppingCart },
+  { href: "/esnaf/perakende/veresiye", label: "Veresiye", icon: HandCoins },
+];
+
+const HIZMET_TABS = [
+  { href: "/esnaf/hizmet/ajanda", label: "Ajanda", icon: CalendarClock },
+  { href: "/esnaf/hizmet/atolye", label: "Atölye", icon: Wrench },
+  { href: "/esnaf/hizmet/musteri", label: "Müşteriler", icon: Contact },
+  { href: "/esnaf/hizmet/katalog", label: "Katalog", icon: BookOpen },
+];
+
 export function EsnafSubNav({ businessType }: { businessType: string }) {
   const pathname = usePathname();
   const tabs =
     businessType === "kafe"
       ? [...BASE_TABS.slice(0, 3), MENU_TAB, ...BASE_TABS.slice(3)]
-      : BASE_TABS;
+      : businessType === "perakende"
+        ? [...BASE_TABS.slice(0, 2), ...PERAKENDE_TABS, ...BASE_TABS.slice(2)]
+        : businessType === "hizmet"
+          ? [...BASE_TABS.slice(0, 2), ...HIZMET_TABS, ...BASE_TABS.slice(2)]
+          : BASE_TABS;
 
   return (
     <nav className="mb-6 flex gap-1 overflow-x-auto border-b border-border">
