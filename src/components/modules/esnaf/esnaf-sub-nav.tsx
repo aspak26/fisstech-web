@@ -48,6 +48,7 @@ const SECTOR_TABS: Record<string, { href: string; label: string; icon: typeof Wa
     { href: "/esnaf/perakende/urunler", label: "Ürünler", icon: Tags },
     { href: "/esnaf/perakende/kasa", label: "Hızlı Kasa", icon: ShoppingCart },
     { href: "/esnaf/perakende/veresiye", label: "Veresiye", icon: HandCoins },
+    { href: "/esnaf/perakende/gecmis", label: "Geçmiş", icon: Receipt },
   ],
   hizmet: [
     { href: "/esnaf/hizmet/ajanda", label: "Ajanda", icon: CalendarClock },

@@ -3,6 +3,7 @@ import type {
   PerakendeCustomerRow,
   PerakendeDebtRow,
   PerakendeTransactionRow,
+  PerakendeTransactionItemRow,
   ProductCategoryRow,
   QuickProductRow,
 } from "@/lib/types/esnaf";
@@ -272,20 +273,29 @@ export async function createTransaction(
   return transactionId;
 }
 
+export interface PerakendeTransactionWithItems extends PerakendeTransactionRow {
+  perakende_transaction_items: PerakendeTransactionItemRow[];
+}
+
+/** Ported from mobile's PerakendeTransactionService.getRecentTransactions —
+ * optional date range (used by the Satış Geçmişi period filter). */
 export async function getRecentTransactions(
   supabase: SupabaseClient,
   businessId: string,
-  limit = 50,
-): Promise<PerakendeTransactionRow[]> {
+  options: { limit?: number; startDate?: string; endDate?: string } = {},
+): Promise<PerakendeTransactionWithItems[]> {
   try {
-    const { data } = await supabase
+    let query = supabase
       .from("perakende_transactions")
-      .select("*")
-      .eq("business_id", businessId)
-      .order("transaction_date", { ascending: false })
+      .select("*, perakende_transaction_items(*)")
+      .eq("business_id", businessId);
+    if (options.startDate) query = query.gte("created_at", options.startDate);
+    if (options.endDate) query = query.lte("created_at", options.endDate);
+
+    const { data } = await query
       .order("created_at", { ascending: false })
-      .limit(limit);
-    return (data ?? []) as PerakendeTransactionRow[];
+      .limit(options.limit ?? 100);
+    return (data ?? []) as unknown as PerakendeTransactionWithItems[];
   } catch {
     return [];
   }
