@@ -1,6 +1,8 @@
+import { Crown, Store, Users, type LucideIcon } from "lucide-react";
+
 export interface PricingPlan {
   id: string;
-  emoji: string;
+  icon: LucideIcon;
   name: string;
   description: string;
   /** Currency symbol excluded — the pricing card renders "₺" separately,
@@ -21,7 +23,7 @@ export interface PricingPlan {
 export const PRICING_PLANS: PricingPlan[] = [
   {
     id: "premium",
-    emoji: "⭐",
+    icon: Crown,
     name: "Premium",
     description: "Sınırsız fiş tarama ve tüm kişisel finans özellikleri.",
     monthly: "49,99",
@@ -38,7 +40,7 @@ export const PRICING_PLANS: PricingPlan[] = [
   },
   {
     id: "esnaf",
-    emoji: "🏪",
+    icon: Store,
     name: "Esnaf Modu",
     description: "Kasa defteri, stok ve satış takibiyle işletmeni yönet.",
     monthly: "199,99",
@@ -54,7 +56,7 @@ export const PRICING_PLANS: PricingPlan[] = [
   },
   {
     id: "family",
-    emoji: "👨‍👩‍👧‍👦",
+    icon: Users,
     name: "Aile Planı",
     description: "Ortak bütçe ve harcama paylaşımıyla tüm aile bir arada.",
     monthly: "119,99",
@@ -73,6 +75,9 @@ export const PRICING_PLANS: PricingPlan[] = [
 export const BACKUP_ADDON = {
   emoji: "☁️",
   name: "Bulut Yedekleme",
-  description: "Sadece bulut yedekleme isteyen kullanıcılar için tekil eklenti.",
+  // "Esnaf Modu" alt metnin içinde vurgulanacak — pricing-section.tsx bu
+  // string'i tam bu yazımla arayıp <strong> ile sarıyor, değiştirirsen ikisini
+  // birlikte güncelle.
+  description: "Premium ve Aile planlarına halihazırda dahildir. Sadece Esnaf Modu kullanıcıları tarafından ek paket olarak satın alınabilir.",
   monthly: "₺29,99",
 };

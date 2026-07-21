@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { Check } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
@@ -8,6 +8,21 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 import { BACKUP_ADDON, PRICING_PLANS } from "@/lib/landing/pricing-data";
 import { Reveal } from "./reveal";
+
+/** BACKUP_ADDON.description içindeki "Esnaf Modu" alt dizisini <strong>
+ * ile vurgular — data string'i düz tutulup burada bölünüyor. */
+function highlightEsnafModu(text: string): ReactNode {
+  const marker = "Esnaf Modu";
+  const idx = text.indexOf(marker);
+  if (idx === -1) return text;
+  return (
+    <>
+      {text.slice(0, idx)}
+      <strong className="font-semibold text-accent">{marker}</strong>
+      {text.slice(idx + marker.length)}
+    </>
+  );
+}
 
 export function PricingSection() {
   const [yearly, setYearly] = useState(false);
@@ -36,10 +51,9 @@ export function PricingSection() {
           <Reveal key={plan.id} delay={i * 100}>
             <div
               className={cn(
-                "relative flex h-full flex-col rounded-card border bg-surface p-8 transition-all duration-300 hover:-translate-y-1.5",
-                plan.popular
-                  ? "border-2 border-accent hover:shadow-2xl"
-                  : "border-border shadow-sm hover:shadow-xl",
+                "relative flex h-full flex-col rounded-card border bg-surface p-8 transition-all duration-300 ease-in-out hover:-translate-y-1.5 hover:border-accent",
+                "hover:shadow-[0_0_40px_-10px_color-mix(in_srgb,var(--color-accent)_45%,transparent)]",
+                plan.popular ? "border-2 border-accent" : "border-border shadow-sm",
               )}
               style={
                 plan.popular
@@ -53,10 +67,8 @@ export function PricingSection() {
                 </span>
               )}
 
-              <div className="flex items-center gap-2">
-                <span className="text-2xl" aria-hidden="true">
-                  {plan.emoji}
-                </span>
+              <div className="flex items-center gap-2.5">
+                <plan.icon className="h-5 w-5 text-accent" aria-hidden="true" />
                 <h3 className="font-display text-lg font-semibold text-text-primary">{plan.name}</h3>
               </div>
               <p className="mt-2 text-sm text-text-secondary">{plan.description}</p>
@@ -64,13 +76,13 @@ export function PricingSection() {
               <div className="mt-6 flex items-end gap-1.5">
                 <span className="text-lg font-medium text-text-secondary">₺</span>
                 <span className="font-display text-6xl font-bold leading-none tracking-tight text-text-primary">
-                  {yearly ? plan.yearlyEffective : plan.monthly}
+                  {yearly ? plan.yearly : plan.monthly}
                 </span>
-                <span className="pb-1 text-lg text-text-secondary">/ay</span>
+                <span className="pb-1 text-lg text-text-secondary">{yearly ? "/yıl" : "/ay"}</span>
               </div>
               <p className="mt-2 text-xs text-text-secondary">
                 {yearly
-                  ? `Yıllık ₺${plan.yearly} olarak tahsil edilir · ${plan.yearlySavings} tasarruf`
+                  ? `Ayda sadece ₺${plan.yearlyEffective}'a denk gelir · ${plan.yearlySavings} tasarruf`
                   : "Aylık faturalandırılır · vergiler dahildir"}
               </p>
 
@@ -108,7 +120,7 @@ export function PricingSection() {
               <p className="font-medium text-text-primary">
                 {BACKUP_ADDON.name} <span className="text-text-secondary">— Eklenti</span>
               </p>
-              <p className="text-sm text-text-secondary">{BACKUP_ADDON.description}</p>
+              <p className="text-sm text-text-secondary">{highlightEsnafModu(BACKUP_ADDON.description)}</p>
             </div>
           </div>
           <span className="font-display text-lg font-bold text-text-primary">

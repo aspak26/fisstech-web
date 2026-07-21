@@ -1,5 +1,5 @@
-import Image from "next/image";
 import { Check } from "lucide-react";
+import { FloatingReceipt } from "./floating-receipt";
 import { Reveal } from "./reveal";
 
 const POINTS = [
@@ -9,10 +9,6 @@ const POINTS = [
   "Verilerinizi PDF veya tablo olarak dışa aktarın",
 ];
 
-/** Görsel: kullanıcı 3D fiş mockup'ını kendisi ekleyecek
- * (public/receipt-3d-mockup.png) — dosya henüz yok, eklenene kadar next/image
- * bu path için 404 verir; kapsayıcının kendi arkaplan/glow'u yine de bir
- * yer tutucu izlenimi verir. */
 export function WhyFisstech() {
   return (
     <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
@@ -48,12 +44,7 @@ export function WhyFisstech() {
         </Reveal>
 
         <Reveal delay={150}>
-          <div
-            className="relative aspect-square overflow-hidden rounded-2xl border border-border bg-surface"
-            style={{ boxShadow: "0 0 60px -8px color-mix(in srgb, var(--color-accent) 25%, transparent)" }}
-          >
-            <Image src="/receipt-3d-mockup.png" alt="Fişştech" fill className="object-cover" sizes="(min-width: 1024px) 40vw, 90vw" />
-          </div>
+          <FloatingReceipt />
         </Reveal>
       </div>
     </section>
