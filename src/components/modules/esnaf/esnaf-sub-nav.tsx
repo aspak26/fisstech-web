@@ -27,6 +27,9 @@ import {
   Image as ImageIcon,
   GitBranch,
   Settings,
+  LayoutGrid,
+  ShoppingBag,
+  Calculator,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -41,9 +44,13 @@ const BASE_TABS = [
   { href: "/esnaf/ayarlar", label: "Ayarlar", icon: Settings },
 ];
 
-const MENU_TAB = { href: "/esnaf/menu", label: "Menü", icon: UtensilsCrossed };
-
 const SECTOR_TABS: Record<string, { href: string; label: string; icon: typeof Wallet }[]> = {
+  kafe: [
+    { href: "/esnaf/kafe/salon", label: "Salon", icon: LayoutGrid },
+    { href: "/esnaf/kafe/paket", label: "Paket Servis", icon: ShoppingBag },
+    { href: "/esnaf/menu", label: "Menü", icon: UtensilsCrossed },
+    { href: "/esnaf/kafe/kasa", label: "Restoran Kasa", icon: Calculator },
+  ],
   perakende: [
     { href: "/esnaf/perakende/urunler", label: "Ürünler", icon: Tags },
     { href: "/esnaf/perakende/kasa", label: "Hızlı Kasa", icon: ShoppingCart },
@@ -77,11 +84,8 @@ const SECTOR_TABS: Record<string, { href: string; label: string; icon: typeof Wa
 
 export function EsnafSubNav({ businessType }: { businessType: string }) {
   const pathname = usePathname();
-  const extraTabs = businessType === "kafe" ? [] : (SECTOR_TABS[businessType] ?? []);
-  const tabs =
-    businessType === "kafe"
-      ? [...BASE_TABS.slice(0, 3), MENU_TAB, ...BASE_TABS.slice(3)]
-      : [...BASE_TABS.slice(0, 2), ...extraTabs, ...BASE_TABS.slice(2)];
+  const extraTabs = SECTOR_TABS[businessType] ?? [];
+  const tabs = [...BASE_TABS.slice(0, 2), ...extraTabs, ...BASE_TABS.slice(2)];
 
   return (
     <nav className="mb-6 flex gap-1 overflow-x-auto border-b border-border">

@@ -419,6 +419,8 @@ export interface MenuItemRow {
   price: number;
   prep_minutes: number;
   is_active: boolean;
+  is_available: boolean;
+  image_url: string | null;
   created_at: string;
 }
 
