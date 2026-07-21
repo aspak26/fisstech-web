@@ -10,7 +10,7 @@ import { DeleteButton } from "@/components/ui/delete-button";
 import { formatCurrency } from "@/lib/utils/currency";
 import { cn } from "@/lib/utils/cn";
 import { deleteQuickProduct } from "@/lib/data/perakende";
-import type { ProductCategoryRow, QuickProductRow } from "@/lib/types/esnaf";
+import type { ProductCategoryRow, QuickProductWithVariations } from "@/lib/types/esnaf";
 import { PerakendeCategoryDialog } from "./perakende-category-dialog";
 import { PerakendeProductDialog } from "./perakende-product-dialog";
 
@@ -23,11 +23,11 @@ export function PerakendeProductsList({
 }: {
   businessId: string;
   categories: ProductCategoryRow[];
-  products: QuickProductRow[];
+  products: QuickProductWithVariations[];
 }) {
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [productDialogOpen, setProductDialogOpen] = useState(false);
-  const [editing, setEditing] = useState<QuickProductRow | undefined>(undefined);
+  const [editing, setEditing] = useState<QuickProductWithVariations | undefined>(undefined);
   const [activeCategoryId, setActiveCategoryId] = useState<string | "all">("all");
 
   const categoryMap = new Map(categories.map((c) => [c.id, c]));
@@ -41,7 +41,7 @@ export function PerakendeProductsList({
     setProductDialogOpen(true);
   }
 
-  function openEdit(product: QuickProductRow) {
+  function openEdit(product: QuickProductWithVariations) {
     setEditing(product);
     setProductDialogOpen(true);
   }
@@ -121,6 +121,20 @@ export function PerakendeProductsList({
                   <p className="mt-1 text-sm text-text-secondary">
                     {formatCurrency(Number(product.price))} / {UNIT_LABELS[product.unit_type] ?? product.unit_type}
                   </p>
+                  {(product.product_code || product.has_variations) && (
+                    <div className="mt-1 flex flex-wrap gap-1">
+                      {product.product_code && (
+                        <span className="rounded-full bg-bg px-1.5 py-0.5 text-[10px] font-medium text-text-secondary">
+                          PLU {product.product_code}
+                        </span>
+                      )}
+                      {product.has_variations && (
+                        <span className="rounded-full bg-accent/10 px-1.5 py-0.5 text-[10px] font-medium text-accent">
+                          {product.product_variations.length} varyasyon
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}

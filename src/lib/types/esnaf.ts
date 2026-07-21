@@ -513,6 +513,20 @@ export interface QuickProductRow {
   updated_at: string;
 }
 
+export interface ProductVariationRow {
+  id: string;
+  product_id: string;
+  business_id: string;
+  user_id: string;
+  label: string;
+  price: number;
+  created_at: string;
+}
+
+export interface QuickProductWithVariations extends QuickProductRow {
+  product_variations: ProductVariationRow[];
+}
+
 export interface PerakendeCustomerRow {
   id: string;
   business_id: string;

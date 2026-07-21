@@ -1,16 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Minus, Plus, Trash2, Banknote, CreditCard, HandCoins, ShoppingCart } from "lucide-react";
+import { Minus, Plus, Trash2, Banknote, CreditCard, HandCoins, ShoppingCart, ScanLine } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Dialog } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatCurrency } from "@/lib/utils/currency";
 import { cn } from "@/lib/utils/cn";
-import { createTransaction, type CartLine } from "@/lib/data/perakende";
-import type { PerakendeCustomerRow, ProductCategoryRow, QuickProductRow } from "@/lib/types/esnaf";
+import { createTransaction, searchProductByCode, type CartLine } from "@/lib/data/perakende";
+import type { PerakendeCustomerRow, ProductCategoryRow, ProductVariationRow, QuickProductWithVariations } from "@/lib/types/esnaf";
 import { PerakendeCustomerPickerDialog } from "./perakende-customer-picker-dialog";
 
 interface Line extends CartLine {
@@ -25,7 +27,7 @@ export function PerakendePos({
 }: {
   businessId: string;
   categories: ProductCategoryRow[];
-  products: QuickProductRow[];
+  products: QuickProductWithVariations[];
   customers: PerakendeCustomerRow[];
 }) {
   const router = useRouter();
@@ -34,26 +36,64 @@ export function PerakendePos({
   const [saving, setSaving] = useState(false);
   const [customerPickerOpen, setCustomerPickerOpen] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [pluCode, setPluCode] = useState("");
+  const [variationPicker, setVariationPicker] = useState<QuickProductWithVariations | null>(null);
 
-  const visibleProducts = useMemo(
-    () => (activeCategoryId === "all" ? products : products.filter((p) => p.category_id === activeCategoryId)),
-    [products, activeCategoryId],
-  );
+  const visibleProducts = useMemo(() => {
+    const byCategory = activeCategoryId === "all" ? products : products.filter((p) => p.category_id === activeCategoryId);
+    if (!pluCode.trim()) return byCategory;
+    return products.filter((p) => p.product_code?.startsWith(pluCode.trim()));
+  }, [products, activeCategoryId, pluCode]);
 
   const total = cart.reduce((s, l) => s + l.unitPrice * l.quantity, 0);
 
-  function addProduct(product: QuickProductRow) {
+  function addProduct(product: QuickProductWithVariations, variation: ProductVariationRow | null = null) {
+    const key = variation ? `${product.id}:${variation.id}` : product.id;
     setCart((prev) => {
-      const existing = prev.find((l) => l.productId === product.id);
+      const existing = prev.find((l) => l.key === key);
       if (existing) {
-        return prev.map((l) => (l.productId === product.id ? { ...l, quantity: l.quantity + 1 } : l));
+        return prev.map((l) => (l.key === key ? { ...l, quantity: l.quantity + 1 } : l));
       }
       return [
         ...prev,
-        { key: product.id, productId: product.id, productName: product.name, quantity: 1, unitPrice: Number(product.price) },
+        {
+          key,
+          productId: product.id,
+          productName: product.name,
+          variationLabel: variation?.label ?? null,
+          quantity: 1,
+          unitPrice: variation ? Number(variation.price) : Number(product.price),
+        },
       ];
     });
   }
+
+  function handleProductClick(product: QuickProductWithVariations) {
+    if (product.has_variations && product.product_variations.length > 0) {
+      setVariationPicker(product);
+    } else {
+      addProduct(product);
+    }
+  }
+
+  // Ported from mobile's hizli_kasa_screen.dart _onPluChanged — 2+ haneli
+  // tam eşleşme bulunca sepete otomatik eklenip alan temizleniyor.
+  useEffect(() => {
+    const code = pluCode.trim();
+    if (code.length < 2) return;
+    let cancelled = false;
+    (async () => {
+      const supabase = createClient();
+      const product = await searchProductByCode(supabase, businessId, code);
+      if (cancelled || !product) return;
+      setPluCode("");
+      handleProductClick(product);
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pluCode, businessId]);
 
   function changeQuantity(key: string, delta: number) {
     setCart((prev) =>
@@ -85,6 +125,7 @@ export function PerakendePos({
         lines: cart.map((line) => ({
           productId: line.productId,
           productName: line.productName,
+          variationLabel: line.variationLabel,
           quantity: line.quantity,
           unitPrice: line.unitPrice,
         })),
@@ -110,6 +151,16 @@ export function PerakendePos({
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_360px]">
       <div className="space-y-4">
+        <div className="relative">
+          <ScanLine className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
+          <Input
+            placeholder="# PLU kodu gir..."
+            value={pluCode}
+            onChange={(e) => setPluCode(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
@@ -149,11 +200,13 @@ export function PerakendePos({
                 <button
                   key={product.id}
                   type="button"
-                  onClick={() => addProduct(product)}
+                  onClick={() => handleProductClick(product)}
                   className="rounded-control border border-border p-3 text-left transition-colors hover:border-accent hover:bg-accent/5"
                 >
                   <p className="truncate font-medium text-text-primary">{product.name}</p>
-                  <p className="text-sm text-text-secondary">{formatCurrency(Number(product.price))}</p>
+                  <p className="text-sm text-text-secondary">
+                    {product.has_variations ? "Varyasyonlu" : formatCurrency(Number(product.price))}
+                  </p>
                 </button>
               ))}
             </div>
@@ -170,7 +223,10 @@ export function PerakendePos({
             {cart.map((line) => (
               <li key={line.key} className="flex items-center gap-2 text-sm">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-text-primary">{line.productName}</p>
+                  <p className="truncate text-text-primary">
+                    {line.productName}
+                    {line.variationLabel ? ` (${line.variationLabel})` : ""}
+                  </p>
                   <p className="text-text-secondary">{formatCurrency(line.unitPrice * line.quantity)}</p>
                 </div>
                 <button
@@ -251,6 +307,35 @@ export function PerakendePos({
           completeSale("veresiye", customerId);
         }}
       />
+
+      <Dialog open={!!variationPicker} onClose={() => setVariationPicker(null)} title={variationPicker?.name ?? ""}>
+        <div className="space-y-1">
+          {variationPicker?.product_variations.map((v) => (
+            <button
+              key={v.id}
+              type="button"
+              onClick={() => {
+                addProduct(variationPicker, v);
+                setVariationPicker(null);
+              }}
+              className="flex w-full items-center justify-between rounded-control px-3 py-2.5 text-left hover:bg-bg"
+            >
+              <span className="text-text-primary">{v.label}</span>
+              <span className="font-medium text-accent">{formatCurrency(Number(v.price))}</span>
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={() => {
+              if (variationPicker) addProduct(variationPicker);
+              setVariationPicker(null);
+            }}
+            className="flex w-full items-center gap-2 rounded-control px-3 py-2.5 text-left text-text-secondary hover:bg-bg"
+          >
+            <Plus className="h-4 w-4" /> Varyasyonsuz ekle (temel fiyat)
+          </button>
+        </div>
+      </Dialog>
     </div>
   );
 }

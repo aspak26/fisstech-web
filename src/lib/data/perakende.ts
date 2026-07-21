@@ -5,7 +5,7 @@ import type {
   PerakendeTransactionRow,
   PerakendeTransactionItemRow,
   ProductCategoryRow,
-  QuickProductRow,
+  QuickProductWithVariations,
 } from "@/lib/types/esnaf";
 
 // ─── Kategoriler ────────────────────────────────────────────────────────────
@@ -45,17 +45,38 @@ export async function deleteProductCategory(supabase: SupabaseClient, id: string
 export async function getQuickProducts(
   supabase: SupabaseClient,
   businessId: string,
-): Promise<QuickProductRow[]> {
+): Promise<QuickProductWithVariations[]> {
   try {
     const { data } = await supabase
       .from("quick_products")
-      .select("*")
+      .select("*, product_variations(*)")
       .eq("business_id", businessId)
       .eq("is_active", true)
       .order("sale_count", { ascending: false });
-    return (data ?? []) as QuickProductRow[];
+    return (data ?? []) as unknown as QuickProductWithVariations[];
   } catch {
     return [];
+  }
+}
+
+/** Ported from mobile's QuickProductService.searchByCode — exact PLU match,
+ * used by the POS's auto-add-on-scan input. */
+export async function searchProductByCode(
+  supabase: SupabaseClient,
+  businessId: string,
+  code: string,
+): Promise<QuickProductWithVariations | null> {
+  try {
+    const { data } = await supabase
+      .from("quick_products")
+      .select("*, product_variations(*)")
+      .eq("business_id", businessId)
+      .eq("product_code", code)
+      .eq("is_active", true)
+      .maybeSingle();
+    return (data as unknown as QuickProductWithVariations) ?? null;
+  } catch {
+    return null;
   }
 }
 
@@ -68,22 +89,51 @@ export async function createQuickProduct(
     name: string;
     price: number;
     unitType: string;
+    productCode?: string | null;
+    hasVariations?: boolean;
+    variations?: { label: string; price: number }[];
   },
 ): Promise<void> {
-  await supabase.from("quick_products").insert({
-    business_id: payload.businessId,
-    user_id: payload.userId,
-    category_id: payload.categoryId,
-    name: payload.name,
-    price: payload.price,
-    unit_type: payload.unitType,
-  });
+  const { data, error } = await supabase
+    .from("quick_products")
+    .insert({
+      business_id: payload.businessId,
+      user_id: payload.userId,
+      category_id: payload.categoryId,
+      name: payload.name,
+      price: payload.price,
+      unit_type: payload.unitType,
+      product_code: payload.productCode || null,
+      has_variations: payload.hasVariations ?? false,
+    })
+    .select("id")
+    .single();
+  if (error || !data) return;
+
+  if (payload.hasVariations && payload.variations && payload.variations.length > 0) {
+    await supabase.from("product_variations").insert(
+      payload.variations.map((v) => ({
+        product_id: data.id,
+        business_id: payload.businessId,
+        user_id: payload.userId,
+        label: v.label,
+        price: v.price,
+      })),
+    );
+  }
 }
 
 export async function updateQuickProduct(
   supabase: SupabaseClient,
   id: string,
-  patch: { name?: string; price?: number; categoryId?: string | null; unitType?: string },
+  patch: {
+    name?: string;
+    price?: number;
+    categoryId?: string | null;
+    unitType?: string;
+    productCode?: string | null;
+    hasVariations?: boolean;
+  },
 ): Promise<void> {
   await supabase
     .from("quick_products")
@@ -92,6 +142,8 @@ export async function updateQuickProduct(
       ...(patch.price !== undefined ? { price: patch.price } : {}),
       ...(patch.categoryId !== undefined ? { category_id: patch.categoryId } : {}),
       ...(patch.unitType !== undefined ? { unit_type: patch.unitType } : {}),
+      ...(patch.productCode !== undefined ? { product_code: patch.productCode } : {}),
+      ...(patch.hasVariations !== undefined ? { has_variations: patch.hasVariations } : {}),
       updated_at: new Date().toISOString(),
     })
     .eq("id", id);
@@ -99,6 +151,36 @@ export async function updateQuickProduct(
 
 export async function deleteQuickProduct(supabase: SupabaseClient, id: string): Promise<void> {
   await supabase.from("quick_products").delete().eq("id", id);
+}
+
+// ─── Ürün Varyasyonları ─────────────────────────────────────────────────────
+// Mobildeki add_quick_product_screen.dart sadece ürün OLUŞTURULURKEN
+// varyasyon eklemeye izin veriyordu (düzenlemede yok) — web'de bu, tam bir
+// CRUD'a genişletildi (daha doğru/kullanışlı, aynı tablo/kolonlar).
+
+export async function createProductVariation(
+  supabase: SupabaseClient,
+  payload: { productId: string; businessId: string; userId: string; label: string; price: number },
+): Promise<void> {
+  await supabase.from("product_variations").insert({
+    product_id: payload.productId,
+    business_id: payload.businessId,
+    user_id: payload.userId,
+    label: payload.label,
+    price: payload.price,
+  });
+}
+
+export async function updateProductVariation(
+  supabase: SupabaseClient,
+  id: string,
+  patch: { label?: string; price?: number },
+): Promise<void> {
+  await supabase.from("product_variations").update(patch).eq("id", id);
+}
+
+export async function deleteProductVariation(supabase: SupabaseClient, id: string): Promise<void> {
+  await supabase.from("product_variations").delete().eq("id", id);
 }
 
 // ─── Veresiye Müşterileri ───────────────────────────────────────────────────
@@ -195,6 +277,7 @@ export async function addDebtPayment(
 export interface CartLine {
   productId: string | null;
   productName: string;
+  variationLabel?: string | null;
   quantity: number;
   unitPrice: number;
 }
@@ -237,6 +320,7 @@ export async function createTransaction(
       user_id: payload.userId,
       product_id: line.productId,
       product_name: line.productName,
+      variation_label: line.variationLabel ?? null,
       quantity: line.quantity,
       unit_price: line.unitPrice,
       total_price: line.unitPrice * line.quantity,
