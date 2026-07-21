@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Minus, Plus, Trash2, Banknote, CreditCard, HandCoins, ShoppingCart, ScanLine } from "lucide-react";
+import { Minus, Plus, Trash2, Banknote, CreditCard, HandCoins, ShoppingCart, ScanLine, Camera } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils/cn";
 import { createTransaction, searchProductByCode, type CartLine } from "@/lib/data/perakende";
 import type { PerakendeCustomerRow, ProductCategoryRow, ProductVariationRow, QuickProductWithVariations } from "@/lib/types/esnaf";
 import { PerakendeCustomerPickerDialog } from "./perakende-customer-picker-dialog";
+import { PerakendeGunSonuDialog } from "./perakende-gun-sonu-dialog";
 
 interface Line extends CartLine {
   key: string;
@@ -38,6 +39,7 @@ export function PerakendePos({
   const [notice, setNotice] = useState<string | null>(null);
   const [pluCode, setPluCode] = useState("");
   const [variationPicker, setVariationPicker] = useState<QuickProductWithVariations | null>(null);
+  const [gunSonuOpen, setGunSonuOpen] = useState(false);
 
   const visibleProducts = useMemo(() => {
     const byCategory = activeCategoryId === "all" ? products : products.filter((p) => p.category_id === activeCategoryId);
@@ -151,14 +153,19 @@ export function PerakendePos({
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_360px]">
       <div className="space-y-4">
-        <div className="relative">
-          <ScanLine className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
-          <Input
-            placeholder="# PLU kodu gir..."
-            value={pluCode}
-            onChange={(e) => setPluCode(e.target.value)}
-            className="pl-9"
-          />
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <ScanLine className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
+            <Input
+              placeholder="# PLU kodu gir..."
+              value={pluCode}
+              onChange={(e) => setPluCode(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <Button variant="secondary" size="sm" onClick={() => setGunSonuOpen(true)} className="gap-1.5 shrink-0">
+            <Camera className="h-4 w-4" /> Gün Sonu Tara
+          </Button>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -336,6 +343,8 @@ export function PerakendePos({
           </button>
         </div>
       </Dialog>
+
+      <PerakendeGunSonuDialog open={gunSonuOpen} onClose={() => setGunSonuOpen(false)} businessId={businessId} />
     </div>
   );
 }

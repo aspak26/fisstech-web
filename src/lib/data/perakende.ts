@@ -357,6 +357,23 @@ export async function createTransaction(
   return transactionId;
 }
 
+/** Ported from mobile's PerakendeTransactionService.create (manualTotal
+ * branch, used by gece_scan_screen.dart's day-end batch scan) — no cart
+ * items, just a scanned total + receipt image. */
+export async function createScannedTransaction(
+  supabase: SupabaseClient,
+  payload: { businessId: string; userId: string; amount: number; imageUrl: string | null },
+): Promise<void> {
+  await supabase.from("perakende_transactions").insert({
+    business_id: payload.businessId,
+    user_id: payload.userId,
+    total_amount: payload.amount,
+    payment_method: "nakit",
+    is_ai_scanned: true,
+    image_url: payload.imageUrl,
+  });
+}
+
 export interface PerakendeTransactionWithItems extends PerakendeTransactionRow {
   perakende_transaction_items: PerakendeTransactionItemRow[];
 }

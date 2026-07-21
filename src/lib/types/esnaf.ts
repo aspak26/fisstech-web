@@ -546,6 +546,7 @@ export interface PerakendeTransactionRow {
   total_amount: number;
   payment_method: "nakit" | "kart" | "veresiye";
   is_ai_scanned: boolean;
+  image_url: string | null;
   transaction_date: string;
   notes: string | null;
   created_at: string;
