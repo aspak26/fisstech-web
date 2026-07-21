@@ -157,9 +157,10 @@ export async function getGroupMembershipCount(
 ): Promise<number> {
   try {
     const { count } = await supabase
-      .from("family_memberships")
+      .from("group_members")
       .select("*", { count: "exact", head: true })
-      .or(`owner_id.eq.${userId},member_id.eq.${userId}`);
+      .eq("user_id", userId)
+      .is("left_at", null);
     return count ?? 0;
   } catch {
     return 0;
