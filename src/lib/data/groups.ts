@@ -90,6 +90,19 @@ export async function assignExpenseToGroups(
     .eq("id", expenseId);
 }
 
+export async function getGroupExpenseById(supabase: SupabaseClient, expenseId: string): Promise<GroupExpenseRow | null> {
+  try {
+    const { data } = await supabase
+      .from("expenses")
+      .select("id, store_name, total, date, user_id")
+      .eq("id", expenseId)
+      .maybeSingle();
+    return (data as GroupExpenseRow) ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getGroupExpenses(
   supabase: SupabaseClient,
   groupId: string,
@@ -348,4 +361,212 @@ export async function deleteMessage(supabase: SupabaseClient, id: string, userId
 /** Owner/admin only (RLS-enforced) — deletes every message in the group. */
 export async function clearGroupChat(supabase: SupabaseClient, groupId: string): Promise<void> {
   await supabase.from("group_messages").delete().eq("group_id", groupId);
+}
+
+// ─── Harcama Paylaştırma (Split) ────────────────────────────────────────────
+
+export interface ExpenseSplitMemberRow {
+  id: string;
+  split_id: string;
+  user_id: string;
+  amount: number;
+  is_paid: boolean;
+  paid_at: string | null;
+  userName: string;
+}
+
+export interface ExpenseSplitRow {
+  id: string;
+  expense_id: string;
+  group_id: string;
+  split_type: string;
+  created_at: string;
+  members: ExpenseSplitMemberRow[];
+}
+
+/** Ported from mobile's GroupSplitService — equal split only (the only mode
+ * the mobile UI ever offers, despite the schema supporting percentage/fixed
+ * too). Every group member gets a share, including whoever paid — mobile
+ * doesn't exclude/auto-mark the payer, replicated as-is. */
+export async function createEqualSplit(
+  supabase: SupabaseClient,
+  expenseId: string,
+  groupId: string,
+  memberUserIds: string[],
+  totalAmount: number,
+): Promise<void> {
+  if (memberUserIds.length === 0) return;
+  const each = totalAmount / memberUserIds.length;
+
+  const { data: split, error } = await supabase
+    .from("expense_splits")
+    .insert({ expense_id: expenseId, group_id: groupId, split_type: "equal" })
+    .select("id")
+    .single();
+  if (error || !split) throw error ?? new Error("Paylaştırma oluşturulamadı");
+
+  await supabase.from("expense_split_members").insert(
+    memberUserIds.map((userId) => ({ split_id: split.id, user_id: userId, amount: each, is_paid: false })),
+  );
+}
+
+export async function getSplitsForExpense(supabase: SupabaseClient, expenseId: string): Promise<ExpenseSplitRow[]> {
+  try {
+    const { data } = await supabase
+      .from("expense_splits")
+      .select("id, expense_id, group_id, split_type, created_at, expense_split_members(id, split_id, user_id, amount, is_paid, paid_at, users(name))")
+      .eq("expense_id", expenseId);
+
+    interface MemberRow {
+      id: string;
+      split_id: string;
+      user_id: string;
+      amount: number;
+      is_paid: boolean;
+      paid_at: string | null;
+      users: { name: string | null } | { name: string | null }[] | null;
+    }
+    interface Row {
+      id: string;
+      expense_id: string;
+      group_id: string;
+      split_type: string;
+      created_at: string;
+      expense_split_members: MemberRow[];
+    }
+    return ((data ?? []) as unknown as Row[]).map((r) => ({
+      id: r.id,
+      expense_id: r.expense_id,
+      group_id: r.group_id,
+      split_type: r.split_type,
+      created_at: r.created_at,
+      members: r.expense_split_members.map((m) => {
+        const user = Array.isArray(m.users) ? (m.users[0] ?? null) : m.users;
+        return {
+          id: m.id,
+          split_id: m.split_id,
+          user_id: m.user_id,
+          amount: Number(m.amount),
+          is_paid: m.is_paid,
+          paid_at: m.paid_at,
+          userName: user?.name ?? "Üye",
+        };
+      }),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+/** Self-attested only (RLS restricts to the split member's own row) — not a
+ * real payment/transfer, mirrors mobile exactly. */
+export async function markSplitPaid(supabase: SupabaseClient, splitMemberId: string, userId: string): Promise<void> {
+  await supabase
+    .from("expense_split_members")
+    .update({ is_paid: true, paid_at: new Date().toISOString() })
+    .eq("id", splitMemberId)
+    .eq("user_id", userId);
+}
+
+// ─── Yorumlar & Reaksiyonlar ────────────────────────────────────────────────
+
+export interface ExpenseCommentRow {
+  id: string;
+  expense_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  userName: string;
+}
+
+export async function getComments(supabase: SupabaseClient, expenseId: string): Promise<ExpenseCommentRow[]> {
+  try {
+    const { data } = await supabase
+      .from("expense_comments")
+      .select("id, expense_id, user_id, content, created_at, users(name)")
+      .eq("expense_id", expenseId)
+      .order("created_at");
+    interface Row {
+      id: string;
+      expense_id: string;
+      user_id: string;
+      content: string;
+      created_at: string;
+      users: { name: string | null } | { name: string | null }[] | null;
+    }
+    return ((data ?? []) as unknown as Row[]).map((r) => {
+      const user = Array.isArray(r.users) ? (r.users[0] ?? null) : r.users;
+      return { id: r.id, expense_id: r.expense_id, user_id: r.user_id, content: r.content, created_at: r.created_at, userName: user?.name ?? "Üye" };
+    });
+  } catch {
+    return [];
+  }
+}
+
+export async function addComment(supabase: SupabaseClient, expenseId: string, userId: string, content: string): Promise<void> {
+  const trimmed = content.trim().slice(0, 1000);
+  if (!trimmed) return;
+  await supabase.from("expense_comments").insert({ expense_id: expenseId, user_id: userId, content: trimmed });
+}
+
+export async function deleteComment(supabase: SupabaseClient, commentId: string, userId: string): Promise<void> {
+  await supabase.from("expense_comments").delete().eq("id", commentId).eq("user_id", userId);
+}
+
+export const REACTION_TYPES = ["like", "surprised", "laugh", "love"] as const;
+export type ReactionType = (typeof REACTION_TYPES)[number];
+export const REACTION_EMOJI: Record<ReactionType, string> = { like: "👍", surprised: "😮", laugh: "😂", love: "❤️" };
+
+export interface ExpenseReactionRow {
+  id: string;
+  user_id: string;
+  reaction: ReactionType;
+  userName: string;
+}
+
+export async function getReactions(supabase: SupabaseClient, expenseId: string): Promise<ExpenseReactionRow[]> {
+  try {
+    const { data } = await supabase
+      .from("expense_reactions")
+      .select("id, user_id, reaction, users(name)")
+      .eq("expense_id", expenseId);
+    interface Row {
+      id: string;
+      user_id: string;
+      reaction: ReactionType;
+      users: { name: string | null } | { name: string | null }[] | null;
+    }
+    return ((data ?? []) as unknown as Row[]).map((r) => {
+      const user = Array.isArray(r.users) ? (r.users[0] ?? null) : r.users;
+      return { id: r.id, user_id: r.user_id, reaction: r.reaction, userName: user?.name ?? "Üye" };
+    });
+  } catch {
+    return [];
+  }
+}
+
+/** Toggles the caller's reaction — same reaction tapped again removes it,
+ * a different one replaces it (one reaction per user per expense). */
+export async function toggleReaction(
+  supabase: SupabaseClient,
+  expenseId: string,
+  userId: string,
+  reaction: ReactionType,
+): Promise<void> {
+  const { data: existing } = await supabase
+    .from("expense_reactions")
+    .select("id, reaction")
+    .eq("expense_id", expenseId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (existing) {
+    if (existing.reaction === reaction) {
+      await supabase.from("expense_reactions").delete().eq("id", existing.id);
+    } else {
+      await supabase.from("expense_reactions").update({ reaction }).eq("id", existing.id);
+    }
+  } else {
+    await supabase.from("expense_reactions").insert({ expense_id: expenseId, user_id: userId, reaction });
+  }
 }

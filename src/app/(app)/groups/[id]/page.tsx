@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getGroup, getGroupExpenses, getMembers, getMessages } from "@/lib/data/groups";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
@@ -52,12 +53,17 @@ export default async function GroupDetailPage({
           <>
             <ul className="mb-3 divide-y divide-border">
               {expenses.map((e) => (
-                <li key={e.id} className="flex items-center justify-between py-3">
-                  <div>
-                    <p className="font-medium text-text-primary">{e.store_name || "Harcama"}</p>
-                    <p className="text-sm text-text-secondary">{e.date}</p>
-                  </div>
-                  <span className="font-medium text-text-primary">{formatCurrency(Number(e.total))}</span>
+                <li key={e.id}>
+                  <Link
+                    href={`/groups/${id}/expenses/${e.id}`}
+                    className="flex items-center justify-between py-3 hover:text-accent"
+                  >
+                    <div>
+                      <p className="font-medium text-text-primary">{e.store_name || "Harcama"}</p>
+                      <p className="text-sm text-text-secondary">{e.date}</p>
+                    </div>
+                    <span className="font-medium text-text-primary">{formatCurrency(Number(e.total))}</span>
+                  </Link>
                 </li>
               ))}
             </ul>
