@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { calculatePeriodRange } from "@/lib/utils/period";
 
 // ─── Şema ────────────────────────────────────────────────────────────────────
 // Ported from fisle_app's 031_kafe_restoran.sql + 034_menu_extras.sql +
@@ -348,6 +349,63 @@ export async function getMenuItemExtras(supabase: SupabaseClient, businessId: st
       .eq("business_id", businessId)
       .order("sort_order");
     return (data ?? []) as MenuItemExtraRow[];
+  } catch {
+    return [];
+  }
+}
+
+export interface MenuSaleDatePoint {
+  date: string;
+  qty: number;
+  revenue: number;
+}
+
+export interface MenuSalesPoint {
+  name: string;
+  totalQty: number;
+  totalRevenue: number;
+  byDate: MenuSaleDatePoint[];
+}
+
+/** New (not on mobile, requested by user 21 Temmuz 2026): "which menu item
+ * sold how much, on which dates" — groups order_items (already carries its
+ * own business_id/created_at, no join needed) by item name, then by day. */
+export async function getMenuSalesBreakdown(
+  supabase: SupabaseClient,
+  businessId: string,
+  periodKey: string,
+): Promise<MenuSalesPoint[]> {
+  try {
+    const range = calculatePeriodRange(periodKey);
+    let query = supabase
+      .from("order_items")
+      .select("name, unit_price, quantity, created_at")
+      .eq("business_id", businessId);
+    if (range.start) query = query.gte("created_at", `${range.start}T00:00:00`);
+    if (range.end) query = query.lte("created_at", `${range.end}T23:59:59`);
+    const { data } = await query;
+
+    const byName = new Map<string, Map<string, MenuSaleDatePoint>>();
+    for (const item of (data ?? []) as { name: string; unit_price: number; quantity: number; created_at: string }[]) {
+      const date = item.created_at.slice(0, 10);
+      const revenue = Number(item.unit_price) * item.quantity;
+      const dateMap = byName.get(item.name) ?? new Map<string, MenuSaleDatePoint>();
+      const existing = dateMap.get(date);
+      dateMap.set(date, { date, qty: (existing?.qty ?? 0) + item.quantity, revenue: (existing?.revenue ?? 0) + revenue });
+      byName.set(item.name, dateMap);
+    }
+
+    return [...byName.entries()]
+      .map(([name, dateMap]) => {
+        const byDate = [...dateMap.values()].sort((a, b) => (a.date < b.date ? 1 : -1));
+        return {
+          name,
+          totalQty: byDate.reduce((s, d) => s + d.qty, 0),
+          totalRevenue: byDate.reduce((s, d) => s + d.revenue, 0),
+          byDate,
+        };
+      })
+      .sort((a, b) => b.totalRevenue - a.totalRevenue);
   } catch {
     return [];
   }
