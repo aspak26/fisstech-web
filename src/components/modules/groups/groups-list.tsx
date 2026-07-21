@@ -2,19 +2,24 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Plus, Users } from "lucide-react";
+import { KeyRound, Plus, Users } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { GroupRow } from "@/lib/data/groups";
 import { CreateGroupDialog } from "./create-group-dialog";
+import { JoinCodeDialog } from "./join-code-dialog";
 
 export function GroupsList({ groups, userId }: { groups: GroupRow[]; userId: string }) {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [joinDialogOpen, setJoinDialogOpen] = useState(false);
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <Button variant="secondary" onClick={() => setJoinDialogOpen(true)} className="gap-1.5">
+          <KeyRound className="h-4 w-4" /> Davet Kodu Gir
+        </Button>
         <Button onClick={() => setDialogOpen(true)} className="gap-1.5">
           <Plus className="h-4 w-4" /> Yeni Grup
         </Button>
@@ -51,6 +56,7 @@ export function GroupsList({ groups, userId }: { groups: GroupRow[]; userId: str
       )}
 
       <CreateGroupDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
+      <JoinCodeDialog open={joinDialogOpen} onClose={() => setJoinDialogOpen(false)} />
     </div>
   );
 }

@@ -1,10 +1,13 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getGroup, getGroupExpenses } from "@/lib/data/groups";
+import { getGroup, getGroupExpenses, getMembers, getMessages } from "@/lib/data/groups";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Receipt } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/currency";
+import { MemberList } from "@/components/modules/groups/member-list";
+import { GroupDangerZone } from "@/components/modules/groups/group-danger-zone";
+import { GroupChatCard } from "@/components/modules/groups/group-chat-card";
 
 export default async function GroupDetailPage({
   params,
@@ -13,19 +16,31 @@ export default async function GroupDetailPage({
 }) {
   const { id } = await params;
   const supabase = await createClient();
-  const [group, expenses] = await Promise.all([getGroup(supabase, id), getGroupExpenses(supabase, id)]);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const userId = user!.id;
+
+  const [group, expenses, members, messages] = await Promise.all([
+    getGroup(supabase, id),
+    getGroupExpenses(supabase, id),
+    getMembers(supabase, id, userId),
+    getMessages(supabase, id),
+  ]);
   if (!group) notFound();
 
   const total = expenses.reduce((sum, e) => sum + Number(e.total), 0);
+  const isOwner = group.owner_id === userId;
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h1 className="font-display text-2xl font-semibold text-text-primary">{group.name}</h1>
-        <p className="text-sm text-text-secondary">
-          Üye davetleri, grup sohbeti ve harcama paylaştırma yakında bu sayfaya geliyor.
-        </p>
       </div>
+
+      <MemberList groupId={id} members={members} currentUserId={userId} isOwner={isOwner} />
+
+      <GroupChatCard groupId={id} members={members} messages={messages} currentUserId={userId} isOwner={isOwner} />
 
       <Card>
         <CardHeader>
@@ -53,6 +68,8 @@ export default async function GroupDetailPage({
           </>
         )}
       </Card>
+
+      <GroupDangerZone groupId={id} isOwner={isOwner} userId={userId} />
     </div>
   );
 }
