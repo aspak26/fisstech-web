@@ -1,11 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
 import { LandingNavbar } from "@/components/modules/landing/landing-navbar";
 import { LandingHero } from "@/components/modules/landing/landing-hero";
+import { StepSlider } from "@/components/modules/landing/step-slider";
+import { WhyFisstech } from "@/components/modules/landing/why-fisstech";
 import { ScanDemo } from "@/components/modules/landing/scan-demo";
-import { HowItWorks } from "@/components/modules/landing/how-it-works";
 import { FeaturesSection } from "@/components/modules/landing/features-section";
+import { WorkflowSection } from "@/components/modules/landing/workflow-section";
 import { PricingSection } from "@/components/modules/landing/pricing-section";
 import { FaqSection } from "@/components/modules/landing/faq-section";
+import { ClosingCta } from "@/components/modules/landing/closing-cta";
 import { LandingFooter } from "@/components/modules/landing/landing-footer";
 import { AiWidget } from "@/components/modules/landing/ai-widget";
 
@@ -24,11 +27,14 @@ export default async function RootPage() {
       <LandingNavbar isAuthenticated={isAuthenticated} />
       <main>
         <LandingHero isAuthenticated={isAuthenticated} />
+        <StepSlider />
+        <WhyFisstech />
         <ScanDemo />
-        <HowItWorks />
         <FeaturesSection />
+        <WorkflowSection />
         <PricingSection />
         <FaqSection />
+        <ClosingCta />
       </main>
       <LandingFooter />
       <AiWidget />
