@@ -68,7 +68,7 @@ export function WorkflowSection() {
                 <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">Fiş Yükle</p>
                 <div className="mt-4 flex flex-col items-center gap-2 rounded-control border-2 border-dashed border-border px-4 py-8 text-center">
                   <FileUp className="h-7 w-7 text-text-secondary" />
-                  <p className="text-xs text-text-secondary">migros_fisi.jpg</p>
+                  <p className="text-xs text-text-secondary">kampus_market_fisi.jpg</p>
                 </div>
                 <div className="mt-4 flex gap-2">
                   <span className="flex flex-1 items-center justify-center gap-1.5 rounded-control border border-border py-2 text-xs font-medium text-text-secondary">
@@ -97,7 +97,7 @@ export function WorkflowSection() {
                 </div>
                 <ul className="mt-4 space-y-2 text-sm">
                   {[
-                    ["Mağaza", "Migros"],
+                    ["Mağaza", "Kampüs Market"],
                     ["Tarih", "21.07.2026"],
                     ["Toplam", "₺258,40"],
                     ["KDV", "%10"],

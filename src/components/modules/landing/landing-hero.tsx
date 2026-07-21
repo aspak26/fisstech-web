@@ -96,7 +96,7 @@ export function LandingHero({ isAuthenticated }: { isAuthenticated: boolean }) {
             >
               <div className="flex items-center justify-between border-b border-border pb-3">
                 <div>
-                  <p className="text-sm font-semibold text-text-primary">Migros Kampüs</p>
+                  <p className="text-sm font-semibold text-text-primary">Kampüs Market</p>
                   <p className="text-xs text-text-secondary">21 Temmuz 2026 · 14:32</p>
                 </div>
                 <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-1 text-xs font-medium text-success">

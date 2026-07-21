@@ -32,7 +32,7 @@ const STEPS = [
 const STEP_DURATION_MS = 3800;
 
 const REVIEW_ROWS = [
-  { label: "Mağaza", value: "Migros" },
+  { label: "Mağaza", value: "Kampüs Market" },
   { label: "Toplam", value: "₺258,40" },
   { label: "KDV", value: "%10" },
 ];
@@ -90,20 +90,20 @@ function ScanStage() {
 function ReviewStage() {
   return (
     <StageWrapper>
-      <ul className="w-full max-w-[11rem] space-y-2 text-left">
+      <ul className="w-full max-w-[9.5rem] space-y-2 text-left">
         {REVIEW_ROWS.map((row, i) => (
           <motion.li
             key={row.label}
             initial={{ opacity: 0, x: -8 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.18, duration: 0.3 }}
-            className="flex items-center justify-between rounded-md bg-white/5 px-2.5 py-1.5 text-xs"
+            className="rounded-md bg-white/5 px-2.5 py-1.5 text-xs"
           >
-            <span className="flex items-center gap-1.5 text-white/60">
-              <CheckCircle2 className="h-3.5 w-3.5 text-accent" />
+            <span className="flex items-center gap-1.5 text-white/50">
+              <CheckCircle2 className="h-3 w-3 shrink-0 text-accent" />
               {row.label}
             </span>
-            <span className="font-semibold text-white">{row.value}</span>
+            <span className="mt-0.5 block truncate pl-[1.125rem] font-semibold text-white">{row.value}</span>
           </motion.li>
         ))}
       </ul>
