@@ -31,20 +31,28 @@ export function PricingSection() {
         </span>
       </Reveal>
 
-      <div className="mt-10 grid gap-6 md:grid-cols-3">
+      <div className="mt-14 grid gap-8 md:grid-cols-3 md:items-start">
         {PRICING_PLANS.map((plan, i) => (
           <Reveal key={plan.id} delay={i * 100}>
             <div
               className={cn(
-                "flex h-full flex-col rounded-card border bg-surface p-6 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl",
-                plan.popular ? "border-2 border-accent shadow-accent/10" : "border-border",
+                "relative flex h-full flex-col rounded-card border bg-surface p-8 transition-all duration-300 hover:-translate-y-1.5",
+                plan.popular
+                  ? "border-2 border-accent hover:shadow-2xl"
+                  : "border-border shadow-sm hover:shadow-xl",
               )}
+              style={
+                plan.popular
+                  ? { boxShadow: "0 0 70px -18px color-mix(in srgb, var(--color-accent) 55%, transparent)" }
+                  : undefined
+              }
             >
               {plan.popular && (
-                <span className="mb-3 inline-flex w-fit items-center rounded-full bg-accent px-3 py-1 text-xs font-bold text-on-accent">
+                <span className="absolute -top-4 left-1/2 inline-flex w-fit -translate-x-1/2 items-center whitespace-nowrap rounded-full bg-accent px-4 py-1.5 text-xs font-bold tracking-wide text-on-accent shadow-md">
                   En Popüler
                 </span>
               )}
+
               <div className="flex items-center gap-2">
                 <span className="text-2xl" aria-hidden="true">
                   {plan.emoji}
@@ -53,33 +61,38 @@ export function PricingSection() {
               </div>
               <p className="mt-2 text-sm text-text-secondary">{plan.description}</p>
 
-              <div className="mt-5">
-                <span className="font-display text-3xl font-bold text-text-primary">
+              <div className="mt-6 flex items-end gap-1.5">
+                <span className="text-lg font-medium text-text-secondary">₺</span>
+                <span className="font-display text-6xl font-bold leading-none tracking-tight text-text-primary">
                   {yearly ? plan.yearlyEffective : plan.monthly}
                 </span>
-                <span className="text-sm text-text-secondary">/ay</span>
-                {yearly && (
-                  <p className="mt-1 text-xs text-success">
-                    Yıllık {plan.yearly} olarak tahsil edilir · {plan.yearlySavings} tasarruf
-                  </p>
-                )}
+                <span className="pb-1 text-lg text-text-secondary">/ay</span>
               </div>
+              <p className="mt-2 text-xs text-text-secondary">
+                {yearly
+                  ? `Yıllık ₺${plan.yearly} olarak tahsil edilir · ${plan.yearlySavings} tasarruf`
+                  : "Aylık faturalandırılır · vergiler dahildir"}
+              </p>
 
-              <ul className="mt-5 flex-1 space-y-2.5">
+              <Link
+                href="/register"
+                className={buttonVariants(
+                  plan.popular ? "primary" : "secondary",
+                  "lg",
+                  cn("mt-6 w-full", !plan.popular && "border-border bg-transparent text-text-secondary hover:border-accent hover:text-accent"),
+                )}
+              >
+                Hemen Başla
+              </Link>
+
+              <ul className="mt-8 flex-1 space-y-4">
                 {plan.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm text-text-primary">
+                  <li key={f} className="flex items-start gap-2.5 text-sm text-text-primary">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
                     {f}
                   </li>
                 ))}
               </ul>
-
-              <Link
-                href="/register"
-                className={buttonVariants(plan.popular ? "primary" : "secondary", "md", "mt-6 w-full")}
-              >
-                Hemen Başla
-              </Link>
             </div>
           </Reveal>
         ))}

@@ -3,6 +3,8 @@ export interface PricingPlan {
   emoji: string;
   name: string;
   description: string;
+  /** Currency symbol excluded — the pricing card renders "₺" separately,
+   * small/muted, next to a large bold amount (premium-SaaS price typography). */
   monthly: string;
   yearly: string;
   yearlyEffective: string;
@@ -22,9 +24,9 @@ export const PRICING_PLANS: PricingPlan[] = [
     emoji: "⭐",
     name: "Premium",
     description: "Sınırsız fiş tarama ve tüm kişisel finans özellikleri.",
-    monthly: "₺49,99",
-    yearly: "₺399,99",
-    yearlyEffective: "₺33,33",
+    monthly: "49,99",
+    yearly: "399,99",
+    yearlyEffective: "33,33",
     yearlySavings: "%33",
     popular: true,
     features: [
@@ -39,9 +41,9 @@ export const PRICING_PLANS: PricingPlan[] = [
     emoji: "🏪",
     name: "Esnaf Modu",
     description: "Kasa defteri, stok ve satış takibiyle işletmeni yönet.",
-    monthly: "₺199,99",
-    yearly: "₺1.999,99",
-    yearlyEffective: "₺166,66",
+    monthly: "199,99",
+    yearly: "1.999,99",
+    yearlyEffective: "166,66",
     yearlySavings: "%17",
     features: [
       "6 sektöre özel işletme paneli",
@@ -55,9 +57,9 @@ export const PRICING_PLANS: PricingPlan[] = [
     emoji: "👨‍👩‍👧‍👦",
     name: "Aile Planı",
     description: "Ortak bütçe ve harcama paylaşımıyla tüm aile bir arada.",
-    monthly: "₺119,99",
-    yearly: "₺1.199,99",
-    yearlyEffective: "₺99,99",
+    monthly: "119,99",
+    yearly: "1.199,99",
+    yearlyEffective: "99,99",
     yearlySavings: "%17",
     features: [
       "Grup bütçesi ve ortak harcamalar",
