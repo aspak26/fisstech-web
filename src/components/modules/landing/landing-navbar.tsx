@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { LogoHorizontal } from "./logo-mark";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils/cn";
 
 const NAV_LINKS = [
   { href: "#features", label: "Özellikler" },
@@ -14,11 +15,28 @@ const NAV_LINKS = [
   { href: "#pricing", label: "Fiyatlandırma" },
 ];
 
+const NAV_LINK_CLASS =
+  "relative text-sm font-medium text-text-secondary transition-colors hover:text-accent after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:rounded-full after:bg-accent after:transition-all after:duration-300 hover:after:w-full";
+
 export function LandingNavbar({ isAuthenticated }: { isAuthenticated: boolean }) {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    function onScroll() {
+      setScrolled(window.scrollY > 8);
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-surface/85 backdrop-blur-md">
+    <header
+      className={cn(
+        "sticky top-0 z-40 border-b bg-surface/85 backdrop-blur-md transition-shadow duration-300",
+        scrolled ? "border-border shadow-sm" : "border-transparent",
+      )}
+    >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link href="/" aria-label="Fişştech anasayfa" className="shrink-0">
           <LogoHorizontal />
@@ -26,11 +44,7 @@ export function LandingNavbar({ isAuthenticated }: { isAuthenticated: boolean })
 
         <nav className="hidden items-center gap-6 lg:flex" aria-label="Ana menü">
           {NAV_LINKS.map((l) => (
-            <a
-              key={l.href}
-              href={l.href}
-              className="text-sm font-medium text-text-secondary transition-colors hover:text-accent"
-            >
+            <a key={l.href} href={l.href} className={NAV_LINK_CLASS}>
               {l.label}
             </a>
           ))}
@@ -39,7 +53,7 @@ export function LandingNavbar({ isAuthenticated }: { isAuthenticated: boolean })
         <div className="hidden items-center gap-3 lg:flex">
           <ThemeToggle />
           {isAuthenticated ? (
-            <Link href="/dashboard" className={buttonVariants("primary", "sm")}>
+            <Link href="/dashboard" className={buttonVariants("primary", "sm", "transition-transform hover:scale-[1.03]")}>
               Panele Git
             </Link>
           ) : (
@@ -47,7 +61,7 @@ export function LandingNavbar({ isAuthenticated }: { isAuthenticated: boolean })
               <Link href="/login" className={buttonVariants("secondary", "sm")}>
                 Giriş Yap
               </Link>
-              <Link href="/register" className={buttonVariants("primary", "sm")}>
+              <Link href="/register" className={buttonVariants("primary", "sm", "transition-transform hover:scale-[1.03]")}>
                 Hemen Başla
               </Link>
             </>

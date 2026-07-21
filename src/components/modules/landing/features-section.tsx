@@ -1,12 +1,14 @@
 import { CloudUpload, Gift, ScanLine, Store, Users } from "lucide-react";
 import { Reveal } from "./reveal";
 
+const FLAGSHIP = {
+  icon: ScanLine,
+  title: "Akıllı Fiş Taraması",
+  description:
+    "Market fişinden restoran adisyonuna kadar her belgeyi yapay zekâ ile saniyeler içinde dijitalleştir — mağaza, tarih, ürün ve kategori otomatik çıkarılır.",
+};
+
 const FEATURES = [
-  {
-    icon: ScanLine,
-    title: "Akıllı Fiş Taraması",
-    description: "Market fişinden restoran adisyonuna kadar her belgeyi yapay zekâ ile saniyeler içinde dijitalleştir.",
-  },
   {
     icon: Store,
     title: "Esnaf Modu",
@@ -24,6 +26,9 @@ const FEATURES = [
   },
 ];
 
+/** "Bento" düzeni — bir öne-çıkan/flagship kart (tam genişlik) + 3 eşit
+ * ikincil kart. Klasik tekdüze 4'lü ızgara yerine kasıtlı asimetri
+ * (frontend-design skill: "unexpected layouts, asymmetry"). */
 export function FeaturesSection() {
   return (
     <section id="features" className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
@@ -32,7 +37,23 @@ export function FeaturesSection() {
         <p className="mt-3 text-text-secondary">Kişisel finansından işletmene, ihtiyacın olan her şey tek yerde.</p>
       </Reveal>
 
-      <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-12 grid gap-5 lg:grid-cols-3">
+        <Reveal className="lg:col-span-3">
+          <div className="group relative overflow-hidden rounded-card border border-accent/25 bg-gradient-to-br from-accent-soft/70 via-surface to-surface p-8 shadow-sm transition-all duration-300 hover:shadow-xl sm:flex sm:items-center sm:gap-8">
+            <div
+              className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-accent text-on-accent transition-transform duration-300 group-hover:scale-105"
+              style={{ boxShadow: "0 12px 30px -8px color-mix(in srgb, var(--color-accent) 55%, transparent)" }}
+            >
+              <FLAGSHIP.icon className="h-8 w-8" />
+            </div>
+            <div className="mt-5 sm:mt-0">
+              <span className="text-xs font-bold uppercase tracking-wider text-accent">Öne Çıkan</span>
+              <h3 className="mt-1 font-display text-xl font-semibold text-text-primary">{FLAGSHIP.title}</h3>
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-text-secondary">{FLAGSHIP.description}</p>
+            </div>
+          </div>
+        </Reveal>
+
         {FEATURES.map(({ icon: Icon, title, description }, i) => (
           <Reveal key={title} delay={i * 100}>
             <div className="group h-full rounded-card border border-border bg-surface p-6 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-accent/40 hover:shadow-xl hover:shadow-accent/10">
@@ -40,7 +61,7 @@ export function FeaturesSection() {
                 <Icon className="h-5.5 w-5.5" />
               </div>
               <h3 className="mt-4 font-display text-base font-semibold text-text-primary">{title}</h3>
-              <p className="mt-2 text-sm text-text-secondary">{description}</p>
+              <p className="mt-2 text-sm leading-relaxed text-text-secondary">{description}</p>
             </div>
           </Reveal>
         ))}
