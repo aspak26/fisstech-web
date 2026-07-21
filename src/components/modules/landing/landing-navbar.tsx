@@ -24,7 +24,7 @@ export function LandingNavbar({ isAuthenticated }: { isAuthenticated: boolean })
           <LogoHorizontal />
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex" aria-label="Ana menü">
+        <nav className="hidden items-center gap-6 lg:flex" aria-label="Ana menü">
           {NAV_LINKS.map((l) => (
             <a
               key={l.href}
@@ -36,7 +36,7 @@ export function LandingNavbar({ isAuthenticated }: { isAuthenticated: boolean })
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center gap-3 lg:flex">
           <ThemeToggle />
           {isAuthenticated ? (
             <Link href="/dashboard" className={buttonVariants("primary", "sm")}>
@@ -57,7 +57,7 @@ export function LandingNavbar({ isAuthenticated }: { isAuthenticated: boolean })
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="rounded-control p-2 text-text-primary md:hidden"
+          className="rounded-control p-2 text-text-primary lg:hidden"
           aria-label={open ? "Menüyü kapat" : "Menüyü aç"}
           aria-expanded={open}
         >
@@ -66,7 +66,7 @@ export function LandingNavbar({ isAuthenticated }: { isAuthenticated: boolean })
       </div>
 
       {open && (
-        <div className="border-t border-border bg-surface px-4 py-4 md:hidden">
+        <div className="border-t border-border bg-surface px-4 py-4 lg:hidden">
           <nav className="flex flex-col gap-1" aria-label="Mobil menü">
             {NAV_LINKS.map((l) => (
               <a

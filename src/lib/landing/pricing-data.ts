@@ -24,7 +24,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     description: "Sınırsız fiş tarama ve tüm kişisel finans özellikleri.",
     monthly: "₺49,99",
     yearly: "₺399,99",
-    yearlyEffective: "₺33,33/ay",
+    yearlyEffective: "₺33,33",
     yearlySavings: "%33",
     popular: true,
     features: [
@@ -41,7 +41,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     description: "Kasa defteri, stok ve satış takibiyle işletmeni yönet.",
     monthly: "₺199,99",
     yearly: "₺1.999,99",
-    yearlyEffective: "₺166,66/ay",
+    yearlyEffective: "₺166,66",
     yearlySavings: "%17",
     features: [
       "6 sektöre özel işletme paneli",
@@ -57,7 +57,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     description: "Ortak bütçe ve harcama paylaşımıyla tüm aile bir arada.",
     monthly: "₺119,99",
     yearly: "₺1.199,99",
-    yearlyEffective: "₺99,99/ay",
+    yearlyEffective: "₺99,99",
     yearlySavings: "%17",
     features: [
       "Grup bütçesi ve ortak harcamalar",
