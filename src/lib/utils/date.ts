@@ -62,7 +62,9 @@ export function dateGroupLabel(dateStr: string): string {
   const diffDays = Math.round((today.getTime() - date.getTime()) / 86400000);
   if (diffDays === 0) return "Bugün";
   if (diffDays === 1) return "Dün";
-  if (diffDays > 1 && diffDays < 7) return TR_WEEKDAYS[date.getDay()];
+  if (diffDays > 1 && diffDays < 7) {
+    return `${TR_WEEKDAYS[date.getDay()]} · ${date.getDate()} ${TR_MONTHS_SHORT[date.getMonth()]}`;
+  }
   return `${date.getDate()} ${TR_MONTHS_SHORT[date.getMonth()]} ${date.getFullYear()}`;
 }
 

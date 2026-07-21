@@ -23,7 +23,7 @@ export interface MonthlyTotalPoint {
   total: number;
 }
 
-const CHART_COLORS = [
+export const CHART_COLORS = [
   "#B23A65",
   "#2E7D32",
   "#1E88E5",
@@ -55,11 +55,11 @@ const PARENT_GROUP_ICON: Record<string, string> = {
   "Abonelikler": "📱",
 };
 
-function parentGroupIcon(group: string): string {
+export function parentGroupIcon(group: string): string {
   return PARENT_GROUP_ICON[group] ?? "📦";
 }
 
-function normalizeStoreName(raw: string): string {
+export function normalizeStoreName(raw: string): string {
   const l = raw.toLowerCase();
   if (l.includes("bim")) return "BİM";
   if (l.includes("şok") || (l.includes("sok") && l.includes("market"))) return "ŞOK";

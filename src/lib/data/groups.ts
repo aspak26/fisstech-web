@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { calculatePeriodRange } from "@/lib/utils/period";
+import { CHART_COLORS, normalizeStoreName, parentGroupIcon, type CategoryBreakdownPoint, type StoreBreakdownPoint } from "@/lib/data/analytics";
 
 export interface GroupRow {
   id: string;
@@ -151,6 +152,121 @@ export async function getMemberSpendTotals(
 
     return [...totals.entries()]
       .map(([userId, total]) => ({ userId, name: nameMap.get(userId) ?? "Kullanıcı", total }))
+      .sort((a, b) => b.total - a.total);
+  } catch {
+    return [];
+  }
+}
+
+// ─── Grup Analitiği (kategori/genel kategori/market dağılımı) ──────────────
+// Bu üç grafik mobilde YOK — kullanıcı isteğiyle web'e özel eklendi.
+// Kişisel Analiz sayfasındaki (analytics.ts) aynı hesaplama mantığı
+// (pro-rata kalem dağılımı, mağaza adı normalizasyonu, üst kategori
+// ikonları) burada grup bazlı harcamalara uygulanıyor — yeni bir mantık
+// icat edilmedi, var olanı group_id kapsamına taşıdı.
+
+interface GroupExpenseItemDetail {
+  price: number;
+  quantity: number;
+  categories: { name: string; icon: string; parent_group: string | null } | { name: string; icon: string; parent_group: string | null }[] | null;
+}
+interface GroupExpenseDetail {
+  total: number;
+  store_name: string | null;
+  date: string;
+  expense_items: GroupExpenseItemDetail[];
+}
+
+async function getGroupExpenseDetails(
+  supabase: SupabaseClient,
+  groupId: string,
+  periodKey: string,
+): Promise<GroupExpenseDetail[]> {
+  const range = calculatePeriodRange(periodKey);
+  let query = supabase
+    .from("expense_groups")
+    .select("expenses!inner(total, store_name, date, expense_items(price, quantity, categories(name, icon, parent_group)))")
+    .eq("group_id", groupId);
+  if (range.start) query = query.gte("expenses.date", range.start);
+  if (range.end) query = query.lte("expenses.date", range.end);
+
+  const { data } = await query;
+  return ((data ?? []) as unknown as { expenses: GroupExpenseDetail }[]).map((row) => row.expenses).filter(Boolean);
+}
+
+function groupBreakdown(
+  expenses: GroupExpenseDetail[],
+  by: "item" | "parent",
+): CategoryBreakdownPoint[] {
+  const grouped = new Map<string, { icon: string; total: number }>();
+  const add = (name: string, icon: string, amount: number) => {
+    const existing = grouped.get(name);
+    grouped.set(name, { icon, total: (existing?.total ?? 0) + amount });
+  };
+
+  for (const expense of expenses) {
+    const items = expense.expense_items ?? [];
+    if (items.length === 0) {
+      add("Diğer", "📦", Number(expense.total));
+      continue;
+    }
+    const itemsSum = items.reduce((s, i) => s + Number(i.price) * i.quantity, 0);
+    for (const item of items) {
+      const cat = Array.isArray(item.categories) ? (item.categories[0] ?? null) : item.categories;
+      const name = by === "item" ? (cat?.name ?? "Diğer") : (cat?.parent_group ?? "Diğer");
+      const icon = by === "item" ? (cat?.icon ?? "📦") : parentGroupIcon(cat?.parent_group ?? "Diğer");
+      const raw = Number(item.price) * item.quantity;
+      const amount = itemsSum > 0 ? raw * (Number(expense.total) / itemsSum) : raw;
+      add(name, icon, amount);
+    }
+  }
+
+  return [...grouped.entries()]
+    .map(([name, { icon, total }], index) => ({ name, icon, color: CHART_COLORS[index % CHART_COLORS.length], total }))
+    .sort((a, b) => b.total - a.total);
+}
+
+export async function getGroupCategoryBreakdown(
+  supabase: SupabaseClient,
+  groupId: string,
+  periodKey: string,
+): Promise<CategoryBreakdownPoint[]> {
+  try {
+    return groupBreakdown(await getGroupExpenseDetails(supabase, groupId, periodKey), "item");
+  } catch {
+    return [];
+  }
+}
+
+export async function getGroupParentCategoryBreakdown(
+  supabase: SupabaseClient,
+  groupId: string,
+  periodKey: string,
+): Promise<CategoryBreakdownPoint[]> {
+  try {
+    return groupBreakdown(await getGroupExpenseDetails(supabase, groupId, periodKey), "parent");
+  } catch {
+    return [];
+  }
+}
+
+export async function getGroupStoreBreakdown(
+  supabase: SupabaseClient,
+  groupId: string,
+  periodKey: string,
+): Promise<StoreBreakdownPoint[]> {
+  try {
+    const expenses = await getGroupExpenseDetails(supabase, groupId, periodKey);
+    const totals = new Map<string, number>();
+    const counts = new Map<string, number>();
+    for (const e of expenses) {
+      const raw = e.store_name?.trim();
+      const name = !raw ? "Manuel Giriş" : normalizeStoreName(raw);
+      totals.set(name, (totals.get(name) ?? 0) + Number(e.total));
+      counts.set(name, (counts.get(name) ?? 0) + 1);
+    }
+    return [...totals.entries()]
+      .map(([name, total]) => ({ name, total, count: counts.get(name) ?? 0 }))
       .sort((a, b) => b.total - a.total);
   } catch {
     return [];

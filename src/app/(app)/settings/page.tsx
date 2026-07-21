@@ -1,6 +1,9 @@
+import Link from "next/link";
+import { Store } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ProfileCard } from "@/components/modules/settings/profile-card";
 import { AppearanceCard } from "@/components/modules/settings/appearance-card";
+import { AccountDangerZone } from "@/components/modules/settings/account-danger-zone";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function SettingsPage() {
@@ -17,6 +20,18 @@ export default async function SettingsPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <h1 className="font-display text-2xl font-semibold text-text-primary">Ayarlar</h1>
+
+      <Link href="/esnaf">
+        <Card className="flex items-center gap-3 transition-colors hover:border-accent">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10">
+            <Store className="h-5 w-5 text-accent" />
+          </div>
+          <div>
+            <p className="font-medium text-text-primary">Esnaf Modu</p>
+            <p className="text-sm text-text-secondary">İşletme hesabınıza geçin</p>
+          </div>
+        </Card>
+      </Link>
 
       <ProfileCard
         name={profile?.name ?? ""}
@@ -35,6 +50,8 @@ export default async function SettingsPage() {
           bildirim ayarları ileride bu sayfaya eklenecek.
         </p>
       </Card>
+
+      <AccountDangerZone userId={user!.id} />
     </div>
   );
 }
