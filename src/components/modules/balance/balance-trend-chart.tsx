@@ -16,7 +16,7 @@ import { formatCurrency } from "@/lib/utils/currency";
 
 const successColor = "#2E7D32";
 const dangerColor = "#C0392B";
-const accentColor = "#B23A65";
+const accentColor = "var(--color-accent)";
 
 export function BalanceTrendChart({ data }: { data: MonthlyBalancePoint[] }) {
   return (

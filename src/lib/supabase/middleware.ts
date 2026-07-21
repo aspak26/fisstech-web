@@ -2,6 +2,10 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 const AUTH_ROUTES = ["/login", "/register", "/forgot-password", "/reset-password"];
+// Public marketing routes — reachable by everyone regardless of session state
+// (unlike AUTH_ROUTES, an authenticated visitor is NOT bounced away from
+// these; the page itself adapts its CTAs based on session).
+const PUBLIC_ROUTES = ["/"];
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -33,8 +37,9 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
   const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route));
+  const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
 
-  if (!user && !isAuthRoute) {
+  if (!user && !isAuthRoute && !isPublicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);

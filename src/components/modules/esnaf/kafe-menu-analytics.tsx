@@ -48,7 +48,7 @@ export function KafeMenuAnalytics({ period, sales }: { period: string; sales: Me
                     color: "var(--color-text-primary)",
                   }}
                 />
-                <Bar dataKey="totalRevenue" name="Ciro" fill="#B23A65" radius={[4, 4, 0, 0]} barSize={28} />
+                <Bar dataKey="totalRevenue" name="Ciro" fill="var(--color-accent)" radius={[4, 4, 0, 0]} barSize={28} />
               </BarChart>
             </ResponsiveContainer>
           </div>

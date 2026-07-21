@@ -77,7 +77,7 @@ export function StoreBreakdownChart({ stores }: { stores: StoreBreakdownPoint[] 
             <Bar
               dataKey="count"
               name="Ziyaret"
-              fill="#B23A65"
+              fill="var(--color-accent)"
               radius={[4, 4, 0, 0]}
               barSize={28}
               label={{

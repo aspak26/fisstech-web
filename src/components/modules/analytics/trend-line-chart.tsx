@@ -12,7 +12,7 @@ interface TrendPoint {
  * fill under the curve, so the line visibly starts from its baseline value
  * instead of floating in extra headroom — used for "6 Aylık Trend" and
  * "Aylık Maliyet Trendi". */
-export function TrendLineChart({ data, color = "#B23A65" }: { data: TrendPoint[]; color?: string }) {
+export function TrendLineChart({ data, color = "var(--color-accent)" }: { data: TrendPoint[]; color?: string }) {
   return (
     <div className="h-56 w-full">
       <ResponsiveContainer width="100%" height="100%">

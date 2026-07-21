@@ -7,7 +7,7 @@ import type { MonthlyBalancePoint } from "@/lib/data/balance";
 
 const successColor = "#2E7D32";
 const dangerColor = "#C0392B";
-const accentColor = "#B23A65";
+const accentColor = "var(--color-accent)";
 
 /** "6 Aylık Net Bakiye Trendi" — zero-centered, sign-colored dots (yeşil
  * pozitif / kırmızı negatif), belirgin sıfır çizgisi. */

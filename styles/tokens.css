@@ -6,8 +6,16 @@
   /* Light mode (default) */
   --bg: #f8f5f2;
   --surface: #ffffff;
-  --accent: #b23a65;
-  --accent-hover: #96284f;
+  /* 21 Temmuz 2026 rebrand: mobil "Gül" temasından mobil "Yeşil" temasına geçildi
+     (kullanıcı karar: site geneli marka/renk bütünlüğü). accent = mobilin Yeşil
+     primary'si #1E4D2B (koyu orman yeşili) — beyaz on-accent üstünde 9.76:1 kontrast,
+     bg üzerinde metin/link rengi olarak da 8.98:1 — ikisi de AAA sınırının üstünde.
+     accent-soft = mobilin Yeşil accent tonu #D6EAD9 (yumuşak mint) — SADECE arkaplan
+     dolgusu/rozet zemini için, üzerine on-accent/beyaz metin KONULMAZ (çok açık ton,
+     kontrast yetersiz kalır) — text-primary veya accent renkli metinle kullanılır. */
+  --accent: #1e4d2b;
+  --accent-hover: #183e22;
+  --accent-soft: #d6ead9;
   --on-accent: #ffffff;
   --text-primary: #241a1e;
   --text-secondary: #6b5a60;
@@ -18,12 +26,18 @@
 }
 
 .dark {
-  /* Dark mode — warm antrasit base, brightened rose accent for AA contrast.
-     Not the mobile app's "Karanlık" green — see Fisstech_Web_Blueprint.md §5.1. */
+  /* Dark mode — warm antrasit taban aynı kaldı, accent mobilin Karanlık temasındaki
+     Material yeşili #4CAF50'ye çekildi (koyu bg #1B1417 üzerinde 6.52:1 kontrast —
+     AA'yı rahatça geçiyor). Gül'de olduğu gibi burada da on-accent KOYU tutuluyor
+     (bg-dark ile aynı, beyaz değil) çünkü accent zaten parlak — aynı desen korunuyor.
+     accent-soft koyu modda çok açık mint okunaksız kalacağından, yerine surface'e
+     yakın ama hafif yeşile çekilmiş koyu bir ton kullanılıyor (sadece dekoratif
+     arkaplan/rozet zemini, metin taşımaz). */
   --bg: #1b1417;
   --surface: #241b1f;
-  --accent: #e85d8a;
-  --accent-hover: #c94770;
+  --accent: #4caf50;
+  --accent-hover: #43a047;
+  --accent-soft: #26362b;
   --on-accent: #1b1417;
   --text-primary: #f5edef;
   --text-secondary: #b8a8ae;
@@ -39,6 +53,7 @@
   --color-surface: var(--surface);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
   --color-on-accent: var(--on-accent);
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);

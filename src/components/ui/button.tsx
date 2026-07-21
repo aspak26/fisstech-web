@@ -23,22 +23,23 @@ const sizeClasses: Record<Size, string> = {
   lg: "h-13 px-6 text-lg",
 };
 
+/** Shared with anywhere a Button's visual style is needed on a non-button
+ * element (e.g. a Next.js `<Link>` CTA — nesting a real `<button>` inside an
+ * `<a>` is invalid HTML/a11y, so those compose this instead of `<Button>`). */
+export function buttonVariants(variant: Variant = "primary", size: Size = "md", className?: string) {
+  return cn(
+    "inline-flex items-center justify-center gap-2 rounded-control font-medium transition-colors",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
+    "disabled:opacity-50 disabled:cursor-not-allowed",
+    variantClasses[variant],
+    sizeClasses[size],
+    className,
+  );
+}
+
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "primary", size = "md", ...props }, ref) => {
-    return (
-      <button
-        ref={ref}
-        className={cn(
-          "inline-flex items-center justify-center gap-2 rounded-control font-medium transition-colors",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
-          "disabled:opacity-50 disabled:cursor-not-allowed",
-          variantClasses[variant],
-          sizeClasses[size],
-          className,
-        )}
-        {...props}
-      />
-    );
+    return <button ref={ref} className={buttonVariants(variant, size, className)} {...props} />;
   },
 );
 Button.displayName = "Button";

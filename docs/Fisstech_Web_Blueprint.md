@@ -2,6 +2,8 @@
 
 > Bu doküman, mobil uygulamadan (eski adıyla Fişle) alınan ekran görüntüleri incelenerek çıkarılmıştır. Web sitesinin uygulamayla **tam senkronize**, aynı tasarım dilini taşıyan ama **kopya hissi vermeyen, profesyonel** bir deneyim olarak inşa edilmesi için referans kaynağıdır.
 
+> **GÜNCELLEME — 21 Temmuz 2026:** Aşağıdaki §2.1 ve §5'te anlatılan "Gül" temalı (#B23A65 pembe/bordo) karar **artık geçerli değil**. Kullanıcı, pazarlama sayfası ile ürün arayüzü arasında marka/renk bütünlüğü istediği için site geneli mobilin **"Yeşil"** temasına (`accent` #1E4D2B koyu orman yeşili / koyu modda #4CAF50, `accent-soft` #D6EAD9 yumuşak mint) geçirildi — güncel, tek doğru kaynak `styles/tokens.css`'teki değerler ve oradaki yorum satırlarıdır. Bu bölüm, orijinal tasarım kararının **tarihsel gerekçesini** anlamak için hâlâ değerli (aynı yöntemle mobilden renk çıkarma süreci), ama aşağıdaki hex değerleri artık canlı sitede kullanılmıyor.
+
 ---
 
 ## 1. Marka Kimliği
