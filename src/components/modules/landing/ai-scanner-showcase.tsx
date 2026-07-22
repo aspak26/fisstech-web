@@ -1,27 +1,55 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { animate, motion, useInView } from "framer-motion";
 import { AlertCircle, Check, FileUp, Receipt, Smartphone, Zap } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { formatCurrency } from "@/lib/utils/currency";
 import { Reveal } from "./reveal";
 
+// Market accent (marka) rengiyle tema-uyumlu kalıyor; diğer üçü kategorik
+// (birbirinden ayırt edilmesi gereken) sabit tonlar — analytics.ts'teki
+// CHART_COLORS ile aynı gerekçe: çok-kategorili grafiklerde marka rengine
+// bağlı kalmak okunabilirliği düşürür, sabit canlı tonlar daha net ayrışır.
 const DONUT_SEGMENTS = [
-  { name: "Market", pct: 0.4, color: "var(--color-accent)" },
-  { name: "Faturalar", pct: 0.25, color: "var(--color-accent-hover)" },
-  { name: "Ulaşım", pct: 0.2, color: "var(--color-accent-soft)" },
-  { name: "Diğer", pct: 0.15, color: "var(--color-border)" },
+  { name: "Market", pct: 0.4, amount: 980, color: "var(--color-accent)" },
+  { name: "Akaryakıt", pct: 0.3, amount: 735, color: "#3B82F6" },
+  { name: "Yemek", pct: 0.15, amount: 367, color: "#A855F7" },
+  { name: "Diğer", pct: 0.15, amount: 368, color: "#F97316" },
 ];
 
 // Statik veri, bileşen dışında bir kez hesaplanıyor — render sırasında
 // bir değişkeni mutasyona uğratmak (React Compiler'ın yakaladığı gibi)
 // yerine saf bir reduce ile kümülatif offset'ler önceden çıkarılıyor.
-const DONUT_SEGMENTS_WITH_OFFSET = DONUT_SEGMENTS.reduce<{ name: string; pct: number; color: string; offset: number }[]>(
-  (acc, seg) => {
-    const prevOffset = acc.length > 0 ? acc[acc.length - 1].offset + acc[acc.length - 1].pct : 0;
-    return [...acc, { ...seg, offset: prevOffset }];
-  },
-  [],
-);
+const DONUT_SEGMENTS_WITH_OFFSET = DONUT_SEGMENTS.reduce<
+  { name: string; pct: number; amount: number; color: string; offset: number }[]
+>((acc, seg) => {
+  const prevOffset = acc.length > 0 ? acc[acc.length - 1].offset + acc[acc.length - 1].pct : 0;
+  return [...acc, { ...seg, offset: prevOffset }];
+}, []);
+
+const TOTAL_AMOUNT = DONUT_SEGMENTS.reduce((sum, seg) => sum + seg.amount, 0);
+
+/** Görünüme girince 0'dan hedefe sayan tutar — framer-motion'ın imperative
+ * `animate()` fonksiyonuyla, her tick'te state güncelleyip formatCurrency
+ * ile Türkçe para birimi formatına çeviriyor. */
+function AnimatedAmount({ target }: { target: number }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+  const [display, setDisplay] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    const controls = animate(0, target, {
+      duration: 1.4,
+      ease: "easeOut",
+      onUpdate: (v) => setDisplay(v),
+    });
+    return () => controls.stop();
+  }, [inView, target]);
+
+  return <span ref={ref}>{formatCurrency(display)}</span>;
+}
 
 function UploadVisual() {
   return (
@@ -145,25 +173,25 @@ function ReviewVisual() {
 
 function ReportVisual() {
   return (
-    <div className="relative flex h-64 items-center justify-center rounded-2xl border border-border bg-surface">
+    <div className="relative flex h-72 flex-col items-center justify-center gap-6 rounded-2xl border border-border bg-surface p-6 sm:flex-row sm:gap-8">
       {[0, 1, 2].map((i) => (
         <motion.span
           key={i}
           initial={{ opacity: 0 }}
           animate={{
             opacity: [0, 1, 0],
-            x: [-70 + i * 6, 0],
-            y: [-40 + i * 30, 0],
+            x: [-60 + i * 6, 0],
+            y: [-36 + i * 24, 0],
             scale: [1, 0.4],
           }}
           transition={{ duration: 1.8, repeat: Infinity, delay: i * 0.6, ease: "easeIn" }}
-          className="absolute flex h-8 w-8 items-center justify-center rounded-full bg-accent-soft text-accent"
+          className="pointer-events-none absolute left-1/4 top-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-accent-soft text-accent sm:left-[22%]"
         >
           <Receipt className="h-4 w-4" />
         </motion.span>
       ))}
 
-      <div className="relative h-36 w-36">
+      <div className="relative h-36 w-36 shrink-0">
         <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
           <circle cx="50" cy="50" r="40" fill="none" stroke="var(--color-border)" strokeWidth="12" />
           {DONUT_SEGMENTS_WITH_OFFSET.map((seg, i) => (
@@ -185,10 +213,31 @@ function ReportVisual() {
           ))}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="font-display text-lg font-bold text-text-primary">₺2.450</span>
+          <span className="font-display text-base font-bold text-text-primary">
+            <AnimatedAmount target={TOTAL_AMOUNT} />
+          </span>
           <span className="text-xs text-text-secondary">Bu ay</span>
         </div>
       </div>
+
+      <ul className="w-full max-w-[13rem] space-y-2.5">
+        {DONUT_SEGMENTS_WITH_OFFSET.map((seg, i) => (
+          <motion.li
+            key={seg.name}
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.5, delay: 0.2 + i * 0.25, ease: "easeOut" }}
+            className="flex items-center justify-between gap-3 text-xs"
+          >
+            <span className="flex items-center gap-2">
+              <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: seg.color }} />
+              <span className="text-text-primary">{seg.name}</span>
+            </span>
+            <span className="shrink-0 font-medium text-text-secondary">{formatCurrency(seg.amount)}</span>
+          </motion.li>
+        ))}
+      </ul>
     </div>
   );
 }
