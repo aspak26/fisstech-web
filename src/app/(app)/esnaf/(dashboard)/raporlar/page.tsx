@@ -4,13 +4,17 @@ import {
   getEsnafMonthlyTrend,
   getVatSummary,
   getExpensesByCategory,
+  getIncomeItemTrend,
 } from "@/lib/data/esnaf";
+import { CHART_COLORS } from "@/lib/data/analytics";
 import { currentMonthString, getMonthRange } from "@/lib/utils/date";
-import { formatCurrency } from "@/lib/utils/currency";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { BalanceTrendChart } from "@/components/modules/balance/balance-trend-chart";
+import { CategoryDonutChart } from "@/components/modules/analytics/category-donut-chart";
+import { IncomeItemTrendChart } from "@/components/modules/esnaf/income-item-trend-chart";
+import { formatCurrency } from "@/lib/utils/currency";
 import { EmptyState } from "@/components/ui/empty-state";
-import { PieChart } from "lucide-react";
+import { PieChart, TrendingUp } from "lucide-react";
 
 export default async function EsnafRaporlarPage() {
   const business = await getActiveBusiness();
@@ -18,10 +22,11 @@ export default async function EsnafRaporlarPage() {
 
   const supabase = await createClient();
   const { start, end } = getMonthRange(currentMonthString());
-  const [trend, vat, categories] = await Promise.all([
+  const [trend, vat, categories, incomeItemTrend] = await Promise.all([
     getEsnafMonthlyTrend(supabase, business.id, 6),
     getVatSummary(supabase, business.id, start, end),
     getExpensesByCategory(supabase, business.id, start, end),
+    getIncomeItemTrend(supabase, business.id, start, end, 5),
   ]);
 
   return (
@@ -70,14 +75,24 @@ export default async function EsnafRaporlarPage() {
         {categories.length === 0 ? (
           <EmptyState icon={PieChart} title="Bu ay gider yok" />
         ) : (
-          <ul className="divide-y divide-border">
-            {categories.map((c) => (
-              <li key={c.category} className="flex items-center justify-between py-2.5">
-                <span className="capitalize text-text-primary">{c.category}</span>
-                <span className="font-medium text-text-primary">{formatCurrency(c.total)}</span>
-              </li>
-            ))}
-          </ul>
+          <CategoryDonutChart
+            data={categories.map((c, i) => ({
+              name: c.category,
+              total: c.total,
+              color: CHART_COLORS[i % CHART_COLORS.length],
+            }))}
+          />
+        )}
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Bu Ay Kalem Bazlı Gelir Trendi</CardTitle>
+        </CardHeader>
+        {incomeItemTrend.points.length === 0 ? (
+          <EmptyState icon={TrendingUp} title="Bu ay gelir yok" />
+        ) : (
+          <IncomeItemTrendChart data={incomeItemTrend} />
         )}
       </Card>
     </div>

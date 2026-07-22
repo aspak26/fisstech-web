@@ -10,6 +10,7 @@ import type {
   StockMovementRow,
 } from "@/lib/types/esnaf";
 import { currentMonthString, formatMonthLabel, getMonthRange, shiftMonth } from "@/lib/utils/date";
+import { CHART_COLORS } from "@/lib/data/analytics";
 
 // ─── Raporlar ───────────────────────────────────────────────────────────────
 
@@ -104,6 +105,92 @@ export async function getExpensesByCategory(
       .sort((a, b) => b.total - a.total);
   } catch {
     return [];
+  }
+}
+
+export interface IncomeItemSeries {
+  key: string;
+  label: string;
+  color: string;
+}
+
+export interface IncomeItemPoint {
+  date: string;
+  label: string;
+  total: number;
+  [seriesKey: string]: string | number;
+}
+
+export interface IncomeItemTrend {
+  points: IncomeItemPoint[];
+  series: IncomeItemSeries[];
+}
+
+const OTHER_KEY = "sOther";
+
+/** Gün × üst-N gelir kalemi (chip_label/description) olarak gruplar.
+ * Mobildeki get_product_sales/get_daily_sales_trend RPC'leri sadece
+ * order_items (kafe/restoran) üzerinden çalışıyor, tüm sektörlerde
+ * (hizmet/toptan/freelance/satis) karşılığı yok — business_incomes ise
+ * her sektörde gerçekten dolan tek tablo olduğu için onun üzerinden
+ * kuruldu (bkz. docs/PROGRESS.md). */
+export async function getIncomeItemTrend(
+  supabase: SupabaseClient,
+  businessId: string,
+  start: string,
+  end: string,
+  topN = 5,
+): Promise<IncomeItemTrend> {
+  try {
+    const { data } = await supabase
+      .from("business_incomes")
+      .select("amount, chip_label, description, transaction_date")
+      .eq("business_id", businessId)
+      .gte("transaction_date", start)
+      .lte("transaction_date", end);
+
+    const rows = (data ?? []) as {
+      amount: number;
+      chip_label: string | null;
+      description: string | null;
+      transaction_date: string;
+    }[];
+    const labelOf = (r: { chip_label: string | null; description: string | null }) =>
+      (r.chip_label || r.description || "Diğer").trim() || "Diğer";
+
+    const totalsByLabel = new Map<string, number>();
+    for (const r of rows) {
+      const l = labelOf(r);
+      totalsByLabel.set(l, (totalsByLabel.get(l) ?? 0) + Number(r.amount));
+    }
+    const ranked = [...totalsByLabel.entries()].sort((a, b) => b[1] - a[1]);
+    const topLabels = new Set(ranked.slice(0, topN).map(([l]) => l));
+    const series: IncomeItemSeries[] = ranked
+      .slice(0, topN)
+      .map(([label], i) => ({ key: `s${i}`, label, color: CHART_COLORS[i % CHART_COLORS.length] }));
+    const keyByLabel = new Map(series.map((s) => [s.label, s.key]));
+    const hasOther = ranked.length > topN;
+
+    const byDate = new Map<string, IncomeItemPoint>();
+    for (const r of rows) {
+      const date = r.transaction_date;
+      const label = labelOf(r);
+      const key = topLabels.has(label) ? keyByLabel.get(label)! : OTHER_KEY;
+      const point = byDate.get(date) ?? { date, label: String(Number(date.slice(8, 10))), total: 0 };
+      point[key] = Number(point[key] ?? 0) + Number(r.amount);
+      point.total = Number(point.total) + Number(r.amount);
+      byDate.set(date, point);
+    }
+
+    const allSeries = hasOther
+      ? [...series, { key: OTHER_KEY, label: "Diğer", color: "var(--color-text-secondary)" }]
+      : series;
+    return {
+      points: [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date)),
+      series: allSeries,
+    };
+  } catch {
+    return { points: [], series: [] };
   }
 }
 
