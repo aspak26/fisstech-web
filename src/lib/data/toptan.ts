@@ -175,6 +175,7 @@ export async function deleteB2bCustomer(supabase: SupabaseClient, id: string): P
 export async function getB2bTransactions(
   supabase: SupabaseClient,
   customerId: string,
+  limit = 200,
 ): Promise<B2bTransactionRow[]> {
   try {
     const { data } = await supabase
@@ -182,7 +183,8 @@ export async function getB2bTransactions(
       .select("*")
       .eq("customer_id", customerId)
       .order("transaction_date", { ascending: false })
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(limit);
     return (data ?? []) as B2bTransactionRow[];
   } catch {
     return [];

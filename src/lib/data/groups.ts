@@ -109,10 +109,14 @@ export async function getGroupExpenses(
   groupId: string,
 ): Promise<GroupExpenseRow[]> {
   try {
+    // Sıralama fetch SONRASI JS'te yapıldığı için burada küçük bir
+    // .limit() yanlış (en eski) satırları keserdi — bunun yerine sadece
+    // patolojik büyümeye karşı cömert bir güvenlik ağı uygulanıyor.
     const { data } = await supabase
       .from("expense_groups")
       .select("expenses(id, store_name, total, date, user_id)")
-      .eq("group_id", groupId);
+      .eq("group_id", groupId)
+      .limit(1000);
     return ((data ?? []) as unknown as { expenses: GroupExpenseRow }[])
       .map((row) => row.expenses)
       .filter(Boolean)

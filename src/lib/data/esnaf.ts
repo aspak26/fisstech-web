@@ -12,6 +12,18 @@ import type {
 import { currentMonthString, formatMonthLabel, getMonthRange, shiftMonth } from "@/lib/utils/date";
 import { CHART_COLORS } from "@/lib/data/analytics";
 
+export async function updateBusinessWhatsAppTemplates(
+  supabase: SupabaseClient,
+  businessId: string,
+  templates: Record<string, string>,
+): Promise<void> {
+  const { error } = await supabase
+    .from("businesses")
+    .update({ whatsapp_templates: templates })
+    .eq("id", businessId);
+  if (error) throw error;
+}
+
 // ─── Raporlar ───────────────────────────────────────────────────────────────
 
 export interface EsnafMonthlyPoint {
@@ -321,6 +333,7 @@ export async function deleteBusinessExpense(supabase: SupabaseClient, id: string
 export async function getInvoices(
   supabase: SupabaseClient,
   businessId: string,
+  limit = 200,
 ): Promise<InvoiceRow[]> {
   try {
     const { data } = await supabase
@@ -328,7 +341,8 @@ export async function getInvoices(
       .select("*")
       .eq("business_id", businessId)
       .order("due_date", { ascending: true, nullsFirst: false })
-      .order("invoice_date", { ascending: false });
+      .order("invoice_date", { ascending: false })
+      .limit(limit);
     return (data ?? []) as InvoiceRow[];
   } catch {
     return [];
@@ -559,6 +573,7 @@ export async function deleteMenuItem(supabase: SupabaseClient, id: string): Prom
 export async function getInvoicesWithImage(
   supabase: SupabaseClient,
   businessId: string,
+  limit = 200,
 ): Promise<InvoiceRow[]> {
   try {
     const { data } = await supabase
@@ -566,7 +581,8 @@ export async function getInvoicesWithImage(
       .select("*")
       .eq("business_id", businessId)
       .not("image_url", "is", null)
-      .order("invoice_date", { ascending: false });
+      .order("invoice_date", { ascending: false })
+      .limit(limit);
     return (data ?? []) as InvoiceRow[];
   } catch {
     return [];

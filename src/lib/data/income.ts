@@ -10,12 +10,13 @@ export async function getIncomes(
   supabase: SupabaseClient,
   userId: string,
   range: { start?: string | null; end?: string | null } = {},
+  limit = 300,
 ): Promise<IncomesRow[]> {
   try {
     let query = supabase.from("incomes").select("*").eq("user_id", userId);
     if (range.start) query = query.gte("date", range.start);
     if (range.end) query = query.lte("date", range.end);
-    const { data } = await query.order("date", { ascending: false });
+    const { data } = await query.order("date", { ascending: false }).limit(limit);
     return (data ?? []) as IncomesRow[];
   } catch {
     return [];

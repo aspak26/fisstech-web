@@ -33,6 +33,13 @@ export async function getReportData(
   start: string,
   end: string,
 ): Promise<ReportData> {
+  // Rapor toplamlarının doğru olması için satır sayısına gerçek bir üst
+  // sınır (pagination) KONMUYOR — sadece patolojik/kaçak sorgulara karşı
+  // cömert bir güvenlik ağı (5000) ekleniyor, normal kullanım asla buna
+  // dokunmaz. Optimizasyon.md'nin "never sacrifice correctness for speed"
+  // kuralı gereği: küçük bir limit rapor toplamlarını sessizce yanlış
+  // gösterirdi, bu kabul edilemez.
+  const SAFETY_LIMIT = 5000;
   const [expensesRes, incomesRes, fixedRes, debtsRes, goalsRes, subsRes, categoriesRes, incomeCatRes, fixedCatRes] =
     await Promise.allSettled([
       supabase
@@ -41,21 +48,30 @@ export async function getReportData(
         .eq("user_id", userId)
         .gte("date", start)
         .lte("date", end)
-        .order("date", { ascending: false }),
-      supabase.from("incomes").select("*").eq("user_id", userId).gte("date", start).lte("date", end),
+        .order("date", { ascending: false })
+        .limit(SAFETY_LIMIT),
+      supabase
+        .from("incomes")
+        .select("*")
+        .eq("user_id", userId)
+        .gte("date", start)
+        .lte("date", end)
+        .limit(SAFETY_LIMIT),
       supabase.from("fixed_expenses").select("*").eq("user_id", userId),
       supabase
         .from("user_debts")
         .select("*")
         .eq("user_id", userId)
         .gte("date", start)
-        .lte("date", end),
+        .lte("date", end)
+        .limit(SAFETY_LIMIT),
       supabase
         .from("goals")
         .select("*")
         .eq("user_id", userId)
         .gte("created_at", start)
-        .lte("created_at", `${end}T23:59:59`),
+        .lte("created_at", `${end}T23:59:59`)
+        .limit(SAFETY_LIMIT),
       supabase.from("subscriptions").select("*").eq("user_id", userId),
       supabase.from("categories").select("id, name"),
       supabase.from("income_categories").select("*"),

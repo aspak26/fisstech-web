@@ -3,16 +3,7 @@
 import type { ReactNode } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis } from "recharts";
 import { formatCurrency } from "@/lib/utils/currency";
-import type { StoreBreakdownPoint } from "@/lib/data/analytics";
-
-const CHART_COLORS = [
-  "#B23A65",
-  "#2E7D32",
-  "#1E88E5",
-  "#F5A623",
-  "#8E44AD",
-  "#16A085",
-];
+import { CHART_COLORS, type StoreBreakdownPoint } from "@/lib/data/analytics";
 
 /** "Market Analizi" — mağaza harcama donut'u + "Alışveriş Sıklığı" bar
  * chart, mobildeki `_StoreChart` ile aynı. */

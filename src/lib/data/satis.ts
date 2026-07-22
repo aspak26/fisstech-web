@@ -122,13 +122,15 @@ export async function deleteSaleCustomer(supabase: SupabaseClient, id: string): 
 export async function getSaleTransactions(
   supabase: SupabaseClient,
   businessId: string,
+  limit = 200,
 ): Promise<SaleTransactionRow[]> {
   try {
     const { data } = await supabase
       .from("sale_transactions")
       .select("*")
       .eq("business_id", businessId)
-      .order("sale_date", { ascending: false });
+      .order("sale_date", { ascending: false })
+      .limit(limit);
     return (data ?? []) as SaleTransactionRow[];
   } catch {
     return [];
@@ -138,13 +140,15 @@ export async function getSaleTransactions(
 export async function getSaleInstallments(
   supabase: SupabaseClient,
   businessId: string,
+  limit = 300,
 ): Promise<SaleInstallmentRow[]> {
   try {
     const { data } = await supabase
       .from("sale_installments")
       .select("*")
       .eq("business_id", businessId)
-      .order("due_date");
+      .order("due_date")
+      .limit(limit);
     return (data ?? []) as SaleInstallmentRow[];
   } catch {
     return [];
