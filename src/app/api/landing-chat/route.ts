@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { createRateLimiter } from "@/lib/utils/rate-limit";
 
 // Public, unauthenticated endpoint for the landing page's "AI Destek
 // Asistanı" widget. Deliberately NOT the same as fisle-ai-chat (that Edge
@@ -16,25 +17,8 @@ Kurallar:
 - Kısa, samimi, Türkçe ve net cevaplar ver (en fazla 3-4 cümle).
 - Emin olmadığın veya ürünle ilgisi olmayan konularda nazikçe konuyu Fişştech'e getir.`;
 
-const RATE_LIMIT_MAX = 10;
-const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
 const MAX_MESSAGE_LENGTH = 500;
-
-// Best-effort in-memory limiter — resets on cold start / doesn't share
-// state across serverless instances, but still meaningfully throttles a
-// single abusive client in typical low-traffic deployment.
-const requestLog = new Map<string, { count: number; resetAt: number }>();
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = requestLog.get(ip);
-  if (!entry || now > entry.resetAt) {
-    requestLog.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return false;
-  }
-  entry.count += 1;
-  return entry.count > RATE_LIMIT_MAX;
-}
+const isRateLimited = createRateLimiter(10, 10 * 60 * 1000);
 
 export async function POST(request: NextRequest) {
   const apiKey = process.env.GEMINI_API_KEY;
