@@ -18,50 +18,48 @@ function Cell({ value }: { value: ComparisonValue }) {
 
 export function ComparisonTable() {
   return (
-    <div className="dark">
-      <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
-        <Reveal className="mx-auto max-w-xl text-center">
-          <h2 className="font-display text-3xl font-bold text-text-primary">Planları Karşılaştırın</h2>
-          <p className="mt-3 text-sm text-text-secondary">Tüm planların sunduğu özellikleri detaylı karşılaştırın</p>
-        </Reveal>
+    <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+      <Reveal className="mx-auto max-w-xl text-center">
+        <h2 className="font-display text-3xl font-bold text-text-primary">Planları Karşılaştırın</h2>
+        <p className="mt-3 text-sm text-text-secondary">Tüm planların sunduğu özellikleri detaylı karşılaştırın</p>
+      </Reveal>
 
-        <Reveal delay={100} className="mt-10 overflow-x-auto rounded-2xl border border-border bg-surface">
-          <table className="w-full min-w-[640px] border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-text-secondary">
-                  Özellik
-                </th>
-                <th className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wide text-accent">
-                  Premium
-                </th>
-                <th className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wide text-accent">
-                  Esnaf Modu
-                </th>
-                <th className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wide text-accent">
-                  Aile Planı
-                </th>
+      <Reveal delay={100} className="mt-10 overflow-x-auto rounded-2xl border border-border bg-surface">
+        <table className="w-full min-w-[640px] border-collapse text-sm">
+          <thead>
+            <tr className="border-b border-border">
+              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-text-secondary">
+                Özellik
+              </th>
+              <th className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wide text-accent">
+                Premium
+              </th>
+              <th className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wide text-accent">
+                Esnaf Modu
+              </th>
+              <th className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wide text-accent">
+                Aile Planı
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {COMPARISON_ROWS.map((row) => (
+              <tr key={row.feature} className="border-b border-border transition-colors last:border-0 hover:bg-bg">
+                <td className="px-6 py-3.5 text-text-primary">{row.feature}</td>
+                <td className="px-4 py-3.5 text-center">
+                  <Cell value={row.premium} />
+                </td>
+                <td className="px-4 py-3.5 text-center">
+                  <Cell value={row.esnaf} />
+                </td>
+                <td className="px-4 py-3.5 text-center">
+                  <Cell value={row.family} />
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {COMPARISON_ROWS.map((row) => (
-                <tr key={row.feature} className="border-b border-border transition-colors last:border-0 hover:bg-bg">
-                  <td className="px-6 py-3.5 text-text-primary">{row.feature}</td>
-                  <td className="px-4 py-3.5 text-center">
-                    <Cell value={row.premium} />
-                  </td>
-                  <td className="px-4 py-3.5 text-center">
-                    <Cell value={row.esnaf} />
-                  </td>
-                  <td className="px-4 py-3.5 text-center">
-                    <Cell value={row.family} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Reveal>
-      </section>
-    </div>
+            ))}
+          </tbody>
+        </table>
+      </Reveal>
+    </section>
   );
 }

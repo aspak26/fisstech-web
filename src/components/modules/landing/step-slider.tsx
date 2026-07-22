@@ -54,8 +54,8 @@ function StageWrapper({ children }: { children: React.ReactNode }) {
 function UploadStage() {
   return (
     <StageWrapper>
-      <div className="relative flex h-24 w-20 items-center justify-center rounded-lg border-2 border-dashed border-white/25">
-        <Receipt className="h-8 w-8 text-white/30" />
+      <div className="relative flex h-24 w-20 items-center justify-center rounded-lg border-2 border-dashed border-border">
+        <Receipt className="h-8 w-8 text-text-secondary/50" />
         <motion.span
           animate={{ y: [0, -8, 0] }}
           transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
@@ -65,7 +65,7 @@ function UploadStage() {
           <UploadCloud className="h-4 w-4" />
         </motion.span>
       </div>
-      <p className="text-xs font-medium text-white/60">Fiş yükleniyor…</p>
+      <p className="text-xs font-medium text-text-secondary">Fiş yükleniyor…</p>
     </StageWrapper>
   );
 }
@@ -73,8 +73,8 @@ function UploadStage() {
 function ScanStage() {
   return (
     <StageWrapper>
-      <div className="relative h-28 w-20 overflow-hidden rounded-lg border border-white/15 bg-white/5">
-        <Receipt className="absolute inset-0 m-auto h-8 w-8 text-white/25" />
+      <div className="relative h-28 w-20 overflow-hidden rounded-lg border border-border bg-bg/60">
+        <Receipt className="absolute inset-0 m-auto h-8 w-8 text-text-secondary/40" />
         <motion.div
           animate={{ top: ["4%", "92%", "4%"] }}
           transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
@@ -82,7 +82,7 @@ function ScanStage() {
           style={{ boxShadow: "0 0 14px 2px color-mix(in srgb, var(--color-accent) 80%, transparent)" }}
         />
       </div>
-      <p className="text-xs font-medium text-white/60">Yapay zekâ okuyor…</p>
+      <p className="text-xs font-medium text-text-secondary">Yapay zekâ okuyor…</p>
     </StageWrapper>
   );
 }
@@ -97,13 +97,13 @@ function ReviewStage() {
             initial={{ opacity: 0, x: -8 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.18, duration: 0.3 }}
-            className="rounded-md bg-white/5 px-2.5 py-1.5 text-xs"
+            className="rounded-md bg-bg/60 px-2.5 py-1.5 text-xs"
           >
-            <span className="flex items-center gap-1.5 text-white/50">
+            <span className="flex items-center gap-1.5 text-text-secondary">
               <CheckCircle2 className="h-3 w-3 shrink-0 text-accent" />
               {row.label}
             </span>
-            <span className="mt-0.5 block truncate pl-[1.125rem] font-semibold text-white">{row.value}</span>
+            <span className="mt-0.5 block truncate pl-[1.125rem] font-semibold text-text-primary">{row.value}</span>
           </motion.li>
         ))}
       </ul>
@@ -134,7 +134,7 @@ function SuccessStage() {
           />
         ))}
       </div>
-      <p className="text-xs font-medium text-white/60">Veriler kaydedildi</p>
+      <p className="text-xs font-medium text-text-secondary">Veriler kaydedildi</p>
     </StageWrapper>
   );
 }
@@ -148,107 +148,108 @@ export function StepSlider() {
   }, [active]);
 
   return (
-    <div className="dark">
-      <section id="how-it-works" className="bg-bg py-20">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Reveal className="mx-auto max-w-xl text-center">
-            <h2 className="font-display text-3xl font-bold text-text-primary">Nasıl Çalışır?</h2>
-            <p className="mt-3 text-text-secondary">Dört adımda fişten bütçeye.</p>
+    <section id="how-it-works" className="bg-bg py-20">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <Reveal className="mx-auto max-w-xl text-center">
+          <h2 className="font-display text-3xl font-bold text-text-primary">Nasıl Çalışır?</h2>
+          <p className="mt-3 text-text-secondary">Dört adımda fişten bütçeye.</p>
+        </Reveal>
+
+        <div className="mt-14 grid items-center gap-12 lg:grid-cols-2">
+          <Reveal className="space-y-3">
+            {STEPS.map((step, i) => {
+              const isActive = active === i;
+              return (
+                <button
+                  key={step.title}
+                  type="button"
+                  onClick={() => setActive(i)}
+                  className={cn(
+                    "w-full rounded-card border p-5 text-left transition-all duration-300",
+                    isActive ? "border-accent bg-accent-soft/10" : "border-border/50 bg-transparent hover:border-border",
+                  )}
+                  style={isActive ? { boxShadow: "0 0 40px -14px color-mix(in srgb, var(--color-accent) 55%, transparent)" } : undefined}
+                >
+                  <div className="flex items-center gap-4">
+                    <span
+                      className={cn(
+                        "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-sm font-bold transition-colors",
+                        isActive ? "border-accent bg-accent text-on-accent" : "border-border text-text-secondary",
+                      )}
+                    >
+                      {i + 1}
+                    </span>
+                    <h3
+                      className={cn(
+                        "font-display text-base font-semibold transition-colors",
+                        isActive ? "text-text-primary" : "text-text-secondary",
+                      )}
+                    >
+                      {step.title}
+                    </h3>
+                  </div>
+                  <AnimatePresence initial={false}>
+                    {isActive && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: "easeOut" }}
+                        className="overflow-hidden"
+                      >
+                        <p className="ml-14 mt-2 text-sm leading-relaxed text-text-secondary">{step.description}</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </button>
+              );
+            })}
           </Reveal>
 
-          <div className="mt-14 grid items-center gap-12 lg:grid-cols-2">
-            <Reveal className="space-y-3">
-              {STEPS.map((step, i) => {
-                const isActive = active === i;
-                return (
-                  <button
-                    key={step.title}
-                    type="button"
-                    onClick={() => setActive(i)}
-                    className={cn(
-                      "w-full rounded-card border p-5 text-left transition-all duration-300",
-                      isActive ? "border-accent bg-accent-soft/10" : "border-border/50 bg-transparent hover:border-border",
-                    )}
-                    style={isActive ? { boxShadow: "0 0 40px -14px color-mix(in srgb, var(--color-accent) 55%, transparent)" } : undefined}
-                  >
-                    <div className="flex items-center gap-4">
-                      <span
-                        className={cn(
-                          "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-sm font-bold transition-colors",
-                          isActive ? "border-accent bg-accent text-on-accent" : "border-border text-text-secondary",
-                        )}
-                      >
-                        {i + 1}
-                      </span>
-                      <h3
-                        className={cn(
-                          "font-display text-base font-semibold transition-colors",
-                          isActive ? "text-text-primary" : "text-text-secondary",
-                        )}
-                      >
-                        {step.title}
-                      </h3>
-                    </div>
-                    <AnimatePresence initial={false}>
-                      {isActive && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.3, ease: "easeOut" }}
-                          className="overflow-hidden"
-                        >
-                          <p className="ml-14 mt-2 text-sm leading-relaxed text-text-secondary">{step.description}</p>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </button>
-                );
-              })}
-            </Reveal>
+          <Reveal delay={150}>
+            {/* overflow-hidden clips the rotating rings' bounding box — a
+                square rotated by transform has a larger axis-aligned bbox
+                than the visible circle inside it (rounded-full is
+                rotation-invariant, the underlying box isn't), which was
+                causing horizontal page overflow on narrow viewports. */}
+            <div className="relative mx-auto flex h-80 w-80 items-center justify-center overflow-hidden rounded-full">
+              <motion.div
+                className="absolute inset-0 rounded-full border border-accent/25"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
+              >
+                <span
+                  className="absolute -top-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full bg-accent"
+                  style={{ boxShadow: "0 0 14px 2px color-mix(in srgb, var(--color-accent) 80%, transparent)" }}
+                />
+              </motion.div>
+              <motion.div
+                className="absolute inset-10 rounded-full border border-accent-soft/40"
+                animate={{ rotate: -360 }}
+                transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+              >
+                <span className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rounded-full bg-accent-soft" />
+              </motion.div>
+              <div className="absolute inset-20 rounded-full border border-dashed border-border/40" />
 
-            <Reveal delay={150}>
-              {/* overflow-hidden clips the rotating rings' bounding box — a
-                  square rotated by transform has a larger axis-aligned bbox
-                  than the visible circle inside it (rounded-full is
-                  rotation-invariant, the underlying box isn't), which was
-                  causing horizontal page overflow on narrow viewports. */}
-              <div className="relative mx-auto flex h-80 w-80 items-center justify-center overflow-hidden rounded-full">
-                <motion.div
-                  className="absolute inset-0 rounded-full border border-accent/25"
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
-                >
-                  <span
-                    className="absolute -top-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full bg-accent"
-                    style={{ boxShadow: "0 0 14px 2px color-mix(in srgb, var(--color-accent) 80%, transparent)" }}
-                  />
-                </motion.div>
-                <motion.div
-                  className="absolute inset-10 rounded-full border border-accent-soft/40"
-                  animate={{ rotate: -360 }}
-                  transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                >
-                  <span className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rounded-full bg-accent-soft" />
-                </motion.div>
-                <div className="absolute inset-20 rounded-full border border-dashed border-border/40" />
-
-                <div
-                  className="relative flex h-52 w-52 flex-col items-center justify-center overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 p-6 backdrop-blur-xl"
-                  style={{ boxShadow: "0 0 70px -10px color-mix(in srgb, var(--color-accent) 45%, transparent)" }}
-                >
-                  <AnimatePresence mode="wait">
-                    {active === 0 && <UploadStage key="upload" />}
-                    {active === 1 && <ScanStage key="scan" />}
-                    {active === 2 && <ReviewStage key="review" />}
-                    {active === 3 && <SuccessStage key="success" />}
-                  </AnimatePresence>
-                </div>
+              {/* bg-surface/70 + backdrop-blur = otomatik tema-uyumlu cam
+                  efekti (açık modda açık cam, koyu modda koyu cam) —
+                  sabit bg-white/5 yerine. */}
+              <div
+                className="relative flex h-52 w-52 flex-col items-center justify-center overflow-hidden rounded-[2rem] border border-border bg-surface/70 p-6 backdrop-blur-xl"
+                style={{ boxShadow: "0 0 70px -10px color-mix(in srgb, var(--color-accent) 45%, transparent)" }}
+              >
+                <AnimatePresence mode="wait">
+                  {active === 0 && <UploadStage key="upload" />}
+                  {active === 1 && <ScanStage key="scan" />}
+                  {active === 2 && <ReviewStage key="review" />}
+                  {active === 3 && <SuccessStage key="success" />}
+                </AnimatePresence>
               </div>
-            </Reveal>
-          </div>
+            </div>
+          </Reveal>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   );
 }

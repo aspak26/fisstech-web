@@ -81,81 +81,79 @@ const SOCIAL_ICONS = [
 
 export function LandingFooter() {
   return (
-    <div className="dark">
-      <footer className="border-t border-border bg-bg">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <div className="grid gap-12 lg:grid-cols-[1.3fr_repeat(4,1fr)] lg:gap-8">
-            <div>
-              <Link href="/" aria-label="Fişştech anasayfa">
-                <LogoHorizontal />
-              </Link>
-              <p className="mt-4 max-w-xs text-sm leading-relaxed text-text-secondary">
-                Yapay zeka destekli akıllı fiş ve gider yönetim platformu. Bütçeniz kontrol altında,
-                verileriniz güvende.
+    <footer className="border-t border-border bg-bg">
+      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <div className="grid gap-12 lg:grid-cols-[1.3fr_repeat(4,1fr)] lg:gap-8">
+          <div>
+            <Link href="/" aria-label="Fişştech anasayfa">
+              <LogoHorizontal />
+            </Link>
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-text-secondary">
+              Yapay zeka destekli akıllı fiş ve gider yönetim platformu. Bütçeniz kontrol altında,
+              verileriniz güvende.
+            </p>
+
+            <div className="mt-8 space-y-3">
+              <p className="text-xs font-bold uppercase tracking-widest text-text-secondary">Bülten</p>
+              <p className="text-sm leading-relaxed text-text-secondary">
+                Akıllı bütçe ipuçları, yeni Fişştech özellikleri ve özel kampanyalardan anında
+                haberdar olmak için e-posta listemize katılın.
               </p>
-
-              <div className="mt-8 space-y-3">
-                <p className="text-xs font-bold uppercase tracking-widest text-text-secondary">Bülten</p>
-                <p className="text-sm leading-relaxed text-text-secondary">
-                  Akıllı bütçe ipuçları, yeni Fişştech özellikleri ve özel kampanyalardan anında
-                  haberdar olmak için e-posta listemize katılın.
-                </p>
-                <NewsletterForm />
-                <p className="text-xs text-text-secondary">İstediğiniz zaman çıkabilirsiniz.</p>
-              </div>
+              <NewsletterForm />
+              <p className="text-xs text-text-secondary">İstediğiniz zaman çıkabilirsiniz.</p>
             </div>
-
-            {LINK_COLUMNS.map((col) => (
-              <div key={col.heading}>
-                <p className="font-display text-sm font-semibold text-text-primary">{col.heading}</p>
-                <ul className="mt-4 space-y-2.5">
-                  {col.links.map((link) => (
-                    <li key={link.label}>
-                      <Link href={link.href} className="text-sm text-text-secondary transition-colors hover:text-accent">
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
           </div>
 
-          <div className="mt-14 flex flex-col items-center gap-3 border-t border-border pt-8 text-center">
-            <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-text-secondary">
-              <ShieldCheck className="h-3.5 w-3.5 text-accent" />
-              Güvenli Ödeme
-            </p>
-            <p className="max-w-md text-xs text-text-secondary">
-              Satın alımlar App Store ve Google Play&apos;in güvenli ödeme altyapısı üzerinden yapılır —
-              kart bilgileriniz Fişştech sunucularına hiç ulaşmaz.
-            </p>
-          </div>
+          {LINK_COLUMNS.map((col) => (
+            <div key={col.heading}>
+              <p className="font-display text-sm font-semibold text-text-primary">{col.heading}</p>
+              <ul className="mt-4 space-y-2.5">
+                {col.links.map((link) => (
+                  <li key={link.label}>
+                    <Link href={link.href} className="text-sm text-text-secondary transition-colors hover:text-accent">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
 
-          <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 sm:flex-row">
-            <p className="text-xs text-text-secondary">© {new Date().getFullYear()} Fişştech. Tüm hakları saklıdır.</p>
-            <div className="flex items-center gap-4">
-              {SOCIAL_ICONS.map(({ icon: Icon, label }) => (
-                <span
-                  key={label}
-                  aria-label={label}
-                  title={`${label} — yakında`}
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-text-secondary"
-                >
-                  <Icon className="h-4 w-4" />
-                </span>
-              ))}
-              <a
-                href="mailto:info@fisstech.com"
-                className="flex items-center gap-1.5 text-xs text-text-secondary transition-colors hover:text-accent"
+        <div className="mt-14 flex flex-col items-center gap-3 border-t border-border pt-8 text-center">
+          <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-text-secondary">
+            <ShieldCheck className="h-3.5 w-3.5 text-accent" />
+            Güvenli Ödeme
+          </p>
+          <p className="max-w-md text-xs text-text-secondary">
+            Satın alımlar App Store ve Google Play&apos;in güvenli ödeme altyapısı üzerinden yapılır —
+            kart bilgileriniz Fişştech sunucularına hiç ulaşmaz.
+          </p>
+        </div>
+
+        <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 sm:flex-row">
+          <p className="text-xs text-text-secondary">© {new Date().getFullYear()} Fişştech. Tüm hakları saklıdır.</p>
+          <div className="flex items-center gap-4">
+            {SOCIAL_ICONS.map(({ icon: Icon, label }) => (
+              <span
+                key={label}
+                aria-label={label}
+                title={`${label} — yakında`}
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-text-secondary"
               >
-                <Mail className="h-3.5 w-3.5" />
-                info@fisstech.com
-              </a>
-            </div>
+                <Icon className="h-4 w-4" />
+              </span>
+            ))}
+            <a
+              href="mailto:info@fisstech.com"
+              className="flex items-center gap-1.5 text-xs text-text-secondary transition-colors hover:text-accent"
+            >
+              <Mail className="h-3.5 w-3.5" />
+              info@fisstech.com
+            </a>
           </div>
         </div>
-      </footer>
-    </div>
+      </div>
+    </footer>
   );
 }
