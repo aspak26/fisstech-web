@@ -155,12 +155,24 @@ interface ExpenseForBreakdown {
   expense_items: { price: number; quantity: number; categories: { name: string; icon: string; parent_group: string | null } | null }[];
 }
 
-async function categoryBreakdown(
+interface BreakdownData {
+  expenses: ExpenseForBreakdown[];
+  installmentMap: Map<string, InstallmentPlansRow>;
+  activeSubs: Awaited<ReturnType<typeof fetchActiveSubscriptions>>;
+  from: Date | null;
+  to: Date;
+  periodKey: string;
+}
+
+/** expenses + installment_plans + subscriptions'ı BİR kez çeker — item-bazlı
+ * ve parent-bazlı gruplama (aşağıdaki groupBreakdown) aynı bu veriden
+ * hesaplanır. Önceden getCategoryBreakdown/getParentCategoryBreakdown ikisi
+ * de bağımsız olarak aynı fetch'i tekrarlıyordu (bkz. docs/PROGRESS.md). */
+async function fetchBreakdownData(
   supabase: SupabaseClient,
   userId: string,
   periodKey: string,
-  groupBy: "item" | "parent",
-): Promise<CategoryBreakdownPoint[]> {
+): Promise<BreakdownData> {
   const range = calculatePeriodRange(periodKey);
   const now = new Date();
   const from = range.start ? new Date(`${range.start}T00:00:00`) : null;
@@ -188,6 +200,11 @@ async function categoryBreakdown(
     ((installmentsRes.data ?? []) as InstallmentPlansRow[]).map((i) => [i.expense_id, i]),
   );
 
+  return { expenses, installmentMap, activeSubs, from, to, periodKey };
+}
+
+function groupBreakdown(data: BreakdownData, groupBy: "item" | "parent"): CategoryBreakdownPoint[] {
+  const { expenses, installmentMap, activeSubs, from, to, periodKey } = data;
   const grouped = new Map<string, { icon: string; total: number }>();
   const add = (name: string, icon: string, amount: number) => {
     const existing = grouped.get(name);
@@ -242,12 +259,22 @@ async function categoryBreakdown(
     .sort((a, b) => b.total - a.total);
 }
 
-export function getCategoryBreakdown(supabase: SupabaseClient, userId: string, periodKey: string) {
-  return categoryBreakdown(supabase, userId, periodKey, "item");
+export interface CategoryBreakdowns {
+  item: CategoryBreakdownPoint[];
+  parent: CategoryBreakdownPoint[];
 }
 
-export function getParentCategoryBreakdown(supabase: SupabaseClient, userId: string, periodKey: string) {
-  return categoryBreakdown(supabase, userId, periodKey, "parent");
+/** Item-bazlı ve parent-bazlı kırılımı TEK fetch'ten üretir — önceden
+ * getCategoryBreakdown/getParentCategoryBreakdown ayrı ayrı çağrıldığında
+ * (analytics/page.tsx'in tek çağıranı) aynı expenses/installment_plans/
+ * subscriptions verisi 2 kez sorgulanıyordu. */
+export async function getCategoryBreakdowns(
+  supabase: SupabaseClient,
+  userId: string,
+  periodKey: string,
+): Promise<CategoryBreakdowns> {
+  const data = await fetchBreakdownData(supabase, userId, periodKey);
+  return { item: groupBreakdown(data, "item"), parent: groupBreakdown(data, "parent") };
 }
 
 export async function getStoreBreakdown(

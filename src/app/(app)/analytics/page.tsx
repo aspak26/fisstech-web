@@ -1,11 +1,6 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
-import {
-  getCategoryBreakdown,
-  getMonthlyExpenseTrend,
-  getParentCategoryBreakdown,
-  getStoreBreakdown,
-} from "@/lib/data/analytics";
+import { getCategoryBreakdowns, getMonthlyExpenseTrend, getStoreBreakdown } from "@/lib/data/analytics";
 import { getMonthlyBalanceTrend } from "@/lib/data/balance";
 import { getSubscriptions } from "@/lib/data/subscriptions";
 import { getGroups, getMemberSpendTotals } from "@/lib/data/groups";
@@ -51,9 +46,8 @@ export default async function AnalyticsPage({
     const totals = groupId ? await getMemberSpendTotals(supabase, groupId, period) : [];
     content = <GroupAnalyticsTab groups={groups} groupId={groupId ?? ""} totals={totals} />;
   } else {
-    const [breakdown, parentBreakdown, storeBreakdown, monthlyTrend, limits, categories] = await Promise.all([
-      getCategoryBreakdown(supabase, userId, period),
-      getParentCategoryBreakdown(supabase, userId, period),
+    const [breakdowns, storeBreakdown, monthlyTrend, limits, categories] = await Promise.all([
+      getCategoryBreakdowns(supabase, userId, period),
       getStoreBreakdown(supabase, userId, period),
       getMonthlyExpenseTrend(supabase, userId, 6),
       getCategoryLimits(supabase, userId),
@@ -61,8 +55,8 @@ export default async function AnalyticsPage({
     ]);
     content = (
       <ExpensesAnalyticsTab
-        breakdown={breakdown}
-        parentBreakdown={parentBreakdown}
+        breakdown={breakdowns.item}
+        parentBreakdown={breakdowns.parent}
         storeBreakdown={storeBreakdown}
         monthlyTrend={monthlyTrend}
         limits={limits}
