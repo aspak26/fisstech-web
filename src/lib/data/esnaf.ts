@@ -34,90 +34,15 @@ export interface EsnafMonthlyPoint {
   net: number;
 }
 
-export async function getEsnafMonthlyTrend(
-  supabase: SupabaseClient,
-  businessId: string,
-  months = 6,
-): Promise<EsnafMonthlyPoint[]> {
-  const monthKeys: string[] = [];
-  let cursor = currentMonthString();
-  for (let i = 0; i < months; i++) {
-    monthKeys.unshift(cursor);
-    cursor = shiftMonth(cursor, -1);
-  }
-  const points = await Promise.all(
-    monthKeys.map(async (month) => {
-      const { start, end } = getMonthRange(month);
-      const totals = await getMonthlyTotals(supabase, businessId, start, end);
-      return { month, label: formatMonthLabel(month), ...totals, net: totals.income - totals.expense };
-    }),
-  );
-  return points;
-}
-
 export interface VatSummary {
   collected: number;
   paid: number;
   net: number;
 }
 
-export async function getVatSummary(
-  supabase: SupabaseClient,
-  businessId: string,
-  start: string,
-  end: string,
-): Promise<VatSummary> {
-  try {
-    const [incomeRes, expenseRes] = await Promise.all([
-      supabase
-        .from("business_incomes")
-        .select("vat_amount")
-        .eq("business_id", businessId)
-        .gte("transaction_date", start)
-        .lte("transaction_date", end),
-      supabase
-        .from("business_expenses")
-        .select("vat_amount")
-        .eq("business_id", businessId)
-        .gte("expense_date", start)
-        .lte("expense_date", end),
-    ]);
-    const collected = (incomeRes.data ?? []).reduce((s, r) => s + Number(r.vat_amount), 0);
-    const paid = (expenseRes.data ?? []).reduce((s, r) => s + Number(r.vat_amount), 0);
-    return { collected, paid, net: collected - paid };
-  } catch {
-    return { collected: 0, paid: 0, net: 0 };
-  }
-}
-
 export interface ExpenseCategoryTotal {
   category: string;
   total: number;
-}
-
-export async function getExpensesByCategory(
-  supabase: SupabaseClient,
-  businessId: string,
-  start: string,
-  end: string,
-): Promise<ExpenseCategoryTotal[]> {
-  try {
-    const { data } = await supabase
-      .from("business_expenses")
-      .select("category, amount")
-      .eq("business_id", businessId)
-      .gte("expense_date", start)
-      .lte("expense_date", end);
-    const map = new Map<string, number>();
-    for (const row of data ?? []) {
-      map.set(row.category, (map.get(row.category) ?? 0) + Number(row.amount));
-    }
-    return [...map.entries()]
-      .map(([category, total]) => ({ category, total }))
-      .sort((a, b) => b.total - a.total);
-  } catch {
-    return [];
-  }
 }
 
 export interface IncomeItemSeries {
@@ -140,70 +65,181 @@ export interface IncomeItemTrend {
 
 const OTHER_KEY = "sOther";
 
+export interface EsnafPeriodIncomeRow {
+  amount: number;
+  vat_amount: number;
+  chip_label: string | null;
+  description: string | null;
+  transaction_date: string;
+}
+
+export interface EsnafPeriodExpenseRow {
+  amount: number;
+  vat_amount: number;
+  category: string;
+  expense_date: string;
+}
+
+export interface EsnafPeriodData {
+  incomes: EsnafPeriodIncomeRow[];
+  expenses: EsnafPeriodExpenseRow[];
+}
+
+/** business_incomes + business_expenses'i [start,end] için TEK sorgu
+ * çiftiyle (tablo başına bir kez) çeker. Raporlar sayfasının ihtiyaç
+ * duyduğu 4 görünüm (aylık trend, KDV özeti, gider kategorileri, gelir
+ * kalemi zaman çizelgesi) bu tek veri kümesinden saf fonksiyonlarla
+ * (deriveMonthlyTrend/deriveVatSummary/vb.) türetilir — her biri kendi
+ * sorgusunu atmaz. Önceden aynı sayfa yüklemesi ~16 ayrı round-trip
+ * atıyordu (6 aylık döngü × 2 tablo + 3 görünümün her biri kendi
+ * sorgusu), bkz. docs/PROGRESS.md. */
+export async function getEsnafPeriodData(
+  supabase: SupabaseClient,
+  businessId: string,
+  start: string,
+  end: string,
+): Promise<EsnafPeriodData> {
+  try {
+    const [incomeRes, expenseRes] = await Promise.all([
+      supabase
+        .from("business_incomes")
+        .select("amount, vat_amount, chip_label, description, transaction_date")
+        .eq("business_id", businessId)
+        .gte("transaction_date", start)
+        .lte("transaction_date", end),
+      supabase
+        .from("business_expenses")
+        .select("amount, vat_amount, category, expense_date")
+        .eq("business_id", businessId)
+        .gte("expense_date", start)
+        .lte("expense_date", end),
+    ]);
+    return {
+      incomes: (incomeRes.data ?? []) as EsnafPeriodIncomeRow[],
+      expenses: (expenseRes.data ?? []) as EsnafPeriodExpenseRow[],
+    };
+  } catch {
+    return { incomes: [], expenses: [] };
+  }
+}
+
+export function filterEsnafPeriodData(data: EsnafPeriodData, start: string, end: string): EsnafPeriodData {
+  return {
+    incomes: data.incomes.filter((r) => r.transaction_date >= start && r.transaction_date <= end),
+    expenses: data.expenses.filter((r) => r.expense_date >= start && r.expense_date <= end),
+  };
+}
+
+export function deriveMonthlyTrend(data: EsnafPeriodData, monthKeys: string[]): EsnafMonthlyPoint[] {
+  const income = new Map<string, number>();
+  const expense = new Map<string, number>();
+  for (const r of data.incomes) {
+    const key = r.transaction_date.slice(0, 7);
+    income.set(key, (income.get(key) ?? 0) + Number(r.amount));
+  }
+  for (const r of data.expenses) {
+    const key = r.expense_date.slice(0, 7);
+    expense.set(key, (expense.get(key) ?? 0) + Number(r.amount));
+  }
+  return monthKeys.map((month) => {
+    const inc = income.get(month) ?? 0;
+    const exp = expense.get(month) ?? 0;
+    return { month, label: formatMonthLabel(month), income: inc, expense: exp, net: inc - exp };
+  });
+}
+
+export function deriveVatSummary(data: EsnafPeriodData): VatSummary {
+  const collected = data.incomes.reduce((s, r) => s + Number(r.vat_amount), 0);
+  const paid = data.expenses.reduce((s, r) => s + Number(r.vat_amount), 0);
+  return { collected, paid, net: collected - paid };
+}
+
+export function deriveExpensesByCategory(data: EsnafPeriodData): ExpenseCategoryTotal[] {
+  const map = new Map<string, number>();
+  for (const row of data.expenses) {
+    map.set(row.category, (map.get(row.category) ?? 0) + Number(row.amount));
+  }
+  return [...map.entries()]
+    .map(([category, total]) => ({ category, total }))
+    .sort((a, b) => b.total - a.total);
+}
+
 /** Gün × üst-N gelir kalemi (chip_label/description) olarak gruplar.
  * Mobildeki get_product_sales/get_daily_sales_trend RPC'leri sadece
  * order_items (kafe/restoran) üzerinden çalışıyor, tüm sektörlerde
  * (hizmet/toptan/freelance/satis) karşılığı yok — business_incomes ise
  * her sektörde gerçekten dolan tek tablo olduğu için onun üzerinden
  * kuruldu (bkz. docs/PROGRESS.md). */
-export async function getIncomeItemTrend(
+export function deriveIncomeItemTrend(data: EsnafPeriodData, topN = 5): IncomeItemTrend {
+  const labelOf = (r: { chip_label: string | null; description: string | null }) =>
+    (r.chip_label || r.description || "Diğer").trim() || "Diğer";
+
+  const totalsByLabel = new Map<string, number>();
+  for (const r of data.incomes) {
+    const l = labelOf(r);
+    totalsByLabel.set(l, (totalsByLabel.get(l) ?? 0) + Number(r.amount));
+  }
+  const ranked = [...totalsByLabel.entries()].sort((a, b) => b[1] - a[1]);
+  const topLabels = new Set(ranked.slice(0, topN).map(([l]) => l));
+  const series: IncomeItemSeries[] = ranked
+    .slice(0, topN)
+    .map(([label], i) => ({ key: `s${i}`, label, color: CHART_COLORS[i % CHART_COLORS.length] }));
+  const keyByLabel = new Map(series.map((s) => [s.label, s.key]));
+  const hasOther = ranked.length > topN;
+
+  const byDate = new Map<string, IncomeItemPoint>();
+  for (const r of data.incomes) {
+    const date = r.transaction_date;
+    const label = labelOf(r);
+    const key = topLabels.has(label) ? keyByLabel.get(label)! : OTHER_KEY;
+    const point = byDate.get(date) ?? { date, label: String(Number(date.slice(8, 10))), total: 0 };
+    point[key] = Number(point[key] ?? 0) + Number(r.amount);
+    point.total = Number(point.total) + Number(r.amount);
+    byDate.set(date, point);
+  }
+
+  const allSeries = hasOther
+    ? [...series, { key: OTHER_KEY, label: "Diğer", color: "var(--color-text-secondary)" }]
+    : series;
+  return {
+    points: [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date)),
+    series: allSeries,
+  };
+}
+
+export interface EsnafRaporlarBundle {
+  trend: EsnafMonthlyPoint[];
+  vat: VatSummary;
+  categories: ExpenseCategoryTotal[];
+  incomeItemTrend: IncomeItemTrend;
+}
+
+/** Raporlar sayfasının tek giriş noktası — 4 görünümü topluca üretir,
+ * sayfa kendi başına ayrı ayrı sorgu atmaz (bkz. getEsnafPeriodData). */
+export async function getEsnafRaporlarBundle(
   supabase: SupabaseClient,
   businessId: string,
-  start: string,
-  end: string,
-  topN = 5,
-): Promise<IncomeItemTrend> {
-  try {
-    const { data } = await supabase
-      .from("business_incomes")
-      .select("amount, chip_label, description, transaction_date")
-      .eq("business_id", businessId)
-      .gte("transaction_date", start)
-      .lte("transaction_date", end);
-
-    const rows = (data ?? []) as {
-      amount: number;
-      chip_label: string | null;
-      description: string | null;
-      transaction_date: string;
-    }[];
-    const labelOf = (r: { chip_label: string | null; description: string | null }) =>
-      (r.chip_label || r.description || "Diğer").trim() || "Diğer";
-
-    const totalsByLabel = new Map<string, number>();
-    for (const r of rows) {
-      const l = labelOf(r);
-      totalsByLabel.set(l, (totalsByLabel.get(l) ?? 0) + Number(r.amount));
-    }
-    const ranked = [...totalsByLabel.entries()].sort((a, b) => b[1] - a[1]);
-    const topLabels = new Set(ranked.slice(0, topN).map(([l]) => l));
-    const series: IncomeItemSeries[] = ranked
-      .slice(0, topN)
-      .map(([label], i) => ({ key: `s${i}`, label, color: CHART_COLORS[i % CHART_COLORS.length] }));
-    const keyByLabel = new Map(series.map((s) => [s.label, s.key]));
-    const hasOther = ranked.length > topN;
-
-    const byDate = new Map<string, IncomeItemPoint>();
-    for (const r of rows) {
-      const date = r.transaction_date;
-      const label = labelOf(r);
-      const key = topLabels.has(label) ? keyByLabel.get(label)! : OTHER_KEY;
-      const point = byDate.get(date) ?? { date, label: String(Number(date.slice(8, 10))), total: 0 };
-      point[key] = Number(point[key] ?? 0) + Number(r.amount);
-      point.total = Number(point.total) + Number(r.amount);
-      byDate.set(date, point);
-    }
-
-    const allSeries = hasOther
-      ? [...series, { key: OTHER_KEY, label: "Diğer", color: "var(--color-text-secondary)" }]
-      : series;
-    return {
-      points: [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date)),
-      series: allSeries,
-    };
-  } catch {
-    return { points: [], series: [] };
+  months = 6,
+): Promise<EsnafRaporlarBundle> {
+  const monthKeys: string[] = [];
+  let cursor = currentMonthString();
+  for (let i = 0; i < months; i++) {
+    monthKeys.unshift(cursor);
+    cursor = shiftMonth(cursor, -1);
   }
+  const { start: periodStart } = getMonthRange(monthKeys[0]);
+  const { start: curStart, end: curEnd } = getMonthRange(monthKeys[monthKeys.length - 1]);
+
+  const periodData = await getEsnafPeriodData(supabase, businessId, periodStart, curEnd);
+  const trend = deriveMonthlyTrend(periodData, monthKeys);
+  const currentMonthData = filterEsnafPeriodData(periodData, curStart, curEnd);
+
+  return {
+    trend,
+    vat: deriveVatSummary(currentMonthData),
+    categories: deriveExpensesByCategory(currentMonthData),
+    incomeItemTrend: deriveIncomeItemTrend(currentMonthData, 5),
+  };
 }
 
 // ─── Kasa (income/expense) ─────────────────────────────────────────────────

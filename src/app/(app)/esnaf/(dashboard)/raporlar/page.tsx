@@ -1,13 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getActiveBusiness } from "@/lib/esnaf/active-business";
-import {
-  getEsnafMonthlyTrend,
-  getVatSummary,
-  getExpensesByCategory,
-  getIncomeItemTrend,
-} from "@/lib/data/esnaf";
+import { getEsnafRaporlarBundle } from "@/lib/data/esnaf";
 import { CHART_COLORS } from "@/lib/data/analytics";
-import { currentMonthString, getMonthRange } from "@/lib/utils/date";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { BalanceTrendChart } from "@/components/modules/balance/balance-trend-chart";
 import { CategoryDonutChart } from "@/components/modules/analytics/category-donut-chart";
@@ -21,13 +15,7 @@ export default async function EsnafRaporlarPage() {
   if (!business) return null;
 
   const supabase = await createClient();
-  const { start, end } = getMonthRange(currentMonthString());
-  const [trend, vat, categories, incomeItemTrend] = await Promise.all([
-    getEsnafMonthlyTrend(supabase, business.id, 6),
-    getVatSummary(supabase, business.id, start, end),
-    getExpensesByCategory(supabase, business.id, start, end),
-    getIncomeItemTrend(supabase, business.id, start, end, 5),
-  ]);
+  const { trend, vat, categories, incomeItemTrend } = await getEsnafRaporlarBundle(supabase, business.id, 6);
 
   return (
     <div className="space-y-6">
