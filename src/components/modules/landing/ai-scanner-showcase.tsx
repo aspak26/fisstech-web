@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { animate, motion, useInView } from "framer-motion";
-import { AlertCircle, Check, FileUp, Receipt, Smartphone, Zap } from "lucide-react";
+import { Camera, FileUp, FolderCheck, MousePointer2, Receipt, Settings, Smartphone } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { formatCurrency } from "@/lib/utils/currency";
 import { Reveal } from "./reveal";
@@ -29,6 +29,9 @@ const DONUT_SEGMENTS_WITH_OFFSET = DONUT_SEGMENTS.reduce<
 }, []);
 
 const TOTAL_AMOUNT = DONUT_SEGMENTS.reduce((sum, seg) => sum + seg.amount, 0);
+
+const DONUT_RADIUS = 40;
+const DONUT_CIRCUMFERENCE = 2 * Math.PI * DONUT_RADIUS;
 
 /** Görünüme girince 0'dan hedefe sayan tutar — framer-motion'ın imperative
  * `animate()` fonksiyonuyla, her tick'te state güncelleyip formatCurrency
@@ -63,7 +66,7 @@ function UploadVisual() {
           className="absolute flex h-9 w-9 items-center justify-center rounded-full bg-accent text-on-accent"
           style={{ boxShadow: "0 0 20px 2px color-mix(in srgb, var(--color-accent) 70%, transparent)" }}
         >
-          <Zap className="h-4 w-4" />
+          <Camera className="h-4 w-4" />
         </motion.span>
       </div>
 
@@ -117,55 +120,72 @@ function ScanVisual() {
   );
 }
 
-function ReviewVisual() {
-  const rows = [
-    { label: "Mağaza: Kampüs Market", flagged: false },
-    { label: "Toplam: ₺258,40", flagged: false },
-    { label: "KDV Oranı: %10?", flagged: true },
-  ];
+const AUTO_SAVE_TIMES = [0, 0.22, 0.34, 0.7, 0.92, 1];
+
+function AutoSaveVisual() {
   return (
     <div className="flex h-64 items-center justify-center rounded-2xl border border-border bg-surface">
       <div className="w-full max-w-[15rem] rounded-xl border border-border bg-bg p-4">
-        <ul className="space-y-2">
-          {rows.map((row, i) => (
-            <li
-              key={row.label}
-              className={cn(
-                "relative flex items-center justify-between rounded-control px-2.5 py-2 text-xs",
-                row.flagged ? "bg-warning/10" : "bg-surface",
-              )}
+        <div className="flex items-center justify-between">
+          <span className="flex items-center gap-2 text-xs font-medium text-text-primary">
+            <Settings className="h-3.5 w-3.5 text-text-secondary" />
+            Otomatik Fiş Kaydı
+          </span>
+
+          <div className="relative h-5 w-9 shrink-0 rounded-full">
+            <motion.div
+              className="absolute inset-0 rounded-full"
+              animate={{
+                backgroundColor: [
+                  "var(--color-border)",
+                  "var(--color-border)",
+                  "var(--color-accent)",
+                  "var(--color-accent)",
+                  "var(--color-border)",
+                  "var(--color-border)",
+                ],
+              }}
+              transition={{ duration: 3.4, repeat: Infinity, times: AUTO_SAVE_TIMES, ease: "easeInOut" }}
+            />
+            <motion.span
+              className="absolute top-0.5 h-4 w-4 rounded-full bg-white shadow"
+              animate={{ left: ["2px", "2px", "18px", "18px", "2px", "2px"] }}
+              transition={{ duration: 3.4, repeat: Infinity, times: AUTO_SAVE_TIMES, ease: "easeInOut" }}
+            />
+            <motion.span
+              aria-hidden="true"
+              animate={{
+                opacity: [0, 1, 1, 0, 0, 0],
+                x: [10, 10, -2, -2, -2, 10],
+                y: [-10, -10, 2, 2, 2, -10],
+              }}
+              transition={{ duration: 3.4, repeat: Infinity, times: [0, 0.14, 0.28, 0.34, 0.34, 1], ease: "easeInOut" }}
+              className="pointer-events-none absolute -right-2 -top-2 text-text-secondary"
             >
-              <span className="text-text-primary">{row.label}</span>
-              {row.flagged ? (
-                <motion.span
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-                >
-                  <AlertCircle className="h-3.5 w-3.5 text-warning" />
-                </motion.span>
-              ) : (
-                <Check className="h-3.5 w-3.5 text-accent" />
-              )}
-              {i === 2 && (
-                <motion.span
-                  aria-hidden="true"
-                  animate={{ opacity: [0, 0, 1, 1, 0], scale: [1, 1, 0.85, 1, 1] }}
-                  transition={{ duration: 2.4, repeat: Infinity, times: [0, 0.55, 0.65, 0.8, 1] }}
-                  className="pointer-events-none absolute h-6 w-6 rounded-full border-2 border-accent"
-                />
-              )}
-            </li>
-          ))}
-        </ul>
-        <motion.div
-          aria-hidden="true"
-          animate={{ scale: [1, 1, 0.94, 1, 1] }}
-          transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut", times: [0, 0.55, 0.65, 0.75, 1] }}
-          className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-control bg-accent py-2 text-xs font-semibold text-on-accent"
-        >
-          <Check className="h-3.5 w-3.5" />
-          Onayla
-        </motion.div>
+              <MousePointer2 className="h-4 w-4" />
+            </motion.span>
+          </div>
+        </div>
+
+        <div className="relative mt-8 h-9">
+          <motion.div
+            animate={{ opacity: [0, 0, 1, 1, 0, 0], x: [0, 0, 0, 130, 130, 130], scale: [1, 1, 1, 0.7, 0.7, 0.7] }}
+            transition={{ duration: 3.4, repeat: Infinity, times: [0, 0.34, 0.4, 0.55, 0.6, 1], ease: "easeInOut" }}
+            className="absolute left-0 top-0 flex h-9 w-9 items-center justify-center rounded-full bg-accent-soft text-accent"
+          >
+            <Receipt className="h-4 w-4" />
+          </motion.div>
+          <div className="absolute right-0 top-0 flex h-9 w-9 items-center justify-center rounded-full border border-border text-text-secondary">
+            <FolderCheck className="h-4 w-4" />
+          </div>
+          <motion.p
+            animate={{ opacity: [0, 0, 0, 0, 1, 0] }}
+            transition={{ duration: 3.4, repeat: Infinity, times: [0, 0.55, 0.62, 0.68, 0.85, 1], ease: "easeInOut" }}
+            className="absolute inset-x-0 bottom-0 text-center text-xs font-medium text-accent"
+          >
+            Arka planda kaydedildi
+          </motion.p>
+        </div>
       </div>
     </div>
   );
@@ -192,25 +212,38 @@ function ReportVisual() {
       ))}
 
       <div className="relative h-36 w-36 shrink-0">
+        {/* Klasik stroke-dasharray/dashoffset tekniği — framer-motion'ın
+            pathLength/pathOffset motion value'ları bir circle'ın gerçek
+            çevresini değil kendi normalize ettiği bir uzunluğu kullanıyor,
+            elle strokeDasharray ile birleştirilince dilimler sağa sıkışıp
+            tam bir daire oluşturmuyordu. Burada her dilimin uzunluğu
+            gerçek çevreye (2πr) oranlanıyor, konumu sabit bir `rotate`
+            transformuyla (bir önceki dilimin bitiş açısı) veriliyor, çizim
+            animasyonu ise SADECE strokeDashoffset'in (dilim uzunluğu → 0)
+            animasyonuyla sağlanıyor. */}
         <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
-          <circle cx="50" cy="50" r="40" fill="none" stroke="var(--color-border)" strokeWidth="12" />
-          {DONUT_SEGMENTS_WITH_OFFSET.map((seg, i) => (
-            <motion.circle
-              key={seg.name}
-              cx="50"
-              cy="50"
-              r="40"
-              fill="none"
-              stroke={seg.color}
-              strokeWidth="12"
-              strokeLinecap="round"
-              style={{ pathOffset: seg.offset }}
-              initial={{ pathLength: 0 }}
-              whileInView={{ pathLength: seg.pct }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.8, delay: i * 0.25, ease: "easeOut" }}
-            />
-          ))}
+          <circle cx="50" cy="50" r={DONUT_RADIUS} fill="none" stroke="var(--color-border)" strokeWidth="12" />
+          {DONUT_SEGMENTS_WITH_OFFSET.map((seg, i) => {
+            const strokeLength = seg.pct * DONUT_CIRCUMFERENCE;
+            return (
+              <motion.circle
+                key={seg.name}
+                cx="50"
+                cy="50"
+                r={DONUT_RADIUS}
+                fill="none"
+                stroke={seg.color}
+                strokeWidth="12"
+                strokeLinecap="round"
+                strokeDasharray={`${strokeLength} ${DONUT_CIRCUMFERENCE}`}
+                style={{ rotate: seg.offset * 360, transformOrigin: "50% 50%" }}
+                initial={{ strokeDashoffset: strokeLength }}
+                whileInView={{ strokeDashoffset: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.8, delay: i * 0.25, ease: "easeOut" }}
+              />
+            );
+          })}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="font-display text-base font-bold text-text-primary">
@@ -256,10 +289,10 @@ const STEPS = [
     Visual: ScanVisual,
   },
   {
-    title: "Son Onay Sizin Elinizde",
+    title: "İster İncele, İster Otomatik Kaydet",
     description:
-      "Yapay zekânın emin olamadığı nadir durumlarda, sistem o alanı sarı renkle işaretler. Sadece o kısımlara göz atıp tek tıkla onaylarsınız.",
-    Visual: ReviewVisual,
+      "Hıza mı ihtiyacınız var? 'Otomatik Kayıt' modunu açın, Fişştech önizleme ekranını atlayarak harcamalarınızı arka planda sessizce bütçenize işlesin. Dilerseniz geleneksel onay ekranını kullanmaya devam edebilirsiniz. Kontrol tamamen sizin hızınıza uyum sağlar.",
+    Visual: AutoSaveVisual,
   },
   {
     title: "Anında Finansal Raporlara Dönüşüm",

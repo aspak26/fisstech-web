@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import Link from "next/link";
+import { AnimatePresence, motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { buttonVariants } from "@/components/ui/button";
@@ -33,9 +34,7 @@ export function PricingSection() {
 
   const selectedTier = ESNAF_TIERS.find((t) => t.id === esnafPersonnel) ?? ESNAF_TIERS[0];
   const esnafButtonLabel =
-    selectedTier.id === "sadece_ben"
-      ? `Esnaf Satın Al — ₺${selectedTier.monthly}/ay`
-      : `Esnaf (${selectedTier.label}) Satın Al — ₺${selectedTier.monthly}/ay`;
+    selectedTier.id === "sadece_ben" ? "Esnaf Modu'na Başla" : `Esnaf (${selectedTier.label}) ile Başla`;
 
   return (
     <section id="pricing" className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
@@ -97,8 +96,19 @@ export function PricingSection() {
 
                 <div className="mt-6 flex items-end gap-1.5">
                   <span className="text-lg font-medium text-text-secondary">₺</span>
-                  <span className="font-display text-6xl font-bold leading-none tracking-tight text-text-primary">
-                    {yearly ? plan.yearly : plan.monthly}
+                  <span className="relative inline-grid font-display text-6xl font-bold leading-none tracking-tight text-text-primary">
+                    <AnimatePresence mode="popLayout" initial={false}>
+                      <motion.span
+                        key={plan.id === "esnaf" && !yearly ? selectedTier.monthly : yearly ? plan.yearly : plan.monthly}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                        className="col-start-1 row-start-1"
+                      >
+                        {plan.id === "esnaf" && !yearly ? selectedTier.monthly : yearly ? plan.yearly : plan.monthly}
+                      </motion.span>
+                    </AnimatePresence>
                   </span>
                   <span className="pb-1 text-lg text-text-secondary">{yearly ? "/yıl" : "/ay"}</span>
                 </div>
