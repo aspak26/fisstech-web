@@ -329,19 +329,30 @@ export async function createTransaction(
 
   // Bump sale_count for "Sık Satanlar" sorting — best-effort, read-then-write
   // (fine for a single-user POS; no concurrent-write contention in practice).
+  // Batched: one .in() read + parallel per-product writes, instead of N
+  // sequential read-then-write round trips (was blocking checkout latency
+  // on cart size — optimization audit finding, bkz. docs/PROGRESS.md).
+  const qtyByProduct = new Map<string, number>();
   for (const line of payload.lines) {
     if (!line.productId) continue;
-    const { data: product } = await supabase
+    qtyByProduct.set(
+      line.productId,
+      (qtyByProduct.get(line.productId) ?? 0) + Math.max(1, Math.round(line.quantity)),
+    );
+  }
+  if (qtyByProduct.size > 0) {
+    const { data: products } = await supabase
       .from("quick_products")
-      .select("sale_count")
-      .eq("id", line.productId)
-      .maybeSingle();
-    if (product) {
-      await supabase
-        .from("quick_products")
-        .update({ sale_count: Number(product.sale_count) + Math.max(1, Math.round(line.quantity)) })
-        .eq("id", line.productId);
-    }
+      .select("id, sale_count")
+      .in("id", [...qtyByProduct.keys()]);
+    await Promise.all(
+      (products ?? []).map((p) =>
+        supabase
+          .from("quick_products")
+          .update({ sale_count: Number(p.sale_count) + (qtyByProduct.get(p.id as string) ?? 0) })
+          .eq("id", p.id as string),
+      ),
+    );
   }
 
   if (payload.paymentMethod === "veresiye" && payload.customerId) {
