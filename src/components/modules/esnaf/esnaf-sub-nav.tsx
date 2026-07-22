@@ -79,6 +79,7 @@ const SECTOR_TABS: Record<string, { href: string; label: string; icon: typeof Wa
     { href: "/esnaf/satis/portfoy", label: "Portföy", icon: ImageIcon },
     { href: "/esnaf/satis/surecler", label: "Süreçler", icon: GitBranch },
     { href: "/esnaf/satis/musteri", label: "Müşteriler", icon: Contact },
+    { href: "/esnaf/perakende/kasa", label: "Hızlı Kasa", icon: ShoppingCart },
   ],
 };
 
