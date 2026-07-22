@@ -1,11 +1,15 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { normalizeDate } from "@/lib/utils/date";
+import { detectImageType } from "@/lib/utils/file-validation";
 import type { ScanResult } from "./types";
 
 const SIGNED_URL_TTL_SECONDS = 60 * 60 * 24 * 365; // 1 year, matches mobile
 
 /** Uploads receipt originals to the private `receipts` bucket and returns
- * signed URLs — same path shape and TTL as fisle_app's uploadReceipts(). */
+ * signed URLs — same path shape and TTL as fisle_app's uploadReceipts().
+ * Files whose real content isn't a JPEG/PNG/WebP (checked via magic bytes,
+ * not the attacker-controlled name/type) are silently skipped, matching
+ * this function's existing silent-skip-on-upload-error behavior. */
 export async function uploadReceipts(
   supabase: SupabaseClient,
   userId: string,
@@ -15,12 +19,13 @@ export async function uploadReceipts(
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
-    const ext = file.name.split(".").pop() || "jpg";
-    const fileName = `${userId}/${Date.now()}_${i}.${ext}`;
+    const detected = await detectImageType(file);
+    if (!detected) continue;
+    const fileName = `${userId}/${Date.now()}_${i}.${detected.ext}`;
 
     const { error: uploadError } = await supabase.storage
       .from("receipts")
-      .upload(fileName, file);
+      .upload(fileName, file, { contentType: detected.mime });
     if (uploadError) continue;
 
     const { data } = await supabase.storage
