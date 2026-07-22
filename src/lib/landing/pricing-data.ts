@@ -32,10 +32,12 @@ export const PRICING_PLANS: PricingPlan[] = [
     yearlySavings: "%33",
     popular: true,
     features: [
-      "Sınırsız fiş/fatura tarama",
-      "Gelişmiş analiz ve raporlar",
-      "Bütçe ve hedef takibi",
-      "Bulut yedekleme dahil",
+      "Fişştech AI: Tüm verinizi analiz eden muhasebe uzmanı",
+      "Aylık 50 AI sohbet limiti",
+      "Sınırsız fiş tarama",
+      "Gelişmiş analiz raporları",
+      "Ortak bütçe (Grup)",
+      "Veri dışa aktarma (CSV/PDF)",
     ],
   },
   {
@@ -48,10 +50,11 @@ export const PRICING_PLANS: PricingPlan[] = [
     yearlyEffective: "166,66",
     yearlySavings: "%17",
     features: [
+      "Kasa takibi ve işletme panosu",
       "6 sektöre özel işletme paneli",
-      "Kasa defteri ve stok takibi",
-      "Personel ve maaş yönetimi",
-      "Ek personel erişimi eklentisiyle büyütülebilir",
+      "Müşteri & personel yönetimi",
+      "İşletme PDF/Excel raporları",
+      "Yapay Zeka ile Akıllı Gün Sonu Raporu",
     ],
   },
   {
@@ -63,12 +66,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     yearly: "1.199,99",
     yearlyEffective: "99,99",
     yearlySavings: "%17",
-    features: [
-      "Grup bütçesi ve ortak harcamalar",
-      "Üye bazlı harcama analizleri",
-      "Sınırsız fiş tarama (tüm üyeler)",
-      "Bulut yedekleme dahil",
-    ],
+    features: ["Tüm Premium özellikler", "4 kişiye kadar aile üyesi", "Her üye kendi hesabı"],
   },
 ];
 
@@ -78,6 +76,6 @@ export const BACKUP_ADDON = {
   // "Esnaf Modu" alt metnin içinde vurgulanacak — pricing-section.tsx bu
   // string'i tam bu yazımla arayıp <strong> ile sarıyor, değiştirirsen ikisini
   // birlikte güncelle.
-  description: "Premium ve Aile planlarına halihazırda dahildir. Sadece Esnaf Modu kullanıcıları tarafından ek paket olarak satın alınabilir.",
+  description: "Fiş, fatura ve evrak fotoğraflarını orijinal görsel haliyle güvenle saklamak isteyen Esnaf Modu kullanıcıları için özel ek paket.",
   monthly: "₺29,99",
 };

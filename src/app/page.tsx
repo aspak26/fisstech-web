@@ -8,6 +8,7 @@ import { ScanDemo } from "@/components/modules/landing/scan-demo";
 import { FeaturesSection } from "@/components/modules/landing/features-section";
 import { WorkflowSection } from "@/components/modules/landing/workflow-section";
 import { PricingSection } from "@/components/modules/landing/pricing-section";
+import { ComparisonTable } from "@/components/modules/landing/comparison-table";
 import { FaqSection } from "@/components/modules/landing/faq-section";
 import { ClosingCta } from "@/components/modules/landing/closing-cta";
 import { LandingFooter } from "@/components/modules/landing/landing-footer";
@@ -35,6 +36,7 @@ export default async function RootPage() {
         <FeaturesSection />
         <WorkflowSection />
         <PricingSection />
+        <ComparisonTable />
         <FaqSection />
         <ClosingCta />
       </main>

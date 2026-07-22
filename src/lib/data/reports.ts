@@ -9,6 +9,7 @@ import type {
 } from "@/lib/types/database";
 import type { UserDebtRow } from "./debts";
 import type { GoalRow } from "./goals";
+import { normalizeStoreName } from "./analytics";
 
 export interface ReportData {
   start: string;
@@ -128,6 +129,20 @@ export function expensesByCategory(data: ReportData): CategoryTotal[] {
     } else {
       map.set("Diğer", (map.get("Diğer") ?? 0) + Number(expense.total));
     }
+  }
+  return [...map.entries()]
+    .map(([name, total]) => ({ name, total }))
+    .sort((a, b) => b.total - a.total);
+}
+
+/** "Market Dağılımı" — analytics.ts'in getStoreBreakdown'ıyla aynı
+ * normalizeStoreName mantığı, ReportData.expenses'e scope edilmiş. */
+export function expensesByStore(data: ReportData): CategoryTotal[] {
+  const map = new Map<string, number>();
+  for (const expense of data.expenses) {
+    const raw = expense.store_name?.trim();
+    const name = !raw ? "Manuel Giriş" : normalizeStoreName(raw);
+    map.set(name, (map.get(name) ?? 0) + Number(expense.total));
   }
   return [...map.entries()]
     .map(([name, total]) => ({ name, total }))

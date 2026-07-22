@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { Globe, LogOut, UserRound } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -61,6 +62,23 @@ export function UserMenu({
               {PLAN_LABELS[planType] ?? planType}
             </Badge>
           </div>
+          <div className="my-1 border-t border-border" />
+          <Link
+            href="/settings"
+            onClick={() => setOpen(false)}
+            className="flex w-full items-center gap-2 rounded-control px-3 py-2 text-sm text-text-primary hover:bg-bg"
+          >
+            <UserRound className="h-4 w-4" />
+            Profilim
+          </Link>
+          <Link
+            href="/"
+            onClick={() => setOpen(false)}
+            className="flex w-full items-center gap-2 rounded-control px-3 py-2 text-sm text-text-primary hover:bg-bg"
+          >
+            <Globe className="h-4 w-4" />
+            Tanıtım Sitesine Dön
+          </Link>
           <div className="my-1 border-t border-border" />
           <button
             type="button"

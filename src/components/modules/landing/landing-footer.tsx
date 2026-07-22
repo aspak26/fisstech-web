@@ -94,9 +94,15 @@ export function LandingFooter() {
                 verileriniz güvende.
               </p>
 
-              <p className="mt-8 text-xs font-bold uppercase tracking-widest text-text-secondary">Bülten</p>
-              <NewsletterForm />
-              <p className="mt-2 text-xs text-text-secondary">İstediğiniz zaman çıkabilirsiniz.</p>
+              <div className="mt-8 space-y-3">
+                <p className="text-xs font-bold uppercase tracking-widest text-text-secondary">Bülten</p>
+                <p className="text-sm leading-relaxed text-text-secondary">
+                  Akıllı bütçe ipuçları, yeni Fişştech özellikleri ve özel kampanyalardan anında
+                  haberdar olmak için e-posta listemize katılın.
+                </p>
+                <NewsletterForm />
+                <p className="text-xs text-text-secondary">İstediğiniz zaman çıkabilirsiniz.</p>
+              </div>
             </div>
 
             {LINK_COLUMNS.map((col) => (

@@ -15,6 +15,7 @@ import {
   StickyNote,
   Settings,
   Store,
+  Globe,
 } from "lucide-react";
 
 export interface NavItem {
@@ -47,6 +48,7 @@ export const upcomingNavItems: NavItem[] = [
 
 export const bottomNavItems: NavItem[] = [
   { label: "Ayarlar", href: "/settings", icon: Settings, status: "active" },
+  { label: "Ana Sayfaya Dön", href: "/", icon: Globe, status: "active" },
   { label: "Esnaf Modu", href: "/esnaf", icon: Store, status: "active" },
 ];
 

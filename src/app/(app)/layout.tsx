@@ -58,7 +58,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             planType={profile?.plan_type ?? "free"}
           />
         </div>
-        <main id="main-content" className="flex-1 overflow-y-auto p-4 lg:p-8 print:p-0">
+        <main
+          id="main-content"
+          className="flex-1 overflow-y-auto p-4 lg:p-8 print:block print:h-auto print:overflow-visible print:p-0"
+        >
           {children}
         </main>
       </div>

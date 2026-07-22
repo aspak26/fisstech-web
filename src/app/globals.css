@@ -21,3 +21,49 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* Yazdırma / PDF Kaydet (Raporlar sayfası ve genel olarak her sayfa).
+   Ekran teması ne olursa olsun (koyu mod açıkken bile) çıktı her zaman
+   açık zeminli ve marka rengiyle (yeşil, kullanıcının verdiği mavi örneği
+   Fişştech'in gerçek marka rengiyle çakışıyordu, tutarlılık için accent
+   token'ı kullanıldı) tutarlı olsun diye token'lar print içinde açık mod
+   değerlerine sabitleniyor. Tek tek bileşen değiştirmeye gerek kalmadan,
+   tüm bg, text ve border renk class'ları otomatik doğru render oluyor.
+   Sadece :root hedefleniyor, .dark DEĞİL — landing page'in bilinçli
+   olarak her zaman koyu görünen bölümleri (Footer, Kapanış CTA, Step
+   Slider vb., hepsi kendi içlerinde <div className="dark"> kullanıyor)
+   bu kuralın dışında kalmalı, yoksa içlerindeki `dark:invert-0` gibi
+   DOM class'ına bağlı Tailwind varyantlarıyla (token'lardan bağımsız
+   çalışırlar) çelişip örn. logoyu print'te görünmez hale getiriyordu. */
+@media print {
+  :root {
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --accent: #1e4d2b;
+    --accent-hover: #183e22;
+    --accent-soft: #d6ead9;
+    --on-accent: #ffffff;
+    --text-primary: #1a1a1a;
+    --text-secondary: #525252;
+    --border: #d4d4d4;
+    --success: #2e7d32;
+    --danger: #c0392b;
+    --warning: #b8860b;
+  }
+
+  @page {
+    margin: 0mm;
+  }
+
+  body {
+    padding: 15mm;
+  }
+
+  ::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  * {
+    scrollbar-width: none !important;
+  }
+}

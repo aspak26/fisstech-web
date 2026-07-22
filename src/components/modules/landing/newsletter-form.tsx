@@ -17,7 +17,7 @@ export function NewsletterForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-3 flex gap-2">
+    <form onSubmit={handleSubmit} className="flex gap-2">
       <label htmlFor="newsletter-email" className="sr-only">
         E-posta adresiniz
       </label>
