@@ -32,8 +32,23 @@ export async function getUserBusinesses(): Promise<BusinessRow[]> {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return [];
-  const { data } = await supabase.rpc("get_my_businesses");
-  return ((data ?? []) as BusinessRow[]).sort((a, b) => a.created_at.localeCompare(b.created_at));
+
+  const { data, error } = await supabase.rpc("get_my_businesses");
+  if (!error) {
+    return ((data ?? []) as BusinessRow[]).sort((a, b) => a.created_at.localeCompare(b.created_at));
+  }
+
+  // get_my_businesses() henüz docs/sql/050_my_businesses.sql SQL Editor'da
+  // çalıştırılmadıysa (fonksiyon canlıda yoksa) RPC hata döner — bu durumda
+  // TÜM mevcut sahiplerin işletmeleri sessizce kaybolmasın diye eski
+  // (sadece sahip olunan işletmeler) sorguya geri düşülüyor. Ekip üzerinden
+  // katılan personel bu fallback'te görünmez, ama sahipler hiç etkilenmez.
+  const { data: owned } = await supabase
+    .from("businesses")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: true });
+  return (owned ?? []) as BusinessRow[];
 }
 
 export async function setActiveBusinessId(businessId: string): Promise<void> {
