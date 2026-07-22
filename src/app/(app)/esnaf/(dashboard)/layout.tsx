@@ -14,6 +14,8 @@ const ESNAF_REALTIME_TABLES = [
   "invoices",
   "employees",
   "salary_payments",
+  "business_staff",
+  "business_invites",
   "staff_commissions",
   "stock_items",
   "stock_movements",

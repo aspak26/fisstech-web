@@ -107,6 +107,35 @@ export interface SalaryPaymentRow {
   created_at: string;
 }
 
+// ─── Ekip (business_staff / business_invites, mobil migration 041_eksik_tablolar.sql
+// ile canlı DB'de doğrulandı — business_staff'ta ayrıca migration dosyalarında
+// bulunmayan can_chat:boolean kolonu var, `supabase gen types` ile canlıdan teyit edildi) ──
+
+export type BusinessStaffRole = "yardimci_yonetici" | "personel";
+
+export interface BusinessStaffRow {
+  id: string;
+  business_id: string;
+  user_id: string;
+  role: BusinessStaffRole;
+  job_title: string | null;
+  can_chat: boolean;
+  invited_by: string | null;
+  joined_at: string;
+  left_at: string | null;
+}
+
+export interface BusinessInviteRow {
+  id: string;
+  business_id: string;
+  token: string;
+  role: BusinessStaffRole;
+  status: "pending" | "accepted" | "expired";
+  expires_at: string;
+  created_by: string;
+  created_at: string;
+}
+
 export interface StockItemRow {
   id: string;
   business_id: string;

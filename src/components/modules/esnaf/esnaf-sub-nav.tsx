@@ -30,6 +30,7 @@ import {
   LayoutGrid,
   ShoppingBag,
   Calculator,
+  UserPlus,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -39,6 +40,7 @@ const BASE_TABS = [
   { href: "/esnaf/faturalar", label: "Faturalar", icon: FileText },
   { href: "/esnaf/evrak", label: "Evrak Arşivi", icon: FolderOpen },
   { href: "/esnaf/personel", label: "Personel", icon: Users },
+  { href: "/esnaf/ekip", label: "Ekip", icon: UserPlus },
   { href: "/esnaf/stok", label: "Stok", icon: Package },
   { href: "/esnaf/raporlar", label: "Raporlar", icon: BarChart3 },
   { href: "/esnaf/ayarlar", label: "Ayarlar", icon: Settings },
