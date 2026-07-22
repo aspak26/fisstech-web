@@ -15,6 +15,6 @@ export const COMPARISON_ROWS: ComparisonRow[] = [
   { feature: "Kasa, stok ve satış takibi", premium: false, esnaf: true, family: false },
   { feature: "6 sektöre özel işletme paneli", premium: false, esnaf: true, family: false },
   { feature: "Personel ve müşteri yönetimi", premium: false, esnaf: true, family: false },
-  { feature: "Çoklu kullanıcı (Grup/Aile)", premium: "Sadece Grup", esnaf: "Yok (Ek personel eklenebilir)", family: "4 Kişiye Kadar" },
+  { feature: "Lisans / Kullanıcı Sayısı", premium: "Bireysel (1 Kişi)", esnaf: "1 Kişi (+ Ek Personel)", family: "4 Kişiye Kadar" },
   { feature: "Orijinal fiş görseli yedekleme (Bulut)", premium: false, esnaf: "Eklenti (₺29,99/ay)", family: false },
 ];

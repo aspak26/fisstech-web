@@ -6,7 +6,7 @@ import { Check } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
-import { BACKUP_ADDON, PRICING_PLANS } from "@/lib/landing/pricing-data";
+import { BACKUP_ADDON, ESNAF_TIERS, PRICING_PLANS } from "@/lib/landing/pricing-data";
 import { Reveal } from "./reveal";
 
 /** BACKUP_ADDON.description içindeki "Esnaf Modu" alt dizisini <strong>
@@ -24,8 +24,18 @@ function highlightEsnafModu(text: string): ReactNode {
   );
 }
 
+const DEFAULT_PLAN_ID = PRICING_PLANS.find((p) => p.popular)?.id ?? PRICING_PLANS[0].id;
+
 export function PricingSection() {
   const [yearly, setYearly] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(DEFAULT_PLAN_ID);
+  const [esnafPersonnel, setEsnafPersonnel] = useState(ESNAF_TIERS[0].id);
+
+  const selectedTier = ESNAF_TIERS.find((t) => t.id === esnafPersonnel) ?? ESNAF_TIERS[0];
+  const esnafButtonLabel =
+    selectedTier.id === "sadece_ben"
+      ? `Esnaf Satın Al — ₺${selectedTier.monthly}/ay`
+      : `Esnaf (${selectedTier.label}) Satın Al — ₺${selectedTier.monthly}/ay`;
 
   return (
     <section id="pricing" className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
@@ -47,67 +57,112 @@ export function PricingSection() {
       </Reveal>
 
       <div className="mt-14 grid gap-8 md:grid-cols-3 md:items-start">
-        {PRICING_PLANS.map((plan, i) => (
-          <Reveal key={plan.id} delay={i * 100}>
-            <div
-              className={cn(
-                "relative flex h-full flex-col rounded-card border bg-surface p-8 transition-all duration-300 ease-in-out hover:-translate-y-1.5 hover:border-accent",
-                "hover:shadow-[0_0_40px_-10px_color-mix(in_srgb,var(--color-accent)_45%,transparent)]",
-                plan.popular ? "border-2 border-accent" : "border-border shadow-sm",
-              )}
-              style={
-                plan.popular
-                  ? { boxShadow: "0 0 70px -18px color-mix(in srgb, var(--color-accent) 55%, transparent)" }
-                  : undefined
-              }
-            >
-              {plan.popular && (
-                <span className="absolute -top-4 left-1/2 inline-flex w-fit -translate-x-1/2 items-center whitespace-nowrap rounded-full bg-accent px-4 py-1.5 text-xs font-bold tracking-wide text-on-accent shadow-md">
-                  En Popüler
-                </span>
-              )}
-
-              <div className="flex items-center gap-2.5">
-                <plan.icon className="h-5 w-5 text-accent" aria-hidden="true" />
-                <h3 className="font-display text-lg font-semibold text-text-primary">{plan.name}</h3>
-              </div>
-              <p className="mt-2 text-sm text-text-secondary">{plan.description}</p>
-
-              <div className="mt-6 flex items-end gap-1.5">
-                <span className="text-lg font-medium text-text-secondary">₺</span>
-                <span className="font-display text-6xl font-bold leading-none tracking-tight text-text-primary">
-                  {yearly ? plan.yearly : plan.monthly}
-                </span>
-                <span className="pb-1 text-lg text-text-secondary">{yearly ? "/yıl" : "/ay"}</span>
-              </div>
-              <p className="mt-2 text-xs text-text-secondary">
-                {yearly
-                  ? `Ayda sadece ₺${plan.yearlyEffective}'a denk gelir · ${plan.yearlySavings} tasarruf`
-                  : "Aylık faturalandırılır · vergiler dahildir"}
-              </p>
-
-              <Link
-                href="/register"
-                className={buttonVariants(
-                  plan.popular ? "primary" : "secondary",
-                  "lg",
-                  cn("mt-6 w-full", !plan.popular && "border-border bg-transparent text-text-secondary hover:border-accent hover:text-accent"),
+        {PRICING_PLANS.map((plan, i) => {
+          const isSelected = plan.id === selectedPlan;
+          return (
+            <Reveal key={plan.id} delay={i * 100}>
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => setSelectedPlan(plan.id)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setSelectedPlan(plan.id);
+                  }
+                }}
+                aria-pressed={isSelected}
+                className={cn(
+                  "relative flex h-full cursor-pointer flex-col rounded-card border bg-surface p-8 transition-all duration-300 ease-in-out hover:-translate-y-1.5 hover:border-accent",
+                  "hover:shadow-[0_0_40px_-10px_color-mix(in_srgb,var(--color-accent)_45%,transparent)]",
+                  isSelected ? "border-2 border-accent" : "border-border shadow-sm",
                 )}
+                style={
+                  isSelected
+                    ? { boxShadow: "0 0 70px -18px color-mix(in srgb, var(--color-accent) 55%, transparent)" }
+                    : undefined
+                }
               >
-                Hemen Başla
-              </Link>
+                {plan.popular && (
+                  <span className="absolute -top-4 left-1/2 inline-flex w-fit -translate-x-1/2 items-center whitespace-nowrap rounded-full bg-accent px-4 py-1.5 text-xs font-bold tracking-wide text-on-accent shadow-md">
+                    En Popüler
+                  </span>
+                )}
 
-              <ul className="mt-8 flex-1 space-y-4">
-                {plan.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-text-primary">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </Reveal>
-        ))}
+                <div className="flex items-center gap-2.5">
+                  <plan.icon className="h-5 w-5 text-accent" aria-hidden="true" />
+                  <h3 className="font-display text-lg font-semibold text-text-primary">{plan.name}</h3>
+                </div>
+                <p className="mt-2 text-sm text-text-secondary">{plan.description}</p>
+
+                <div className="mt-6 flex items-end gap-1.5">
+                  <span className="text-lg font-medium text-text-secondary">₺</span>
+                  <span className="font-display text-6xl font-bold leading-none tracking-tight text-text-primary">
+                    {yearly ? plan.yearly : plan.monthly}
+                  </span>
+                  <span className="pb-1 text-lg text-text-secondary">{yearly ? "/yıl" : "/ay"}</span>
+                </div>
+                <p className="mt-2 text-xs text-text-secondary">
+                  {yearly
+                    ? `Ayda sadece ₺${plan.yearlyEffective}'a denk gelir · ${plan.yearlySavings} tasarruf`
+                    : "Aylık faturalandırılır · vergiler dahildir"}
+                </p>
+
+                <Link
+                  href="/register"
+                  onClick={(e) => e.stopPropagation()}
+                  className={buttonVariants(
+                    isSelected ? "primary" : "secondary",
+                    "lg",
+                    cn("mt-6 w-full", !isSelected && "border-border bg-transparent text-text-secondary hover:border-accent hover:text-accent"),
+                  )}
+                >
+                  {plan.id === "esnaf" ? esnafButtonLabel : "Hemen Başla"}
+                </Link>
+
+                <ul className="mt-8 space-y-4">
+                  {plan.features.map((f) => (
+                    <li key={f} className="flex items-start gap-2.5 text-sm text-text-primary">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+
+                {plan.id === "esnaf" && (
+                  <div className="mt-6 flex-1 border-t border-border pt-6" onClick={(e) => e.stopPropagation()}>
+                    <p className="text-sm font-semibold text-text-primary">Ekstra Personel Erişimi (İsteğe Bağlı):</p>
+                    <p className="mb-3 mt-1 text-xs text-text-secondary">
+                      İşletmenizde uygulamayı kullanacak personel varsa uygun paketi seçin. Tek kişi
+                      çalışıyorsanız &quot;Sadece Ben&quot; seçeneğiyle devam edebilirsiniz.
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {ESNAF_TIERS.map((tier) => {
+                        const tierSelected = tier.id === esnafPersonnel;
+                        return (
+                          <button
+                            key={tier.id}
+                            type="button"
+                            onClick={() => setEsnafPersonnel(tier.id)}
+                            className={cn(
+                              "rounded-control border px-2 py-2 text-center transition-colors",
+                              tierSelected
+                                ? "border-accent bg-accent-soft text-accent"
+                                : "border-border text-text-secondary hover:border-accent/50",
+                            )}
+                          >
+                            <span className="block text-xs font-semibold">{tier.label}</span>
+                            <span className="block text-[11px] opacity-80">₺{tier.monthly}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Reveal>
+          );
+        })}
       </div>
 
       <Reveal delay={300} className="mt-6">
