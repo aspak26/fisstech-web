@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useFieldArray } from "react-hook-form";
-import { Plus, Trash2, BadgeCheck, Users, Globe, Lock, FolderPlus } from "lucide-react";
+import { Plus, Trash2, BadgeCheck, Users, Globe, Lock, FolderPlus, Paperclip, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Dialog } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,8 @@ import { cn } from "@/lib/utils/cn";
 import { predictCategory } from "@/lib/expenses/category-predictor";
 import { assignExpenseToGroups, getExpenseGroupIds, type GroupRow } from "@/lib/data/groups";
 import { CategoryAddInline } from "./category-add-dialog";
+import { DropzoneUploader } from "@/components/modules/scan/dropzone-uploader";
+import { uploadReceipts } from "@/lib/scan/saveExpense";
 import type { CategoryOption } from "@/lib/scan/types";
 import type { ExpenseWithItems } from "@/lib/data/expenses";
 import type { CategoriesRow } from "@/lib/types/database";
@@ -107,6 +109,11 @@ export function ExpenseFormDialog({
   const [selectedGroupIds, setSelectedGroupIds] = useState<Set<string>>(new Set());
   const [groupOnly, setGroupOnly] = useState(false);
 
+  // ── Fiş/Belge eki state (mevcut taranmış fiş görselleri + yeni eklenenler) ─
+  const [keptReceiptUrls, setKeptReceiptUrls] = useState<string[]>([]);
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+  const [attachError, setAttachError] = useState<string | null>(null);
+
   useEffect(() => {
     if (!open) return;
     const inst = expense?.installment ?? null;
@@ -116,6 +123,9 @@ export function ExpenseFormDialog({
     setMonthlyAmount(inst ? String(inst.monthly_amount) : "");
     setCustomAmounts(inst?.custom_amounts?.map((a) => String(a)) ?? []);
     setGroupOnly(expense?.visibility === "group_only");
+    setKeptReceiptUrls(expense?.receipt_image_url ? expense.receipt_image_url.split(",").filter(Boolean) : []);
+    setAttachedFiles([]);
+    setAttachError(null);
 
     if (expense) {
       getExpenseGroupIds(createClient(), expense.id).then((ids) => setSelectedGroupIds(new Set(ids)));
@@ -206,6 +216,9 @@ export function ExpenseFormDialog({
       const total = isInstallment ? installmentTotal : itemsTotal;
       const cardLabel = showCardLabel && values.cardLabel.trim() ? values.cardLabel.trim() : null;
 
+      const newReceiptUrls = attachedFiles.length > 0 ? await uploadReceipts(supabase, user.id, attachedFiles) : [];
+      const receiptImageUrl = [...keptReceiptUrls, ...newReceiptUrls].join(",") || null;
+
       let expenseId: string;
       if (expense) {
         expenseId = expense.id;
@@ -218,6 +231,7 @@ export function ExpenseFormDialog({
             payment_method: values.paymentMethod,
             card_label: cardLabel,
             note: values.note || null,
+            receipt_image_url: receiptImageUrl,
           })
           .eq("id", expense.id);
         await supabase.from("expense_items").delete().eq("expense_id", expense.id);
@@ -232,6 +246,7 @@ export function ExpenseFormDialog({
             payment_method: values.paymentMethod,
             card_label: cardLabel,
             note: values.note || null,
+            receipt_image_url: receiptImageUrl,
           })
           .select("id")
           .single();
@@ -480,6 +495,65 @@ export function ExpenseFormDialog({
               Toplam: <span className="font-medium text-text-primary">{formatCurrency(itemsTotal)}</span>
             </p>
           )}
+        </div>
+
+        <div className="rounded-control border border-border p-3">
+          <div className="mb-2 flex items-center gap-2 text-sm font-medium text-text-primary">
+            <Paperclip className="h-4 w-4" /> Fiş/Belge <span className="font-normal text-text-secondary">(isteğe bağlı)</span>
+          </div>
+          {keptReceiptUrls.length > 0 && (
+            <ul className="mb-2 space-y-1.5">
+              {keptReceiptUrls.map((url, i) => (
+                <li key={url} className="flex items-center justify-between gap-2 rounded-control bg-bg px-2.5 py-1.5 text-sm">
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="truncate text-accent hover:underline"
+                  >
+                    Ek {i + 1}
+                  </a>
+                  <button
+                    type="button"
+                    aria-label="Eki kaldır"
+                    onClick={() => setKeptReceiptUrls((prev) => prev.filter((u) => u !== url))}
+                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-control text-text-secondary hover:bg-danger/10 hover:text-danger"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          {attachedFiles.length > 0 && (
+            <ul className="mb-2 space-y-1.5">
+              {attachedFiles.map((file, i) => (
+                <li key={`${file.name}-${i}`} className="flex items-center justify-between gap-2 rounded-control bg-bg px-2.5 py-1.5 text-sm">
+                  <span className="truncate text-text-primary">{file.name}</span>
+                  <button
+                    type="button"
+                    aria-label="Dosyayı kaldır"
+                    onClick={() => setAttachedFiles((prev) => prev.filter((_, idx) => idx !== i))}
+                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-control text-text-secondary hover:bg-danger/10 hover:text-danger"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <DropzoneUploader
+            multiple
+            onFiles={(files) => {
+              setAttachError(null);
+              setAttachedFiles((prev) => [...prev, ...files]);
+            }}
+            onRejected={setAttachError}
+            title="Fiş/belge fotoğrafı ekle"
+            subtitle="JPEG veya PNG, maks. 5 MB"
+            multiSubtitle="Birden fazla dosya seçebilirsin (JPEG/PNG, dosya başına maks. 5 MB)"
+          />
+          {attachError && <p className="mt-1.5 text-xs text-danger">{attachError}</p>}
         </div>
 
         {groups.length > 0 && (
