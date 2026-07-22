@@ -1,6 +1,23 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { BusinessStaffRole, BusinessStaffRow, BusinessInviteRow } from "@/lib/types/esnaf";
 
+/** Güvenlik denetimi bulgusu: Ekip mutasyonları (rol değiştir/çıkar/davet
+ * iptal) sadece `.eq("id", ...)` ile RLS'e güveniyordu — sunucu tarafında
+ * hiçbir sahiplik yeniden-doğrulaması yoktu. `businesses` tablosunun RLS
+ * SELECT politikası zaten sahibi-dışı sorguları döndürmüyor, bu fonksiyon
+ * o gerçeği açıkça kontrol edip anlamlı bir hata fırlatarak defense-in-depth
+ * ekliyor (RLS tek başına yeterli olsa bile, ikinci bir katman). */
+async function assertIsBusinessOwner(supabase: SupabaseClient, businessId: string): Promise<void> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Oturum bulunamadı");
+  const { data: business } = await supabase.from("businesses").select("user_id").eq("id", businessId).maybeSingle();
+  if (!business || business.user_id !== user.id) {
+    throw new Error("Bu işlem için işletme sahibi olmanız gerekiyor");
+  }
+}
+
 /** Aktif (left_at IS NULL) business_staff sayısı — SADECE bu sayaç
  * users.esnaf_staff_limit kotasına dahildir. employees (manuel personel
  * defteri) tablosu bu sayaca kesinlikle dahil edilmez, iki sayaç
@@ -73,8 +90,14 @@ export async function createStaffInvite(
   return data.token as string;
 }
 
-export async function cancelInvite(supabase: SupabaseClient, inviteId: string): Promise<void> {
-  await supabase.from("business_invites").update({ status: "expired" }).eq("id", inviteId);
+export async function cancelInvite(supabase: SupabaseClient, businessId: string, inviteId: string): Promise<void> {
+  await assertIsBusinessOwner(supabase, businessId);
+  const { error } = await supabase
+    .from("business_invites")
+    .update({ status: "expired" })
+    .eq("id", inviteId)
+    .eq("business_id", businessId);
+  if (error) throw error;
 }
 
 export interface StaffInvitePreview {
@@ -108,12 +131,29 @@ export async function acceptStaffInvite(supabase: SupabaseClient, token: string)
   return { businessId: result.business_id };
 }
 
-export async function updateStaffRole(supabase: SupabaseClient, staffId: string, role: BusinessStaffRole): Promise<void> {
-  await supabase.from("business_staff").update({ role }).eq("id", staffId);
+export async function updateStaffRole(
+  supabase: SupabaseClient,
+  businessId: string,
+  staffId: string,
+  role: BusinessStaffRole,
+): Promise<void> {
+  await assertIsBusinessOwner(supabase, businessId);
+  const { error } = await supabase
+    .from("business_staff")
+    .update({ role })
+    .eq("id", staffId)
+    .eq("business_id", businessId);
+  if (error) throw error;
 }
 
 /** Soft-remove — employees.is_active desenindeki gibi hard-delete yerine
  * left_at damgalanır (join geçmişi/log korunur). */
-export async function removeStaffMember(supabase: SupabaseClient, staffId: string): Promise<void> {
-  await supabase.from("business_staff").update({ left_at: new Date().toISOString() }).eq("id", staffId);
+export async function removeStaffMember(supabase: SupabaseClient, businessId: string, staffId: string): Promise<void> {
+  await assertIsBusinessOwner(supabase, businessId);
+  const { error } = await supabase
+    .from("business_staff")
+    .update({ left_at: new Date().toISOString() })
+    .eq("id", staffId)
+    .eq("business_id", businessId);
+  if (error) throw error;
 }

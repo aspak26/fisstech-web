@@ -73,7 +73,7 @@ export function TeamRoster({
                 </div>
                 <DeleteButton
                   confirmMessage={`"${s.userName || s.userEmail}" ekipten çıkarılsın mı?`}
-                  onDelete={() => removeStaffMember(createClient(), s.id)}
+                  onDelete={() => removeStaffMember(createClient(), businessId, s.id)}
                 />
               </li>
             ))}
@@ -96,7 +96,7 @@ export function TeamRoster({
                 </div>
                 <DeleteButton
                   confirmMessage="Bu davet iptal edilsin mi?"
-                  onDelete={() => cancelInvite(createClient(), inv.id)}
+                  onDelete={() => cancelInvite(createClient(), businessId, inv.id)}
                 />
               </li>
             ))}
