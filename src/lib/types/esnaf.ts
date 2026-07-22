@@ -1,3 +1,5 @@
+import { Wrench, ShoppingBag, UtensilsCrossed, Gem, Warehouse, Briefcase, Store, type LucideIcon } from "lucide-react";
+
 export interface BusinessRow {
   id: string;
   user_id: string;
@@ -578,14 +580,15 @@ export interface PerakendeDebtRow {
   created_at: string;
 }
 
-/** Ported verbatim from fisle_app business_model.dart's BusinessSectors. */
+/** Ported from fisle_app business_model.dart's BusinessSectors — ikonlar da
+ * mobildeki lucide_icons_flutter seçimleriyle birebir aynı (aynı Lucide seti). */
 export const BUSINESS_SECTORS = [
-  { key: "hizmet_bakim", label: "Hizmet & Bakım", desc: "(Berber, Oto Yıkama, Tamir...)", emoji: "✂️", type: "hizmet" },
-  { key: "hizli_perakende", label: "Hızlı Perakende", desc: "(Market, Pastane, Kırtasiye...)", emoji: "🛒", type: "perakende" },
-  { key: "yeme_icme", label: "Yeme & İçme", desc: "(Kafe, Lokanta, Çay Ocağı...)", emoji: "☕", type: "kafe" },
-  { key: "yuksek_hacim", label: "Yüksek Hacimli Satış", desc: "(Emlak, Galeri, Kuyumcu...)", emoji: "🤝", type: "satis" },
-  { key: "toptan_imalat", label: "Toptancı & İmalatçı", desc: "(Toptan, Fabrika, Bayi...)", emoji: "🏭", type: "toptan" },
-  { key: "serbest_meslek", label: "Serbest Meslek & Proje", desc: "(Danışman, Mühendis, Avukat...)", emoji: "💼", type: "freelance" },
+  { key: "hizmet_bakim", label: "Hizmet & Bakım", desc: "(Berber, Oto Yıkama, Tamir...)", icon: Wrench, type: "hizmet" },
+  { key: "hizli_perakende", label: "Hızlı Perakende", desc: "(Market, Pastane, Kırtasiye...)", icon: ShoppingBag, type: "perakende" },
+  { key: "yeme_icme", label: "Yeme & İçme", desc: "(Kafe, Lokanta, Çay Ocağı...)", icon: UtensilsCrossed, type: "kafe" },
+  { key: "yuksek_hacim", label: "Yüksek Hacimli Satış", desc: "(Emlak, Galeri, Kuyumcu...)", icon: Gem, type: "satis" },
+  { key: "toptan_imalat", label: "Toptancı & İmalatçı", desc: "(Toptan, Fabrika, Bayi...)", icon: Warehouse, type: "toptan" },
+  { key: "serbest_meslek", label: "Serbest Meslek & Proje", desc: "(Danışman, Mühendis, Avukat...)", icon: Briefcase, type: "freelance" },
 ] as const;
 
 export function businessTypeForSector(sectorKey: string): string {
@@ -596,6 +599,6 @@ export function sectorLabel(sectorKey: string): string {
   return BUSINESS_SECTORS.find((s) => s.key === sectorKey)?.label ?? "İşletme";
 }
 
-export function sectorEmoji(sectorKey: string): string {
-  return BUSINESS_SECTORS.find((s) => s.key === sectorKey)?.emoji ?? "🏪";
+export function sectorIcon(sectorKey: string): LucideIcon {
+  return BUSINESS_SECTORS.find((s) => s.key === sectorKey)?.icon ?? Store;
 }

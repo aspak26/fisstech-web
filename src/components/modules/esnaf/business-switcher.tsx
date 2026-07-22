@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { Store } from "lucide-react";
 import { setActiveBusinessId } from "@/lib/esnaf/active-business";
 import type { BusinessRow } from "@/lib/types/esnaf";
-import { sectorEmoji } from "@/lib/types/esnaf";
+import { BUSINESS_SECTORS } from "@/lib/types/esnaf";
 
 export function BusinessSwitcher({
   businesses,
@@ -17,12 +17,15 @@ export function BusinessSwitcher({
 
   if (businesses.length <= 1) {
     const biz = businesses[0];
+    const sector = biz ? BUSINESS_SECTORS.find((s) => s.key === biz.sector) : undefined;
     return (
       <div className="flex items-center gap-2 text-text-primary">
-        <Store className="h-5 w-5 text-accent" />
-        <span className="font-display font-semibold">
-          {biz ? `${sectorEmoji(biz.sector)} ${biz.name}` : "İşletme"}
-        </span>
+        {sector ? (
+          <sector.icon className="h-5 w-5 text-accent" strokeWidth={1.5} />
+        ) : (
+          <Store className="h-5 w-5 text-accent" strokeWidth={1.5} />
+        )}
+        <span className="font-display font-semibold">{biz ? biz.name : "İşletme"}</span>
       </div>
     );
   }
@@ -40,7 +43,7 @@ export function BusinessSwitcher({
       >
         {businesses.map((b) => (
           <option key={b.id} value={b.id}>
-            {sectorEmoji(b.sector)} {b.name}
+            {b.name}
           </option>
         ))}
       </select>

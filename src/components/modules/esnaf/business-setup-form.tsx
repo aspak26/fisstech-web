@@ -86,7 +86,7 @@ export function BusinessSetupForm() {
                   sectorKey === s.key && "border-accent bg-accent/5 text-accent",
                 )}
               >
-                <span className="text-xl">{s.emoji}</span>
+                <s.icon className="h-5 w-5" strokeWidth={1.5} />
                 <span className="font-medium">{s.label}</span>
               </button>
             ))}
