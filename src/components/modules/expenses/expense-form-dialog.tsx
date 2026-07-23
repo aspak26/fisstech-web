@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, useWatch, type Control } from "react-hook-form";
 import { Plus, Trash2, BadgeCheck, Users, Globe, Lock, FolderPlus, Paperclip, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Dialog } from "@/components/ui/dialog";
@@ -95,7 +95,6 @@ export function ExpenseFormDialog({
   );
 
   const paymentMethod = watch("paymentMethod");
-  const items = watch("items");
   const showCardLabel = paymentMethod === "credit_card" || paymentMethod === "debit_card";
 
   // ── Taksitli Harcama state ────────────────────────────────────────────────
@@ -174,11 +173,6 @@ export function ExpenseFormDialog({
     return count * (parseFloat(monthlyAmount.replace(",", ".")) || 0);
   }, [isInstallment, installmentCount, customMode, customAmounts, monthlyAmount]);
 
-  const itemsTotal = useMemo(
-    () => items.reduce((sum, i) => sum + Number(i.price || 0) * Number(i.quantity || 1), 0),
-    [items],
-  );
-
   // ── Otomatik kategori tahmini (debounced, mobile'daki CategoryPredictor) ──
   const debounceRefs = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
   function handleItemNameChange(index: number, value: string) {
@@ -208,11 +202,20 @@ export function ExpenseFormDialog({
       } = await supabase.auth.getUser();
       if (!user) throw new Error("Oturum bulunamadı");
 
-      const { data: rawCategories } = await supabase.from("categories").select("id, name");
+      // Sadece bu formda gerçekten kullanılan kategori adları için sorgu —
+      // önceden .select("id, name") hiç scope'suz TÜM kategori tablosunu
+      // (sistem + kullanıcının tüm özel kategorileri) her kayıtta yeniden
+      // çekiyordu, sadece birkaç isim→id eşlemesi için.
+      const usedCategoryNames = [...new Set(values.items.map((i) => i.category))];
+      const { data: rawCategories } = await supabase
+        .from("categories")
+        .select("id, name")
+        .in("name", usedCategoryNames);
       const categoryMap = new Map<string, string>(
         (rawCategories ?? []).map((c: { id: string; name: string }) => [c.name, c.id]),
       );
 
+      const itemsTotal = values.items.reduce((sum, i) => sum + Number(i.price || 0) * Number(i.quantity || 1), 0);
       const total = isInstallment ? installmentTotal : itemsTotal;
       const cardLabel = showCardLabel && values.cardLabel.trim() ? values.cardLabel.trim() : null;
 
@@ -490,11 +493,7 @@ export function ExpenseFormDialog({
               </div>
             ))}
           </div>
-          {!isInstallment && (
-            <p className="mt-2 text-sm text-text-secondary">
-              Toplam: <span className="font-medium text-text-primary">{formatCurrency(itemsTotal)}</span>
-            </p>
-          )}
+          {!isInstallment && <ItemsTotalDisplay control={control} />}
         </div>
 
         <div className="rounded-control border border-border p-3">
@@ -623,5 +622,23 @@ export function ExpenseFormDialog({
         </div>
       </form>
     </Dialog>
+  );
+}
+
+/** Kalem toplamını izole bir bileşende gösterir — önceden `watch("items")`
+ * en üst seviyede çağrılıyordu, bu da HERHANGİ bir kalem alanına yapılan
+ * her tuş vuruşunda 600+ satırlık formun TAMAMININ yeniden render olmasına
+ * yol açıyordu. `useWatch` sadece bu küçük alt bileşeni yeniden render eder,
+ * geri kalan form (register ile uncontrolled input'lar) etkilenmez. */
+function ItemsTotalDisplay({ control }: { control: Control<FormValues> }) {
+  const items = useWatch({ control, name: "items" });
+  const itemsTotal = useMemo(
+    () => items.reduce((sum, i) => sum + Number(i.price || 0) * Number(i.quantity || 1), 0),
+    [items],
+  );
+  return (
+    <p className="mt-2 text-sm text-text-secondary">
+      Toplam: <span className="font-medium text-text-primary">{formatCurrency(itemsTotal)}</span>
+    </p>
   );
 }
