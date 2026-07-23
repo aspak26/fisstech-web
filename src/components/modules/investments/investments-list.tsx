@@ -9,7 +9,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { DeleteButton } from "@/components/ui/delete-button";
 import { cn } from "@/lib/utils/cn";
 import { formatCurrency } from "@/lib/utils/currency";
-import { assetTypeEmoji, assetTypeLabel, assetTypeSymbol } from "@/lib/investment-asset-types";
+import { ASSET_TYPES, assetTypeEmoji, assetTypeLabel, assetTypeSymbol } from "@/lib/investment-asset-types";
 import { deleteInvestment, type InvestmentRow } from "@/lib/data/investments";
 import { InvestmentFormDialog } from "./investment-form-dialog";
 
@@ -50,6 +50,22 @@ export function InvestmentsList({
           <Plus className="h-4 w-4" /> Yatırım Ekle
         </Button>
       </div>
+
+      {hasLivePrices && (
+        <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar">
+          {ASSET_TYPES.map((asset) => {
+            const price = prices[asset.key];
+            if (!price) return null;
+            return (
+              <div key={asset.key} className="flex shrink-0 items-center gap-2 rounded-control border border-border bg-surface px-3 py-2 text-sm">
+                <span className="text-lg leading-none">{asset.emoji}</span>
+                <span className="font-medium text-text-primary">{asset.label}</span>
+                <span className="text-text-secondary">{formatCurrency(price)}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {hasLivePrices && investments.length > 0 && (
         <Card className="flex items-center justify-between">

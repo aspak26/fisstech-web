@@ -16,6 +16,7 @@ export interface BusinessRow {
   employee_count: number;
   created_at: string;
   updated_at: string;
+  whatsapp_templates?: Record<string, string>;
 }
 
 export interface BusinessServiceChipRow {
@@ -220,6 +221,8 @@ export interface ServiceJobRow {
   is_ai_scanned: boolean;
   completed_at: string | null;
   notes: string | null;
+  device_model: string | null;
+  vehicle_plate: string | null;
   created_at: string;
 }
 

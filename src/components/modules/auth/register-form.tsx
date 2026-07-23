@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import { registerSchema, type RegisterInput } from "@/lib/validation/auth";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
+import { OAuthButtons } from "./oauth-buttons";
 
 export function RegisterForm() {
   const router = useRouter();
@@ -111,6 +112,8 @@ export function RegisterForm() {
           Giriş yap
         </Link>
       </p>
+
+      <OAuthButtons />
     </form>
   );
 }

@@ -16,8 +16,8 @@ export function LegalStub({ title }: { title: string }) {
         <h1 className="font-display text-2xl font-semibold text-text-primary">{title}</h1>
         <p className="max-w-sm text-text-secondary">
           Bu içerik yakında eklenecek. Sorularınız için{" "}
-          <a href="mailto:info@fisstech.com" className="text-accent hover:underline">
-            info@fisstech.com
+          <a href="mailto:fisstechapp@gmail.com" className="text-accent hover:underline">
+            fisstechapp@gmail.com
           </a>{" "}
           adresinden bize ulaşabilirsiniz.
         </p>

@@ -1,4 +1,6 @@
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { LogoHorizontal } from "@/components/modules/landing/logo-mark";
+import Link from "next/link";
 
 // Intentionally no "already logged in -> redirect" check here: it must live
 // per-page (see login/register/forgot-password) rather than in this shared
@@ -9,7 +11,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="flex min-h-screen flex-col bg-bg">
       <header className="flex h-16 items-center justify-between px-4 lg:px-8">
-        <span className="font-display text-xl font-bold text-accent">Fişştech</span>
+        <Link href="/" aria-label="Fişştech anasayfa">
+          <LogoHorizontal />
+        </Link>
         <ThemeToggle />
       </header>
       <main className="flex flex-1 items-center justify-center px-4 pb-16">

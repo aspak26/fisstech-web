@@ -58,7 +58,7 @@ const LINK_COLUMNS = [
       { label: "S.S.S.", href: "#faq" },
       { label: "Yardım Merkezi", href: "/yardim" },
       { label: "Veri Güvenliği", href: "/veri-guvenligi" },
-      { label: "Bize Ulaşın", href: "mailto:info@fisstech.com" },
+      { label: "Bize Ulaşın", href: "mailto:fisstechapp@gmail.com" },
     ],
   },
   {
@@ -145,11 +145,11 @@ export function LandingFooter() {
               </span>
             ))}
             <a
-              href="mailto:info@fisstech.com"
-              className="flex items-center gap-1.5 text-xs text-text-secondary transition-colors hover:text-accent"
+              href="mailto:fisstechapp@gmail.com"
+              className="flex items-center gap-2 text-sm text-text-secondary hover:text-accent transition-colors"
             >
-              <Mail className="h-3.5 w-3.5" />
-              info@fisstech.com
+              <Mail className="h-5 w-5" />
+              fisstechapp@gmail.com
             </a>
           </div>
         </div>

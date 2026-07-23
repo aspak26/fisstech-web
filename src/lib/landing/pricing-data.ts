@@ -74,16 +74,19 @@ export interface EsnafTier {
   id: string;
   label: string;
   monthly: string;
+  yearly: string;
+  yearlyEffective: string;
+  yearlySavings: string;
 }
 
 /** Mobil kaynaktaki (paywall_screen.dart) gerçek personel-katmanı fiyatları
  * — bu oturumda daha önce araştırılıp doğrulanmıştı (esnaf_/esnaf10_/
  * esnaf20_/esnaf40_ RevenueCat paket önekleri). */
 export const ESNAF_TIERS: EsnafTier[] = [
-  { id: "sadece_ben", label: "Sadece Ben", monthly: "199,99" },
-  { id: "10", label: "10 Kişi", monthly: "349,99" },
-  { id: "20", label: "20 Kişi", monthly: "549,99" },
-  { id: "40", label: "40 Kişi", monthly: "899,99" },
+  { id: "sadece_ben", label: "Sadece Ben", monthly: "199,99", yearly: "1.999,99", yearlyEffective: "166,66", yearlySavings: "%17" },
+  { id: "10", label: "10 Kişi", monthly: "349,99", yearly: "3.499,99", yearlyEffective: "291,66", yearlySavings: "%17" },
+  { id: "20", label: "20 Kişi", monthly: "549,99", yearly: "5.499,99", yearlyEffective: "458,33", yearlySavings: "%17" },
+  { id: "40", label: "40 Kişi", monthly: "899,99", yearly: "8.999,99", yearlyEffective: "749,99", yearlySavings: "%17" },
 ];
 
 export const BACKUP_ADDON = {

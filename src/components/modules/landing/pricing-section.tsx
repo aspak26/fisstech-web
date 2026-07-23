@@ -99,14 +99,14 @@ export function PricingSection() {
                   <span className="relative inline-grid font-display text-6xl font-bold leading-none tracking-tight text-text-primary">
                     <AnimatePresence mode="popLayout" initial={false}>
                       <motion.span
-                        key={plan.id === "esnaf" && !yearly ? selectedTier.monthly : yearly ? plan.yearly : plan.monthly}
+                        key={plan.id === "esnaf" ? (yearly ? selectedTier.yearly : selectedTier.monthly) : (yearly ? plan.yearly : plan.monthly)}
                         initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -8 }}
                         transition={{ duration: 0.2, ease: "easeOut" }}
                         className="col-start-1 row-start-1"
                       >
-                        {plan.id === "esnaf" && !yearly ? selectedTier.monthly : yearly ? plan.yearly : plan.monthly}
+                        {plan.id === "esnaf" ? (yearly ? selectedTier.yearly : selectedTier.monthly) : (yearly ? plan.yearly : plan.monthly)}
                       </motion.span>
                     </AnimatePresence>
                   </span>
@@ -114,7 +114,7 @@ export function PricingSection() {
                 </div>
                 <p className="mt-2 text-xs text-text-secondary">
                   {yearly
-                    ? `Ayda sadece ₺${plan.yearlyEffective}'a denk gelir · ${plan.yearlySavings} tasarruf`
+                    ? `Ayda sadece ₺${plan.id === "esnaf" ? selectedTier.yearlyEffective : plan.yearlyEffective}'a denk gelir · ${plan.id === "esnaf" ? selectedTier.yearlySavings : plan.yearlySavings} tasarruf`
                     : "Aylık faturalandırılır · vergiler dahildir"}
                 </p>
 

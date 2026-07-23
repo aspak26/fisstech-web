@@ -11,6 +11,7 @@ import type { CategoryOption, ScanResult } from "@/lib/scan/types";
 import { ScanModeTabs, type ScanMode } from "./scan-mode-tabs";
 import { CreditBadge } from "./credit-badge";
 import { DropzoneUploader } from "./dropzone-uploader";
+import { Switch } from "@/components/ui/switch";
 import { FilePreviewGrid } from "./file-preview-grid";
 import { ReceiptReviewForm } from "./receipt-review-form";
 import { Card } from "@/components/ui/card";
@@ -52,6 +53,8 @@ export function ScanWorkspace({
   const [items, setItems] = useState<ScanFileItem[]>([]);
   const [remainingCredits, setRemainingCredits] = useState(initialRemainingCredits);
   const [review, setReview] = useState<ReviewState | null>(null);
+  const [reviewQueue, setReviewQueue] = useState<{ id: string; result: ScanResult }[]>([]);
+  const [autoSave, setAutoSave] = useState(false);
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -68,6 +71,16 @@ export function ScanWorkspace({
     if (!isPremium) setRemainingCredits((c) => c + 1);
   }
 
+  function processNextInQueue(queue: { id: string; result: ScanResult }[]) {
+    if (queue.length === 0) {
+      setReview(null);
+      return;
+    }
+    const [next, ...rest] = queue;
+    setReviewQueue(rest);
+    setReview({ result: next.result, itemIds: [next.id] });
+  }
+
   async function runSingleScan(item: ScanFileItem) {
     updateItem(item.id, { status: "scanning" });
     try {
@@ -81,7 +94,16 @@ export function ScanWorkspace({
       const base64 = await fileToBase64(item.file);
       const result = await invokeScanReceipt(supabase, base64, categories);
       updateItem(item.id, { status: "scanned", result });
-      setReview({ result, itemIds: [item.id] });
+
+      if (autoSave) {
+        const imageUrls = await uploadReceipts(supabase, userId, [item.file]);
+        await saveExpense(supabase, userId, { ...result, imageUrls });
+        setItems((prev) => prev.filter((i) => i.id !== item.id));
+        setToast("Harcama otomatik kaydedildi");
+        router.refresh();
+      } else {
+        setReview({ result, itemIds: [item.id] });
+      }
     } catch (e) {
       updateItem(item.id, {
         status: "error",
@@ -118,11 +140,72 @@ export function ScanWorkspace({
       );
 
       const merged = mergeResults(results);
-      setReview({ result: merged, itemIds: pending.map((i) => i.id) });
+      if (autoSave) {
+        const files = items.filter((i) => pending.find(p => p.id === i.id)).map((i) => i.file);
+        const imageUrls = await uploadReceipts(supabase, userId, files);
+        await saveExpense(supabase, userId, { ...merged, imageUrls });
+        setItems((prev) => prev.filter((i) => !pending.find(p => p.id === i.id)));
+        setToast("Uzun Fiş otomatik kaydedildi");
+        router.refresh();
+      } else {
+        setReview({ result: merged, itemIds: pending.map((i) => i.id) });
+      }
     } catch {
       pending.forEach((i) =>
         updateItem(i.id, { status: "error", errorMessage: "Sayfalardan biri okunamadı" }),
       );
+    }
+  }
+
+  async function startBatchScan() {
+    const pending = items.filter((i) => i.status === "pending");
+    if (pending.length === 0) return;
+
+    setItems((prev) =>
+      prev.map((i) => (i.status === "pending" ? { ...i, status: "scanning" } : i)),
+    );
+
+    let currentCredits = remainingCredits;
+    let successCount = 0;
+    const queue: { id: string; result: ScanResult }[] = [];
+
+    for (const item of pending) {
+      try {
+        if (!isPremium && currentCredits <= 0) {
+          updateItem(item.id, { status: "error", errorMessage: CREDIT_EXHAUSTED_MESSAGE });
+          continue;
+        }
+
+        const credited = await consumeScanCredit(supabase, userId);
+        if (!credited) {
+          updateItem(item.id, { status: "error", errorMessage: CREDIT_EXHAUSTED_MESSAGE });
+          continue;
+        }
+        currentCredits--;
+        spendCreditLocally();
+
+        const base64 = await fileToBase64(item.file);
+        const result = await invokeScanReceipt(supabase, base64, categories);
+        updateItem(item.id, { status: "scanned", result });
+
+        if (autoSave) {
+          const imageUrls = await uploadReceipts(supabase, userId, [item.file]);
+          await saveExpense(supabase, userId, { ...result, imageUrls });
+          setItems((prev) => prev.filter((i) => i.id !== item.id));
+          successCount++;
+        } else {
+          queue.push({ id: item.id, result });
+        }
+      } catch {
+        updateItem(item.id, { status: "error", errorMessage: "Fiş okunamadı" });
+      }
+    }
+
+    if (autoSave && successCount > 0) {
+      setToast(`${successCount} adet fiş başarıyla otomatik kaydedildi`);
+      router.refresh();
+    } else if (queue.length > 0) {
+      processNextInQueue(queue);
     }
   }
 
@@ -157,9 +240,14 @@ export function ScanWorkspace({
       await saveExpense(supabase, userId, { ...edited, imageUrls });
 
       setItems((prev) => prev.filter((i) => !review.itemIds.includes(i.id)));
-      setReview(null);
       setToast("Harcama kaydedildi");
       router.refresh();
+
+      if (mode === "batch") {
+        processNextInQueue(reviewQueue);
+      } else {
+        setReview(null);
+      }
     } catch {
       setToast("Kaydedilemedi, lütfen tekrar deneyin");
     } finally {
@@ -172,13 +260,26 @@ export function ScanWorkspace({
     await refundScanCredit(supabase, userId);
     refundCreditLocally();
     setItems((prev) => prev.filter((i) => !review.itemIds.includes(i.id)));
-    setReview(null);
+    
+    if (mode === "batch") {
+      processNextInQueue(reviewQueue);
+    } else {
+      setReview(null);
+    }
   }
 
   const pendingMultiCount = items.filter((i) => i.status === "pending").length;
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
+      {!isPremium && (
+        <div className="rounded-control border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-text-primary flex items-center justify-between">
+          <p>
+            💡 Fiş hakkınız bittiyse veya artırmak isterseniz, <strong>Fişştech Mobil Uygulamasını</strong> indirip reklam izleyerek ücretsiz fiş hakkı kazanabilirsiniz!
+          </p>
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <ScanModeTabs
           mode={mode}
@@ -186,9 +287,19 @@ export function ScanWorkspace({
             setMode(m);
             setItems([]);
             setReview(null);
+            setReviewQueue([]);
           }}
         />
         <CreditBadge remaining={remainingCredits} isPremium={isPremium} />
+      </div>
+
+      <div className="flex items-center gap-2 mb-2 p-3 bg-surface border border-border rounded-control">
+        <Switch 
+          checked={autoSave} 
+          onChange={setAutoSave} 
+          label="Bana sormadan direkt kaydet (Otomatik Kayıt)" 
+          description="Fişler tarandıktan sonra onay formu gösterilmez, doğrudan kaydedilir."
+        />
       </div>
 
       {notice && (
@@ -204,6 +315,18 @@ export function ScanWorkspace({
 
       {review ? (
         <Card>
+          <div className="flex items-center justify-between mb-4 border-b border-border pb-3">
+            <h3 className="font-semibold text-text-primary">
+              {mode === "batch" && reviewQueue.length >= 0 
+                ? `Fiş İnceleniyor (Kalan: ${reviewQueue.length})` 
+                : "Fiş İnceleme"}
+            </h3>
+            {mode === "batch" && (
+               <span className="text-sm text-text-secondary bg-surface px-2 py-1 rounded-control border border-border">
+                  Sıradaki: {reviewQueue.length}
+               </span>
+            )}
+          </div>
           <ReceiptReviewForm
             result={review.result}
             categories={categories}
@@ -215,7 +338,7 @@ export function ScanWorkspace({
       ) : (
         <>
           <DropzoneUploader
-            multiple={mode === "multi"}
+            multiple={mode === "multi" || mode === "batch"}
             disabled={remainingCredits === 0 && !isPremium}
             onFiles={handleFilesAdded}
             onRejected={setNotice}
@@ -234,7 +357,13 @@ export function ScanWorkspace({
 
           {mode === "multi" && pendingMultiCount > 0 && (
             <Button onClick={() => void startMultiScan()} className="w-full">
-              Taramayı Başlat ({pendingMultiCount} sayfa)
+              Uzun Fişi Birleştirerek Tara ({pendingMultiCount} sayfa)
+            </Button>
+          )}
+
+          {mode === "batch" && pendingMultiCount > 0 && (
+            <Button onClick={() => void startBatchScan()} className="w-full">
+              Toplu Taramayı Başlat ({pendingMultiCount} fiş)
             </Button>
           )}
         </>

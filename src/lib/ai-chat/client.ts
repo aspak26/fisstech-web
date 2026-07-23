@@ -1,4 +1,3 @@
-import { FunctionsHttpError } from "@supabase/functions-js";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export interface ChatMessage {
@@ -11,42 +10,56 @@ interface AiChatResponse {
   error?: string;
 }
 
-/** Calls the existing, already-deployed `fisle-ai-chat` Supabase Edge Function —
- * server-side Gemini call, JWT-authenticated, no client-exposed API key.
- * See AGENTS.md rule 7: AI features must never hold the Gemini key client-side. */
+/** 
+ * Eskiden Supabase Edge Function ("fisle-ai-chat") kullanılıyordu ancak
+ * o fonksiyon Gemini limitlerine/faturalandırma hatasına takıldığı için (429)
+ * yeni yazdığımız Next.js Route Handler (/api/ai-chat) API'sine bağlandı.
+ */
 export async function invokeAiChat(
   supabase: SupabaseClient,
   message: string,
   history: ChatMessage[],
   periodLabel: string,
+  startDate?: string,
+  endDate?: string,
 ): Promise<string> {
-  const { data, error } = await supabase.functions.invoke<AiChatResponse>("fisle-ai-chat", {
-    body: {
-      message,
-      history: history.map((m) => ({ role: m.role, content: m.content })),
-      period_label: periodLabel,
-    },
-  });
+  const { data: sessionData } = await supabase.auth.getSession();
+  const token = sessionData.session?.access_token;
 
-  if (error) {
-    // FunctionsHttpError.context is the raw Response — read it for the real
-    // jsonError({error: "..."}) body the edge function sent, instead of
-    // supabase-js's generic "non-2xx status code" message.
-    if (error instanceof FunctionsHttpError) {
-      let message = `AI Sohbet hata döndürdü (${error.context.status})`;
-      try {
-        const body = await error.context.json();
-        if (body?.error) message = body.error;
-      } catch {
-        // no JSON body — keep the fallback status message
-      }
-      throw new Error(message);
-    }
-    throw new Error("AI Sohbet'e ulaşılamadı, bağlantınızı kontrol edin.");
+  if (!token) {
+    throw new Error("Oturum bulunamadı, lütfen tekrar giriş yapın.");
   }
 
+  const response = await fetch("/api/ai-chat", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      message,
+      history,
+      periodLabel,
+      startDate,
+      endDate,
+    }),
+  });
+
+  if (!response.ok) {
+    let errorMsg = `AI Sohbet hata döndürdü (${response.status})`;
+    try {
+      const body = await response.json();
+      if (body?.error) errorMsg = body.error;
+    } catch {
+      // JSON ayrılamazsa standart hatada kal
+    }
+    throw new Error(errorMsg);
+  }
+
+  const data: AiChatResponse = await response.json();
   if (!data || data.error) {
     throw new Error(data?.error || "AI Sohbet şu anda yanıt veremiyor, lütfen tekrar deneyin.");
   }
+
   return data.reply ?? "";
 }

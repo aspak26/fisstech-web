@@ -37,13 +37,12 @@ export default async function RootPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const isAuthenticated = !!user;
 
   return (
     <div className="min-h-full bg-bg">
-      <LandingNavbar isAuthenticated={isAuthenticated} />
+      <LandingNavbar userEmail={user?.email} />
       <main>
-        <LandingHero isAuthenticated={isAuthenticated} />
+        <LandingHero isAuthenticated={!!user} />
         <StepSlider />
         <AiScannerShowcase />
         <SectorSolutions />

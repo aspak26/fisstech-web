@@ -90,6 +90,12 @@ export function HizmetAtolye({
                           {customer?.name ?? "Müşterisiz"}
                           {staff ? ` · ${staff.full_name}` : ""}
                         </p>
+                        {(job.device_model || customer?.device_model) && (
+                          <p className="text-xs text-text-secondary">📱 {job.device_model || customer?.device_model}</p>
+                        )}
+                        {(job.vehicle_plate || customer?.vehicle_plate) && (
+                          <p className="text-xs text-text-secondary">🚗 {job.vehicle_plate || customer?.vehicle_plate}</p>
+                        )}
                         <p className="font-medium text-text-primary">{formatCurrency(Number(job.total_amount))}</p>
                         {col.next && (
                           <Button

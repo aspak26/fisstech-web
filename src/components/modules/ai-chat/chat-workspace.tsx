@@ -13,7 +13,7 @@ const SUGGESTIONS = [
   "Geçen aya göre harcamalarım nasıl değişti?",
 ];
 
-export function ChatWorkspace({ periodLabel }: { periodLabel: string }) {
+export function ChatWorkspace({ periodLabel, startDate, endDate }: { periodLabel: string, startDate: string | null, endDate: string | null }) {
   const supabase = useMemo(() => createClient(), []);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -33,7 +33,7 @@ export function ChatWorkspace({ periodLabel }: { periodLabel: string }) {
     setInput("");
     setLoading(true);
     try {
-      const reply = await invokeAiChat(supabase, text, messages, periodLabel);
+      const reply = await invokeAiChat(supabase, text, messages, periodLabel, startDate ?? undefined, endDate ?? undefined);
       setMessages([...nextMessages, { role: "model", content: reply }]);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Bir hata oluştu");

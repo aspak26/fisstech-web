@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, CheckCircle2, ShieldCheck, Sparkles, Zap } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Reveal } from "./reveal";
@@ -38,6 +39,15 @@ export function LandingHero({ isAuthenticated }: { isAuthenticated: boolean }) {
 
       <div className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 md:grid-cols-2 md:items-center md:py-28">
         <Reveal>
+          <div className="mb-6 flex w-full max-w-lg items-start gap-3 rounded-xl border border-accent/20 bg-accent/10 p-4 text-sm text-text-primary shadow-sm sm:items-center">
+            <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl shadow-[0_0_20px_rgba(74,222,128,0.4)]">
+              <Image src="/logo-visor.png" alt="Fisstech Logo" fill className="object-cover" />
+            </div>
+            <p className="leading-relaxed">
+              <strong className="text-accent block sm:inline">Beta Yayında! 🎉</strong> Mobil uygulamamız çok yakında Play Store'da! Web sürümümüzü hemen şimdi <strong>ÜCRETSİZ</strong> denemeye başlayabilirsiniz.
+            </p>
+          </div>
+
           <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent-soft px-3.5 py-1.5 text-xs font-semibold text-accent">
             <Sparkles className="h-3.5 w-3.5" />
             Yapay Zekâ Destekli Finans Asistanı

@@ -6,7 +6,7 @@ const AUTH_ROUTES = ["/login", "/register", "/forgot-password", "/reset-password
 // (unlike AUTH_ROUTES, an authenticated visitor is NOT bounced away from
 // these; the page itself adapts its CTAs based on session). Includes the
 // landing page footer's legal/support stub routes (LegalStub component).
-const PUBLIC_ROUTES = ["/", "/gizlilik", "/kullanim-sartlari", "/kvkk", "/yardim", "/veri-guvenligi", "/indir"];
+const PUBLIC_ROUTES = ["/", "/gizlilik", "/kullanim-sartlari", "/kvkk", "/yardim", "/veri-guvenligi", "/indir", "/auth/callback"];
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });

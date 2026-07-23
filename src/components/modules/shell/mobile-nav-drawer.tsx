@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { primaryNavItems, upcomingNavItems, bottomNavItems } from "@/lib/nav-config";
 import { NavLink } from "./nav-link";
+import { LogoHorizontal } from "../landing/logo-mark";
 
 export function MobileNavDrawer() {
   const [open, setOpen] = useState(false);
@@ -48,9 +49,9 @@ export function MobileNavDrawer() {
               <Link
                 href="/dashboard"
                 onClick={() => setOpen(false)}
-                className="font-display text-xl font-bold text-accent"
+                className="flex items-center"
               >
-                Fişştech
+                <LogoHorizontal height={24} />
               </Link>
               <button
                 type="button"

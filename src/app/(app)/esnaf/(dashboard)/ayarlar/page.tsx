@@ -1,5 +1,6 @@
 import { getActiveBusiness } from "@/lib/esnaf/active-business";
 import { BusinessLogoForm } from "@/components/modules/esnaf/business-logo-form";
+import { BusinessWhatsappSettings } from "@/components/modules/esnaf/whatsapp-settings";
 
 export default async function EsnafAyarlarPage() {
   const business = await getActiveBusiness();
@@ -9,6 +10,7 @@ export default async function EsnafAyarlarPage() {
     <div className="mx-auto max-w-xl">
       <h1 className="mb-4 font-display text-xl font-semibold text-text-primary">İşletme Ayarları</h1>
       <BusinessLogoForm business={business} />
+      <BusinessWhatsappSettings business={business} />
     </div>
   );
 }

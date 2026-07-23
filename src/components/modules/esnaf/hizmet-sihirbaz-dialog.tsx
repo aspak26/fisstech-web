@@ -54,6 +54,9 @@ export function HizmetSihirbazDialog({
   const [localCustomers, setLocalCustomers] = useState(customers);
 
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
+  const [customTitle, setCustomTitle] = useState("");
+  const [deviceModel, setDeviceModel] = useState("");
+  const [vehiclePlate, setVehiclePlate] = useState("");
   const [laborCost, setLaborCost] = useState("0");
   const [parts, setParts] = useState<PartLine[]>([]);
 
@@ -78,6 +81,9 @@ export function HizmetSihirbazDialog({
     setQuickName("");
     setQuickPhone("");
     setSelectedServiceId(null);
+    setCustomTitle("");
+    setDeviceModel("");
+    setVehiclePlate("");
     setLaborCost("0");
     setParts([]);
     setStaffId("");
@@ -93,6 +99,7 @@ export function HizmetSihirbazDialog({
   function pickService(service: ServiceCatalogRow) {
     setSelectedServiceId(service.id);
     setLaborCost(String(service.default_price));
+    if (!customTitle) setCustomTitle(service.name);
   }
 
   function addPart() {
@@ -160,7 +167,9 @@ export function HizmetSihirbazDialog({
           userId: user.id,
           customerId,
           staffId: staffId || null,
-          title: service?.name ?? "Manuel İş",
+          title: customTitle.trim() || service?.name || "Manuel İş",
+          deviceModel: deviceModel.trim() || null,
+          vehiclePlate: vehiclePlate.trim().toUpperCase() || null,
           laborCost: Number(laborCost) || 0,
           paymentMethod,
           parts: parts.filter((p) => p.partName.trim()).map((p) => ({ partName: p.partName, quantity: p.quantity, unitCost: p.unitCost })),
@@ -263,6 +272,24 @@ export function HizmetSihirbazDialog({
                 </div>
               </div>
             )}
+            
+            <div className="space-y-3 rounded-control border border-border p-3">
+              <div>
+                <Label htmlFor="custom-title">Özel Hizmet / Cihaz Adı (opsiyonel)</Label>
+                <Input id="custom-title" placeholder="Farklı bir hizmet adı girin..." value={customTitle} onChange={(e) => setCustomTitle(e.target.value)} />
+              </div>
+              <div className="flex gap-3">
+                <div className="flex-1">
+                  <Label htmlFor="device-model">Cihaz Modeli</Label>
+                  <Input id="device-model" placeholder="Örn: iPhone 16" value={deviceModel} onChange={(e) => setDeviceModel(e.target.value)} />
+                </div>
+                <div className="flex-1">
+                  <Label htmlFor="vehicle-plate">Araç Plakası</Label>
+                  <Input id="vehicle-plate" placeholder="Örn: 34ABC123" value={vehiclePlate} onChange={(e) => setVehiclePlate(e.target.value)} className="uppercase" />
+                </div>
+              </div>
+            </div>
+
             <div>
               <Label htmlFor="labor-cost">İşçilik Ücreti</Label>
               <Input id="labor-cost" type="number" step="0.01" value={laborCost} onChange={(e) => setLaborCost(e.target.value)} />

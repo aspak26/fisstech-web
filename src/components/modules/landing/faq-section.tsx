@@ -17,8 +17,8 @@ export function FaqSection() {
           <h2 className="font-display text-4xl font-bold text-text-primary">Merak Edilenler</h2>
           <p className="mt-4 max-w-sm text-text-secondary">
             Aradığınız cevabı bulamadınız mı?{" "}
-            <a href="mailto:info@fisstech.com" className="font-medium text-accent hover:underline">
-              Bize ulaşın
+            <a href="mailto:fisstechapp@gmail.com" className="font-medium text-accent hover:underline">
+              fisstechapp@gmail.com
             </a>
             , yardımcı olalım.
           </p>
