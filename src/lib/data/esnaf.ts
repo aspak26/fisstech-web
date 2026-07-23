@@ -11,16 +11,19 @@ import type {
 } from "@/lib/types/esnaf";
 import { currentMonthString, formatMonthLabel, getMonthRange, shiftMonth } from "@/lib/utils/date";
 import { CHART_COLORS } from "@/lib/data/analytics";
+import { requireUserId } from "@/lib/utils/auth";
 
 export async function updateBusinessWhatsAppTemplates(
   supabase: SupabaseClient,
   businessId: string,
   templates: Record<string, string>,
 ): Promise<void> {
+  const userId = await requireUserId(supabase);
   const { error } = await supabase
     .from("businesses")
     .update({ whatsapp_templates: templates })
-    .eq("id", businessId);
+    .eq("id", businessId)
+    .eq("user_id", userId);
   if (error) throw error;
 }
 
@@ -357,11 +360,13 @@ export async function getMonthlyTotals(
 }
 
 export async function deleteBusinessIncome(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("business_incomes").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("business_incomes").delete().eq("id", id).eq("user_id", userId);
 }
 
 export async function deleteBusinessExpense(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("business_expenses").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("business_expenses").delete().eq("id", id).eq("user_id", userId);
 }
 
 // ─── Faturalar ──────────────────────────────────────────────────────────────
@@ -386,14 +391,17 @@ export async function getInvoices(
 }
 
 export async function deleteInvoice(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("invoices").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("invoices").delete().eq("id", id).eq("user_id", userId);
 }
 
 export async function markInvoicePaid(supabase: SupabaseClient, id: string): Promise<void> {
+  const userId = await requireUserId(supabase);
   await supabase
     .from("invoices")
     .update({ status: "odendi", paid_date: new Date().toISOString().slice(0, 10) })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("user_id", userId);
 }
 
 // ─── Personel & Maaş ────────────────────────────────────────────────────────
@@ -416,7 +424,8 @@ export async function getEmployees(
 }
 
 export async function deleteEmployee(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("employees").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("employees").delete().eq("id", id).eq("user_id", userId);
 }
 
 export async function getSalaryPayments(
@@ -466,10 +475,12 @@ export async function toggleSalaryPaid(
   id: string,
   isPaid: boolean,
 ): Promise<void> {
+  const userId = await requireUserId(supabase);
   await supabase
     .from("salary_payments")
     .update({ is_paid: isPaid, payment_date: isPaid ? new Date().toISOString().slice(0, 10) : null })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("user_id", userId);
 }
 
 // ─── Stok ───────────────────────────────────────────────────────────────────
@@ -491,7 +502,8 @@ export async function getStockItems(
 }
 
 export async function deleteStockItem(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("stock_items").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("stock_items").delete().eq("id", id).eq("user_id", userId);
 }
 
 export async function getStockMovements(
@@ -532,7 +544,7 @@ export async function addStockMovement(
     quantity,
     note: note || null,
   });
-  await supabase.from("stock_items").update({ current_qty: newQty }).eq("id", item.id);
+  await supabase.from("stock_items").update({ current_qty: newQty }).eq("id", item.id).eq("user_id", userId);
 }
 
 // ─── Menü Yönetimi (sadece Yeme & İçme / business_type='kafe') ────────────────
@@ -594,11 +606,13 @@ export async function getMenuItems(
 }
 
 export async function deleteMenuCategory(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("menu_categories").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("menu_categories").delete().eq("id", id).eq("user_id", userId);
 }
 
 export async function deleteMenuItem(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("menu_items").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("menu_items").delete().eq("id", id).eq("user_id", userId);
 }
 
 // ─── Evrak Arşivi (tüm sektörler) ──────────────────────────────────────────

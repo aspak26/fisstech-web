@@ -95,5 +95,5 @@ export async function deleteGoal(supabase: SupabaseClient, userId: string, goal:
   if (Number(goal.saved_amount) > 0) {
     await returnSavedAmountToPool(supabase, userId, Number(goal.saved_amount));
   }
-  await supabase.from("goals").delete().eq("id", goal.id);
+  await supabase.from("goals").delete().eq("id", goal.id).eq("user_id", userId);
 }

@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { requireUserId } from "@/lib/utils/auth";
 
 export interface InvestmentRow {
   id: string;
@@ -29,7 +30,8 @@ export async function getInvestments(
 }
 
 export async function deleteInvestment(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("investments").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("investments").delete().eq("id", id).eq("user_id", userId);
 }
 
 /** Ported from mobile's InvestmentPriceService.fetchPrices — same

@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { calculatePeriodRange } from "@/lib/utils/period";
+import { requireUserId } from "@/lib/utils/auth";
 import { CHART_COLORS, normalizeStoreName, parentGroupIcon, type CategoryBreakdownPoint, type StoreBreakdownPoint } from "@/lib/data/analytics";
 
 export interface GroupRow {
@@ -9,6 +10,33 @@ export interface GroupRow {
   avatar_url: string | null;
   total_limit: number | null;
   created_at: string;
+}
+
+/** Güvenlik denetimi bulgusu: davet oluşturma/rol değiştirme/üye çıkarma/
+ * grup silme sadece RLS'e güveniyordu, uygulama tarafında grup sahibi/
+ * yöneticisi olup olmadığına dair hiçbir kontrol yoktu. */
+async function assertCanManageGroup(supabase: SupabaseClient, groupId: string): Promise<string> {
+  const userId = await requireUserId(supabase);
+  const { data } = await supabase
+    .from("group_members")
+    .select("role")
+    .eq("group_id", groupId)
+    .eq("user_id", userId)
+    .is("left_at", null)
+    .maybeSingle();
+  if (!data || (data.role !== "owner" && data.role !== "admin")) {
+    throw new Error("Bu işlem için grup yöneticisi olmanız gerekiyor");
+  }
+  return userId;
+}
+
+async function assertIsGroupOwner(supabase: SupabaseClient, groupId: string): Promise<string> {
+  const userId = await requireUserId(supabase);
+  const { data } = await supabase.from("groups").select("owner_id").eq("id", groupId).maybeSingle();
+  if (!data || data.owner_id !== userId) {
+    throw new Error("Bu işlem için grup sahibi olmanız gerekiyor");
+  }
+  return userId;
 }
 
 export async function getGroups(supabase: SupabaseClient): Promise<GroupRow[]> {
@@ -79,6 +107,7 @@ export async function assignExpenseToGroups(
   groupIds: string[],
   visibility: "public" | "group_only",
 ): Promise<void> {
+  const userId = await requireUserId(supabase);
   await supabase.from("expense_groups").delete().eq("expense_id", expenseId);
   if (groupIds.length > 0) {
     await supabase
@@ -88,7 +117,8 @@ export async function assignExpenseToGroups(
   await supabase
     .from("expenses")
     .update({ visibility: groupIds.length > 0 ? visibility : "public" })
-    .eq("id", expenseId);
+    .eq("id", expenseId)
+    .eq("user_id", userId);
 }
 
 export async function getGroupExpenseById(supabase: SupabaseClient, expenseId: string): Promise<GroupExpenseRow | null> {
@@ -300,6 +330,7 @@ export interface InvitePreview {
 /** Ported from mobile's GroupService.createInvite — expires any existing
  * pending invite for the group first (single-active-invite-per-group). */
 export async function createInvite(supabase: SupabaseClient, groupId: string, userId: string): Promise<string> {
+  await assertCanManageGroup(supabase, groupId);
   await supabase
     .from("group_invites")
     .update({ status: "expired" })
@@ -400,13 +431,25 @@ export async function getMembers(
   }
 }
 
-export async function updateMemberRole(supabase: SupabaseClient, memberId: string, role: GroupRole): Promise<void> {
-  await supabase.from("group_members").update({ role }).eq("id", memberId);
+export async function updateMemberRole(
+  supabase: SupabaseClient,
+  groupId: string,
+  memberId: string,
+  role: GroupRole,
+): Promise<void> {
+  await assertCanManageGroup(supabase, groupId);
+  await supabase.from("group_members").update({ role }).eq("id", memberId).eq("group_id", groupId);
 }
 
 /** Soft-delete (left_at) — used for both "remove member" (owner/admin
- * acting on someone else) and "leave group" (acting on yourself). */
+ * acting on someone else) and "leave group" (acting on yourself), so the
+ * permission check allows either: the caller removing themselves, or a
+ * group owner/admin removing someone else. */
 export async function removeMember(supabase: SupabaseClient, groupId: string, userId: string): Promise<void> {
+  const callerId = await requireUserId(supabase);
+  if (callerId !== userId) {
+    await assertCanManageGroup(supabase, groupId);
+  }
   await supabase
     .from("group_members")
     .update({ left_at: new Date().toISOString() })
@@ -414,11 +457,12 @@ export async function removeMember(supabase: SupabaseClient, groupId: string, us
     .eq("user_id", userId);
 }
 
-/** Hard delete — owner only (enforced by RLS), cascades to members/invites/
- * messages/etc. Mobile has no ownership-transfer flow; an owner can only
- * delete the group, never leave it while keeping it alive — replicated
- * as-is rather than inventing a transfer feature mobile doesn't have. */
+/** Hard delete — owner only, cascades to members/invites/messages/etc.
+ * Mobile has no ownership-transfer flow; an owner can only delete the
+ * group, never leave it while keeping it alive — replicated as-is rather
+ * than inventing a transfer feature mobile doesn't have. */
 export async function deleteGroup(supabase: SupabaseClient, groupId: string): Promise<void> {
+  await assertIsGroupOwner(supabase, groupId);
   await supabase.from("groups").delete().eq("id", groupId);
 }
 
@@ -478,8 +522,9 @@ export async function deleteMessage(supabase: SupabaseClient, id: string, userId
   await supabase.from("group_messages").delete().eq("id", id).eq("user_id", userId);
 }
 
-/** Owner/admin only (RLS-enforced) — deletes every message in the group. */
+/** Owner/admin only — deletes every message in the group. */
 export async function clearGroupChat(supabase: SupabaseClient, groupId: string): Promise<void> {
+  await assertCanManageGroup(supabase, groupId);
   await supabase.from("group_messages").delete().eq("group_id", groupId);
 }
 

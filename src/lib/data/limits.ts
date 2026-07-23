@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { currentMonthString } from "@/lib/utils/date";
+import { requireUserId } from "@/lib/utils/auth";
 import type { CategoryLimitsRow } from "@/lib/types/database";
 
 export const PAYMENT_METHOD_OPTIONS = [
@@ -203,7 +204,11 @@ export async function setLimit(
   const month = params.month ?? currentMonthString();
 
   if (params.existingId) {
-    await supabase.from("category_limits").update({ amount: params.amount }).eq("id", params.existingId);
+    await supabase
+      .from("category_limits")
+      .update({ amount: params.amount })
+      .eq("id", params.existingId)
+      .eq("user_id", userId);
     return;
   }
 
@@ -223,7 +228,11 @@ export async function setLimit(
   const { data: existing } = await query.maybeSingle();
 
   if (existing) {
-    await supabase.from("category_limits").update({ amount: params.amount }).eq("id", existing.id);
+    await supabase
+      .from("category_limits")
+      .update({ amount: params.amount })
+      .eq("id", existing.id)
+      .eq("user_id", userId);
     return;
   }
 
@@ -242,5 +251,6 @@ export async function setLimit(
 }
 
 export async function deleteLimit(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("category_limits").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("category_limits").delete().eq("id", id).eq("user_id", userId);
 }

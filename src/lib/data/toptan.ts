@@ -8,6 +8,7 @@ import type {
   WholesaleOrderRow,
   WholesaleOrderStatus,
 } from "@/lib/types/esnaf";
+import { requireUserId } from "@/lib/utils/auth";
 
 // ─── Depo / Envanter ────────────────────────────────────────────────────────
 
@@ -63,6 +64,7 @@ export async function updateInventoryItem(
     sellingPrice: number;
   }>,
 ): Promise<void> {
+  const userId = await requireUserId(supabase);
   await supabase
     .from("inventory")
     .update({
@@ -74,16 +76,23 @@ export async function updateInventoryItem(
       ...(patch.sellingPrice !== undefined ? { selling_price: patch.sellingPrice } : {}),
       updated_at: new Date().toISOString(),
     })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("user_id", userId);
 }
 
 export async function adjustStock(supabase: SupabaseClient, item: InventoryRow, delta: number): Promise<void> {
+  const userId = await requireUserId(supabase);
   const next = Math.max(0, Number(item.current_stock) + delta);
-  await supabase.from("inventory").update({ current_stock: next, updated_at: new Date().toISOString() }).eq("id", item.id);
+  await supabase
+    .from("inventory")
+    .update({ current_stock: next, updated_at: new Date().toISOString() })
+    .eq("id", item.id)
+    .eq("user_id", userId);
 }
 
 export async function deleteInventoryItem(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("inventory").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("inventory").delete().eq("id", id).eq("user_id", userId);
 }
 
 // ─── Bayiler (B2B Müşteriler) ───────────────────────────────────────────────
@@ -150,6 +159,7 @@ export async function updateB2bCustomer(
     riskLevel: RiskLevel;
   }>,
 ): Promise<void> {
+  const userId = await requireUserId(supabase);
   await supabase
     .from("b2b_customers")
     .update({
@@ -163,11 +173,13 @@ export async function updateB2bCustomer(
       ...(patch.riskLevel !== undefined ? { risk_level: patch.riskLevel } : {}),
       updated_at: new Date().toISOString(),
     })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("user_id", userId);
 }
 
 export async function deleteB2bCustomer(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("b2b_customers").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("b2b_customers").delete().eq("id", id).eq("user_id", userId);
 }
 
 // ─── Cari Hareketler & Tahsilat ─────────────────────────────────────────────
@@ -228,7 +240,8 @@ export async function addB2bPayment(
   await supabase
     .from("b2b_customers")
     .update({ current_debt: Math.max(0, Number(payload.customer.current_debt) - payload.amount) })
-    .eq("id", payload.customer.id);
+    .eq("id", payload.customer.id)
+    .eq("user_id", payload.userId);
 }
 
 // ─── Toplu Sipariş ──────────────────────────────────────────────────────────
@@ -317,6 +330,7 @@ export async function advanceOrderStatus(
   order: WholesaleOrderRow,
   next: WholesaleOrderStatus,
 ): Promise<void> {
+  const userId = await requireUserId(supabase);
   await supabase
     .from("wholesale_orders")
     .update({
@@ -324,7 +338,8 @@ export async function advanceOrderStatus(
       ...(next === "shipped" ? { shipped_at: new Date().toISOString() } : {}),
       ...(next === "delivered" ? { delivered_at: new Date().toISOString() } : {}),
     })
-    .eq("id", order.id);
+    .eq("id", order.id)
+    .eq("user_id", userId);
 
   if (next === "delivered") {
     await supabase.from("b2b_transactions").insert({
@@ -345,7 +360,8 @@ export async function advanceOrderStatus(
       await supabase
         .from("b2b_customers")
         .update({ current_debt: Number(customer.current_debt) + Number(order.total_amount) })
-        .eq("id", order.customer_id);
+        .eq("id", order.customer_id)
+        .eq("user_id", userId);
     }
   }
 }

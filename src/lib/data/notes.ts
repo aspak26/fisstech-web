@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { UserNotesRow } from "@/lib/types/database";
+import { requireUserId } from "@/lib/utils/auth";
 
 export async function getAllNotes(
   supabase: SupabaseClient,
@@ -18,7 +19,8 @@ export async function getAllNotes(
 }
 
 export async function deleteNote(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("user_notes").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("user_notes").delete().eq("id", id).eq("user_id", userId);
 }
 
 export async function toggleNoteCompleted(
@@ -26,8 +28,10 @@ export async function toggleNoteCompleted(
   id: string,
   isCompleted: boolean,
 ): Promise<void> {
+  const userId = await requireUserId(supabase);
   await supabase
     .from("user_notes")
     .update({ is_completed: isCompleted, updated_at: new Date().toISOString() })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("user_id", userId);
 }

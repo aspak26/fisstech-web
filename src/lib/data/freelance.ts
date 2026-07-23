@@ -8,6 +8,7 @@ import type {
   ProjectMilestoneRow,
   ProjectTaskRow,
 } from "@/lib/types/esnaf";
+import { requireUserId } from "@/lib/utils/auth";
 
 // ─── Müşteriler ─────────────────────────────────────────────────────────────
 
@@ -61,14 +62,17 @@ export async function updateFreelanceClient(
   id: string,
   patch: Partial<Pick<FreelanceClientRow, "name" | "company_name" | "phone" | "email" | "address" | "tax_id" | "notes">>,
 ): Promise<void> {
+  const userId = await requireUserId(supabase);
   await supabase
     .from("freelance_clients")
     .update({ ...patch, updated_at: new Date().toISOString() })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("user_id", userId);
 }
 
 export async function deleteFreelanceClient(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("freelance_clients").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("freelance_clients").delete().eq("id", id).eq("user_id", userId);
 }
 
 // ─── Projeler ───────────────────────────────────────────────────────────────
@@ -154,7 +158,12 @@ export async function updateProjectStatus(
   id: string,
   status: FreelanceProjectStatus,
 ): Promise<void> {
-  await supabase.from("freelance_projects").update({ status, updated_at: new Date().toISOString() }).eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase
+    .from("freelance_projects")
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("user_id", userId);
 }
 
 // ─── Hakediş Aşamaları ──────────────────────────────────────────────────────
@@ -181,11 +190,13 @@ export async function toggleMilestonePaid(
   supabase: SupabaseClient,
   milestone: ProjectMilestoneRow,
 ): Promise<void> {
+  const userId = await requireUserId(supabase);
   const nextPaid = !milestone.is_paid;
   await supabase
     .from("project_milestones")
     .update({ is_paid: nextPaid, paid_at: nextPaid ? new Date().toISOString() : null })
-    .eq("id", milestone.id);
+    .eq("id", milestone.id)
+    .eq("user_id", userId);
 
   const { data: milestones } = await supabase
     .from("project_milestones")
@@ -194,7 +205,11 @@ export async function toggleMilestonePaid(
   const paidTotal = ((milestones ?? []) as { amount: number; is_paid: boolean }[])
     .filter((m) => m.is_paid)
     .reduce((s, m) => s + Number(m.amount), 0);
-  await supabase.from("freelance_projects").update({ paid_amount: paidTotal }).eq("id", milestone.project_id);
+  await supabase
+    .from("freelance_projects")
+    .update({ paid_amount: paidTotal })
+    .eq("id", milestone.project_id)
+    .eq("user_id", userId);
 }
 
 export async function getAllMilestonesForBusiness(
@@ -275,11 +290,13 @@ export async function addTask(
  * completion_percentage'ını (tamamlanan / toplam × 100) yeniden hesaplar —
  * mobildeki recalcCompletion ile aynı. */
 export async function toggleTaskCompleted(supabase: SupabaseClient, task: ProjectTaskRow): Promise<void> {
+  const userId = await requireUserId(supabase);
   const nextCompleted = !task.is_completed;
   await supabase
     .from("project_tasks")
     .update({ is_completed: nextCompleted, completed_at: nextCompleted ? new Date().toISOString() : null })
-    .eq("id", task.id);
+    .eq("id", task.id)
+    .eq("user_id", userId);
 
   const { data: tasks } = await supabase.from("project_tasks").select("is_completed").eq("project_id", task.project_id);
   const all = (tasks ?? []) as { is_completed: boolean }[];
@@ -287,18 +304,21 @@ export async function toggleTaskCompleted(supabase: SupabaseClient, task: Projec
   await supabase
     .from("freelance_projects")
     .update({ completion_percentage: Number(percentage.toFixed(2)) })
-    .eq("id", task.project_id);
+    .eq("id", task.project_id)
+    .eq("user_id", userId);
 }
 
 export async function deleteTask(supabase: SupabaseClient, task: ProjectTaskRow): Promise<void> {
-  await supabase.from("project_tasks").delete().eq("id", task.id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("project_tasks").delete().eq("id", task.id).eq("user_id", userId);
   const { data: tasks } = await supabase.from("project_tasks").select("is_completed").eq("project_id", task.project_id);
   const all = (tasks ?? []) as { is_completed: boolean }[];
   const percentage = all.length > 0 ? (all.filter((t) => t.is_completed).length / all.length) * 100 : 0;
   await supabase
     .from("freelance_projects")
     .update({ completion_percentage: Number(percentage.toFixed(2)) })
-    .eq("id", task.project_id);
+    .eq("id", task.project_id)
+    .eq("user_id", userId);
 }
 
 // ─── Zaman Takibi ───────────────────────────────────────────────────────────
@@ -354,13 +374,15 @@ export async function startTimeLog(
 }
 
 export async function stopTimeLog(supabase: SupabaseClient, log: FreelanceTimeLogRow): Promise<void> {
+  const userId = await requireUserId(supabase);
   const endedAt = new Date();
   const durationMinutes = Math.max(1, Math.round((endedAt.getTime() - new Date(log.started_at).getTime()) / 60000));
   const totalAmount = Number(((durationMinutes / 60) * Number(log.hourly_rate)).toFixed(2));
   await supabase
     .from("freelance_time_logs")
     .update({ ended_at: endedAt.toISOString(), duration_minutes: durationMinutes, total_amount: totalAmount })
-    .eq("id", log.id);
+    .eq("id", log.id)
+    .eq("user_id", userId);
 }
 
 // ─── Proje Masrafları ───────────────────────────────────────────────────────
@@ -404,5 +426,6 @@ export async function addProjectExpense(
 }
 
 export async function deleteProjectExpense(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("project_expenses").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("project_expenses").delete().eq("id", id).eq("user_id", userId);
 }

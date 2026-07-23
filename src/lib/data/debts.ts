@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { requireUserId } from "@/lib/utils/auth";
 
 export interface UserDebtRow {
   id: string;
@@ -30,7 +31,8 @@ export async function getDebts(supabase: SupabaseClient, userId: string): Promis
 }
 
 export async function deleteDebt(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("user_debts").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("user_debts").delete().eq("id", id).eq("user_id", userId);
 }
 
 export async function toggleDebtPaid(
@@ -38,5 +40,6 @@ export async function toggleDebtPaid(
   id: string,
   isPaid: boolean,
 ): Promise<void> {
-  await supabase.from("user_debts").update({ is_paid: isPaid }).eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("user_debts").update({ is_paid: isPaid }).eq("id", id).eq("user_id", userId);
 }

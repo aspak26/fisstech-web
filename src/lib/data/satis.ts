@@ -6,6 +6,7 @@ import type {
   SalePortfolioRow,
   SaleTransactionRow,
 } from "@/lib/types/esnaf";
+import { requireUserId } from "@/lib/utils/auth";
 
 // ─── Portföy ────────────────────────────────────────────────────────────────
 
@@ -60,6 +61,7 @@ export async function updateSalePortfolio(
     status: "satista" | "rezerve" | "satildi";
   }>,
 ): Promise<void> {
+  const userId = await requireUserId(supabase);
   await supabase
     .from("sale_portfolios")
     .update({
@@ -72,11 +74,13 @@ export async function updateSalePortfolio(
       ...(patch.status !== undefined ? { status: patch.status } : {}),
       updated_at: new Date().toISOString(),
     })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("user_id", userId);
 }
 
 export async function deleteSalePortfolio(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("sale_portfolios").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("sale_portfolios").delete().eq("id", id).eq("user_id", userId);
 }
 
 // ─── Müşteriler ─────────────────────────────────────────────────────────────
@@ -114,7 +118,8 @@ export async function createSaleCustomer(
 }
 
 export async function deleteSaleCustomer(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("sale_customers").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("sale_customers").delete().eq("id", id).eq("user_id", userId);
 }
 
 // ─── Satış İşlemleri & Taksitler ────────────────────────────────────────────
@@ -156,10 +161,12 @@ export async function getSaleInstallments(
 }
 
 export async function markInstallmentPaid(supabase: SupabaseClient, installment: SaleInstallmentRow): Promise<void> {
+  const userId = await requireUserId(supabase);
   await supabase
     .from("sale_installments")
     .update({ is_paid: true, paid_date: new Date().toISOString().slice(0, 10), paid_amount: installment.amount })
-    .eq("id", installment.id);
+    .eq("id", installment.id)
+    .eq("user_id", userId);
 }
 
 export interface SaleWizardResult {
@@ -233,7 +240,11 @@ export async function createSaleTransaction(
     await updateSalePortfolio(supabase, payload.portfolioItemId, {
       status: "satildi",
     });
-    await supabase.from("sale_portfolios").update({ sold_price: payload.totalAmount }).eq("id", payload.portfolioItemId);
+    await supabase
+      .from("sale_portfolios")
+      .update({ sold_price: payload.totalAmount })
+      .eq("id", payload.portfolioItemId)
+      .eq("user_id", payload.userId);
   }
 
   return { transactionId, installments };

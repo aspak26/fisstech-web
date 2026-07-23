@@ -37,7 +37,7 @@ export function MemberList({
 
   async function handleRoleChange(member: GroupMemberRow, role: "admin" | "member") {
     setMenuFor(null);
-    await updateMemberRole(createClient(), member.id, role);
+    await updateMemberRole(createClient(), groupId, member.id, role);
     router.refresh();
   }
 

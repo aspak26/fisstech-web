@@ -7,6 +7,7 @@ import type {
   ProductCategoryRow,
   QuickProductWithVariations,
 } from "@/lib/types/esnaf";
+import { requireUserId } from "@/lib/utils/auth";
 
 // ─── Kategoriler ────────────────────────────────────────────────────────────
 
@@ -37,7 +38,8 @@ export async function createProductCategory(
 }
 
 export async function deleteProductCategory(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("product_categories").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("product_categories").delete().eq("id", id).eq("user_id", userId);
 }
 
 // ─── Ürünler ────────────────────────────────────────────────────────────────
@@ -135,6 +137,7 @@ export async function updateQuickProduct(
     hasVariations?: boolean;
   },
 ): Promise<void> {
+  const userId = await requireUserId(supabase);
   await supabase
     .from("quick_products")
     .update({
@@ -146,11 +149,13 @@ export async function updateQuickProduct(
       ...(patch.hasVariations !== undefined ? { has_variations: patch.hasVariations } : {}),
       updated_at: new Date().toISOString(),
     })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("user_id", userId);
 }
 
 export async function deleteQuickProduct(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("quick_products").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("quick_products").delete().eq("id", id).eq("user_id", userId);
 }
 
 // ─── Ürün Varyasyonları ─────────────────────────────────────────────────────
@@ -176,11 +181,13 @@ export async function updateProductVariation(
   id: string,
   patch: { label?: string; price?: number },
 ): Promise<void> {
-  await supabase.from("product_variations").update(patch).eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("product_variations").update(patch).eq("id", id).eq("user_id", userId);
 }
 
 export async function deleteProductVariation(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("product_variations").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("product_variations").delete().eq("id", id).eq("user_id", userId);
 }
 
 // ─── Veresiye Müşterileri ───────────────────────────────────────────────────
@@ -344,13 +351,15 @@ export async function createTransaction(
     const { data: products } = await supabase
       .from("quick_products")
       .select("id, sale_count")
+      .eq("user_id", payload.userId)
       .in("id", [...qtyByProduct.keys()]);
     await Promise.all(
       (products ?? []).map((p) =>
         supabase
           .from("quick_products")
           .update({ sale_count: Number(p.sale_count) + (qtyByProduct.get(p.id as string) ?? 0) })
-          .eq("id", p.id as string),
+          .eq("id", p.id as string)
+          .eq("user_id", payload.userId),
       ),
     );
   }

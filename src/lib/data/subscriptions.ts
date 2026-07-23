@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { SubscriptionsRow } from "@/lib/types/database";
+import { requireUserId } from "@/lib/utils/auth";
 
 export async function getSubscriptions(
   supabase: SupabaseClient,
@@ -18,7 +19,8 @@ export async function getSubscriptions(
 }
 
 export async function deleteSubscription(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("subscriptions").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("subscriptions").delete().eq("id", id).eq("user_id", userId);
 }
 
 export async function updateSubscriptionStatus(
@@ -26,5 +28,6 @@ export async function updateSubscriptionStatus(
   id: string,
   status: "active" | "paused" | "cancelled",
 ): Promise<void> {
-  await supabase.from("subscriptions").update({ status }).eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("subscriptions").update({ status }).eq("id", id).eq("user_id", userId);
 }

@@ -5,6 +5,7 @@ import type {
   IncomeCategoriesRow,
   IncomesRow,
 } from "@/lib/types/database";
+import { requireUserId } from "@/lib/utils/auth";
 
 export async function getIncomes(
   supabase: SupabaseClient,
@@ -52,11 +53,13 @@ export async function getFixedExpenseCategories(
 }
 
 export async function deleteIncome(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("incomes").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("incomes").delete().eq("id", id).eq("user_id", userId);
 }
 
 export async function deleteFixedExpense(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("fixed_expenses").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("fixed_expenses").delete().eq("id", id).eq("user_id", userId);
 }
 
 export async function toggleFixedExpensePaid(
@@ -64,8 +67,10 @@ export async function toggleFixedExpensePaid(
   id: string,
   isPaid: boolean,
 ): Promise<void> {
+  const userId = await requireUserId(supabase);
   await supabase
     .from("fixed_expenses")
     .update({ is_paid: isPaid, paid_date: isPaid ? new Date().toISOString().slice(0, 10) : null })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("user_id", userId);
 }

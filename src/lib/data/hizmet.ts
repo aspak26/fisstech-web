@@ -8,6 +8,7 @@ import type {
   ServiceJobRow,
   ServiceJobStatus,
 } from "@/lib/types/esnaf";
+import { requireUserId } from "@/lib/utils/auth";
 
 // ─── Müşteriler ─────────────────────────────────────────────────────────────
 
@@ -61,14 +62,17 @@ export async function updateHizmetCustomer(
   id: string,
   patch: Partial<Pick<HizmetCustomerRow, "name" | "phone" | "notes" | "vehicle_plate" | "device_model">>,
 ): Promise<void> {
+  const userId = await requireUserId(supabase);
   await supabase
     .from("hizmet_customers")
     .update({ ...patch, updated_at: new Date().toISOString() })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("user_id", userId);
 }
 
 export async function deleteHizmetCustomer(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("hizmet_customers").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("hizmet_customers").delete().eq("id", id).eq("user_id", userId);
 }
 
 // ─── Hizmet Kataloğu ────────────────────────────────────────────────────────
@@ -108,6 +112,7 @@ export async function updateServiceCatalogItem(
   id: string,
   patch: { name?: string; defaultPrice?: number; durationMinutes?: number },
 ): Promise<void> {
+  const userId = await requireUserId(supabase);
   await supabase
     .from("service_catalog")
     .update({
@@ -115,11 +120,13 @@ export async function updateServiceCatalogItem(
       ...(patch.defaultPrice !== undefined ? { default_price: patch.defaultPrice } : {}),
       ...(patch.durationMinutes !== undefined ? { duration_minutes: patch.durationMinutes } : {}),
     })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("user_id", userId);
 }
 
 export async function deleteServiceCatalogItem(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("service_catalog").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("service_catalog").delete().eq("id", id).eq("user_id", userId);
 }
 
 // ─── Ajanda (Randevular) ────────────────────────────────────────────────────
@@ -225,6 +232,8 @@ export async function createServiceJob(
     paymentMethod: string;
     parts: NewServiceJobPart[];
     notes: string | null;
+    deviceModel?: string | null;
+    vehiclePlate?: string | null;
   },
 ): Promise<string> {
   const partsCost = payload.parts.reduce((s, p) => s + p.quantity * p.unitCost, 0);
@@ -241,6 +250,8 @@ export async function createServiceJob(
       total_amount: payload.laborCost + partsCost,
       payment_method: payload.paymentMethod,
       notes: payload.notes,
+      device_model: payload.deviceModel,
+      vehicle_plate: payload.vehiclePlate,
     })
     .select("id")
     .single();
@@ -280,10 +291,12 @@ export async function updateServiceJobStatus(
   id: string,
   status: ServiceJobStatus,
 ): Promise<void> {
+  const userId = await requireUserId(supabase);
   await supabase
     .from("service_jobs")
     .update({ status, ...(status === "tamamlandi" ? { completed_at: new Date().toISOString() } : {}) })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("user_id", userId);
 }
 
 /** Ported from mobile's atolye_screen.dart _showCompletionDialog confirm
@@ -304,10 +317,15 @@ export async function completeServiceJob(
   await supabase
     .from("service_jobs")
     .update({ status: "tamamlandi", completed_at: new Date().toISOString() })
-    .eq("id", job.id);
+    .eq("id", job.id)
+    .eq("user_id", userId);
 
   if (params.staffId) {
-    await supabase.from("service_jobs").update({ staff_id: params.staffId }).eq("id", job.id);
+    await supabase
+      .from("service_jobs")
+      .update({ staff_id: params.staffId })
+      .eq("id", job.id)
+      .eq("user_id", userId);
     if (params.commissionRate > 0) {
       const now = new Date();
       const periodMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
@@ -324,7 +342,11 @@ export async function completeServiceJob(
   }
 
   if (job.payment_method === "acik_hesap" && params.paymentMethod !== "acik_hesap") {
-    await supabase.from("service_jobs").update({ payment_method: params.paymentMethod }).eq("id", job.id);
+    await supabase
+      .from("service_jobs")
+      .update({ payment_method: params.paymentMethod })
+      .eq("id", job.id)
+      .eq("user_id", userId);
     await supabase.from("business_incomes").insert({
       business_id: businessId,
       user_id: userId,

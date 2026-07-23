@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ExpenseItemsRow, ExpensesRow, InstallmentPlansRow } from "@/lib/types/database";
+import { requireUserId } from "@/lib/utils/auth";
 
 export interface ExpenseWithItems extends ExpensesRow {
   expense_items: ExpenseItemsRow[];
@@ -46,7 +47,8 @@ export async function getExpenses(
 }
 
 export async function deleteExpense(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("expenses").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("expenses").delete().eq("id", id).eq("user_id", userId);
 }
 
 export async function getExpenseById(

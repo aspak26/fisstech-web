@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { calculatePeriodRange } from "@/lib/utils/period";
+import { requireUserId } from "@/lib/utils/auth";
 
 // ─── Şema ────────────────────────────────────────────────────────────────────
 // Ported from fisle_app's 031_kafe_restoran.sql + 034_menu_extras.sql +
@@ -99,15 +100,18 @@ export async function updateTable(
   id: string,
   patch: { name?: string; capacity?: number },
 ): Promise<void> {
-  await supabase.from("restaurant_tables").update(patch).eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("restaurant_tables").update(patch).eq("id", id).eq("user_id", userId);
 }
 
 export async function deleteTable(supabase: SupabaseClient, id: string): Promise<void> {
-  await supabase.from("restaurant_tables").delete().eq("id", id);
+  const userId = await requireUserId(supabase);
+  await supabase.from("restaurant_tables").delete().eq("id", id).eq("user_id", userId);
 }
 
 async function updateTableStatus(supabase: SupabaseClient, tableId: string, status: TableStatus): Promise<void> {
-  await supabase.from("restaurant_tables").update({ status }).eq("id", tableId);
+  const userId = await requireUserId(supabase);
+  await supabase.from("restaurant_tables").update({ status }).eq("id", tableId).eq("user_id", userId);
 }
 
 // ─── Siparişler (Adisyon / Paket Servis) ────────────────────────────────────
@@ -179,12 +183,13 @@ export async function createOrder(
 }
 
 async function recalcTotal(supabase: SupabaseClient, orderId: string): Promise<void> {
+  const userId = await requireUserId(supabase);
   const { data } = await supabase.from("order_items").select("unit_price, quantity").eq("order_id", orderId);
   const total = ((data ?? []) as { unit_price: number; quantity: number }[]).reduce(
     (s, i) => s + Number(i.unit_price) * i.quantity,
     0,
   );
-  await supabase.from("restaurant_orders").update({ total_amount: total }).eq("id", orderId);
+  await supabase.from("restaurant_orders").update({ total_amount: total }).eq("id", orderId).eq("user_id", userId);
 }
 
 export interface NewOrderItem {
@@ -221,7 +226,8 @@ export async function addOrderItems(
 }
 
 export async function removeOrderItem(supabase: SupabaseClient, orderItemId: string, orderId: string): Promise<void> {
-  await supabase.from("order_items").delete().eq("id", orderItemId);
+  const userId = await requireUserId(supabase);
+  await supabase.from("order_items").delete().eq("id", orderItemId).eq("user_id", userId);
   await recalcTotal(supabase, orderId);
 }
 
@@ -298,7 +304,8 @@ export async function payOrder(
       paid_amount: newPaid,
       ...(isFullyPaid ? { status: "closed", closed_at: new Date().toISOString() } : {}),
     })
-    .eq("id", order.id);
+    .eq("id", order.id)
+    .eq("user_id", userId);
 
   if (isFullyPaid && order.table_id) await updateTableStatus(supabase, order.table_id, "empty");
 }
