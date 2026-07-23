@@ -48,7 +48,7 @@ export function BusinessWhatsappSettings({ business }: { business: BusinessRow }
 
       <div className="space-y-4">
         <div className="space-y-1.5">
-          <Label>Atölye "Hazır" Bildirimi</Label>
+          <Label>Atölye &quot;Hazır&quot; Bildirimi</Label>
           <Input 
             value={atolye} 
             onChange={(e) => setAtolye(e.target.value)} 
