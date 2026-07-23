@@ -74,8 +74,14 @@ export function DebtsList({ debts }: { debts: UserDebtRow[] }) {
     [debts],
   );
 
-  const totalBorrowed = unpaid.filter((d) => d.type === "borrowed").reduce((s, d) => s + Number(d.amount), 0);
-  const totalLent = unpaid.filter((d) => d.type === "lent").reduce((s, d) => s + Number(d.amount), 0);
+  const totalBorrowed = useMemo(
+    () => unpaid.filter((d) => d.type === "borrowed").reduce((s, d) => s + Number(d.amount), 0),
+    [unpaid],
+  );
+  const totalLent = useMemo(
+    () => unpaid.filter((d) => d.type === "lent").reduce((s, d) => s + Number(d.amount), 0),
+    [unpaid],
+  );
 
   const visibleMain = useMemo(() => {
     if (filter === "borrowed") return unpaid.filter((d) => d.type === "borrowed");

@@ -47,7 +47,7 @@ export function PerakendePos({
     return products.filter((p) => p.product_code?.startsWith(pluCode.trim()));
   }, [products, activeCategoryId, pluCode]);
 
-  const total = cart.reduce((s, l) => s + l.unitPrice * l.quantity, 0);
+  const total = useMemo(() => cart.reduce((s, l) => s + l.unitPrice * l.quantity, 0), [cart]);
 
   function addProduct(product: QuickProductWithVariations, variation: ProductVariationRow | null = null) {
     const key = variation ? `${product.id}:${variation.id}` : product.id;
