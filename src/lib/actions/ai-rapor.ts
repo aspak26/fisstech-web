@@ -4,8 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import { getEsnafRaporlarBundle } from "@/lib/data/esnaf";
 import { getActiveBusiness } from "@/lib/esnaf/active-business";
 
-export const maxDuration = 60;
-
 export async function generateAiSummaryAction() {
   try {
     const business = await getActiveBusiness();

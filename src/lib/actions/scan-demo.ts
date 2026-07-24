@@ -16,8 +16,6 @@ const ipScanCounts = new Map<string, number>();
 let globalScanDate = new Date().toISOString().split("T")[0];
 let globalScanCount = 0;
 
-export const maxDuration = 60;
-
 export async function scanDemoReceipt(
   imageBase64: string,
   turnstileToken: string

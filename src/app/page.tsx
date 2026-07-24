@@ -1,3 +1,5 @@
+export const maxDuration = 60;
+
 import dynamic from "next/dynamic";
 import { createClient } from "@/lib/supabase/server";
 import { LandingNavbar } from "@/components/modules/landing/landing-navbar";

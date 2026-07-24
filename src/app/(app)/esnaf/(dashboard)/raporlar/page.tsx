@@ -3,6 +3,7 @@ import { getActiveBusiness } from "@/lib/esnaf/active-business";
 import { getEsnafRaporlarBundle } from "@/lib/data/esnaf";
 import { CHART_COLORS } from "@/lib/data/analytics";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+export const maxDuration = 60;
 import { BalanceTrendChart } from "@/components/modules/balance/balance-trend-chart";
 import { CategoryDonutChart } from "@/components/modules/analytics/category-donut-chart";
 import { IncomeItemTrendChart } from "@/components/modules/esnaf/income-item-trend-chart";
