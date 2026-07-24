@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Plus, Receipt, CreditCard, Banknote, HelpCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -46,6 +46,7 @@ export function ExpensesList({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<ExpenseWithItems | undefined>(undefined);
   const [installmentOnly, setInstallmentOnly] = useState(false);
+  const router = useRouter();
   const categoryMap = new Map(categoryNamesById);
 
   function openAdd() {
@@ -109,37 +110,27 @@ export function ExpensesList({
                     const Icon = PAYMENT_ICONS[expense.payment_method] ?? HelpCircle;
                     const inst = expense.installment;
                     return (
-                      <li key={expense.id} className="flex items-center gap-3 py-3">
+                      <li
+                        key={expense.id}
+                        className="group flex cursor-pointer items-center gap-3 rounded-xl px-2 -mx-2 py-3 transition-colors hover:bg-surface-hover"
+                        onClick={() => {
+                          if (inst) router.push(`/expenses/${expense.id}`);
+                          else openEdit(expense);
+                        }}
+                      >
                         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent">
                           <Icon className="h-5 w-5" />
                         </div>
-                        {inst ? (
-                          <Link href={`/expenses/${expense.id}`} className="min-w-0 flex-1 text-left">
-                            <p className="truncate font-medium text-text-primary">
-                              {expense.store_name || "Manuel Giriş"}
-                            </p>
-                            <p className="truncate text-sm text-text-secondary">
-                              {expense.expense_items.length} kalem ·{" "}
-                              {PAYMENT_LABELS[expense.payment_method] ?? expense.payment_method}
-                              {expense.note ? ` · ${expense.note}` : ""}
-                            </p>
-                          </Link>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => openEdit(expense)}
-                            className="min-w-0 flex-1 text-left"
-                          >
-                            <p className="truncate font-medium text-text-primary">
-                              {expense.store_name || "Manuel Giriş"}
-                            </p>
-                            <p className="truncate text-sm text-text-secondary">
-                              {expense.expense_items.length} kalem ·{" "}
-                              {PAYMENT_LABELS[expense.payment_method] ?? expense.payment_method}
-                              {expense.note ? ` · ${expense.note}` : ""}
-                            </p>
-                          </button>
-                        )}
+                        <div className="min-w-0 flex-1 text-left">
+                          <p className="truncate font-medium text-text-primary group-hover:text-accent transition-colors">
+                            {expense.store_name || "Manuel Giriş"}
+                          </p>
+                          <p className="truncate text-sm text-text-secondary">
+                            {expense.expense_items.length} kalem ·{" "}
+                            {PAYMENT_LABELS[expense.payment_method] ?? expense.payment_method}
+                            {expense.note ? ` · ${expense.note}` : ""}
+                          </p>
+                        </div>
                         <div className="text-right">
                           <span className="font-medium text-text-primary">
                             {formatCurrency(Number(expense.total))}
@@ -152,10 +143,12 @@ export function ExpensesList({
                             </p>
                           )}
                         </div>
-                        <DeleteButton
-                          confirmMessage={`"${expense.store_name || "Bu harcama"}" silinsin mi?`}
-                          onDelete={() => deleteExpense(createClient(), expense.id)}
-                        />
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <DeleteButton
+                            confirmMessage={`"${expense.store_name || "Bu harcama"}" silinsin mi?`}
+                            onDelete={() => deleteExpense(createClient(), expense.id)}
+                          />
+                        </div>
                       </li>
                     );
                   })}

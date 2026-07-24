@@ -79,7 +79,7 @@ export function ReportView({ data }: { data: ReportData }) {
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 print:grid-cols-1">
-        <Card>
+        <Card className="min-w-0">
           <CardHeader>
             <CardTitle className="print:text-accent">Kategori Bazlı Harcamalar</CardTitle>
           </CardHeader>
@@ -90,7 +90,7 @@ export function ReportView({ data }: { data: ReportData }) {
           )}
         </Card>
 
-        <Card>
+        <Card className="min-w-0">
           <CardHeader>
             <CardTitle className="print:text-accent">Market Dağılımı</CardTitle>
           </CardHeader>

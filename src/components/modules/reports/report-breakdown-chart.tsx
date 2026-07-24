@@ -33,7 +33,7 @@ export function ReportBreakdownChart({ data }: { data: CategoryBreakdownPoint[] 
           </PieChart>
         </ResponsiveContainer>
       </div>
-      <ul className="flex-1 space-y-2">
+      <ul className="flex-1 min-w-0 space-y-2">
         {data.map((d) => (
           <li key={d.name} className="flex items-center justify-between gap-3 text-sm">
             <span className="flex min-w-0 items-center gap-2">

@@ -16,6 +16,8 @@ import { FilePreviewGrid } from "./file-preview-grid";
 import { ReceiptReviewForm } from "./receipt-review-form";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { CropModal } from "./crop-modal";
+import { Dialog } from "@/components/ui/dialog";
 
 export type ScanFileStatus = "pending" | "scanning" | "scanned" | "error";
 
@@ -58,6 +60,20 @@ export function ScanWorkspace({
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [cropItemId, setCropItemId] = useState<string | null>(null);
+
+  const [batchAllowedTemp, setBatchAllowedTemp] = useState(false);
+  const [showAdDialog, setShowAdDialog] = useState(false);
+
+  function handleCropComplete(blob: Blob) {
+    if (!cropItemId) return;
+    const item = items.find(i => i.id === cropItemId);
+    if (!item) return;
+    const file = new File([blob], item.file.name, { type: "image/jpeg" });
+    const previewUrl = URL.createObjectURL(file);
+    updateItem(cropItemId, { file, previewUrl });
+    setCropItemId(null);
+  }
 
   function updateItem(id: string, patch: Partial<ScanFileItem>) {
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, ...patch } : i)));
@@ -71,12 +87,13 @@ export function ScanWorkspace({
     if (!isPremium) setRemainingCredits((c) => c + 1);
   }
 
-  function processNextInQueue(queue: { id: string; result: ScanResult }[]) {
-    if (queue.length === 0) {
+  function advanceQueue(currentQueue: { id: string; result: ScanResult }[]) {
+    if (currentQueue.length === 0) {
+      setReviewQueue([]);
       setReview(null);
       return;
     }
-    const [next, ...rest] = queue;
+    const [next, ...rest] = currentQueue;
     setReviewQueue(rest);
     setReview({ result: next.result, itemIds: [next.id] });
   }
@@ -205,7 +222,7 @@ export function ScanWorkspace({
       setToast(`${successCount} adet fiş başarıyla otomatik kaydedildi`);
       router.refresh();
     } else if (queue.length > 0) {
-      processNextInQueue(queue);
+      advanceQueue(queue);
     }
   }
 
@@ -244,7 +261,7 @@ export function ScanWorkspace({
       router.refresh();
 
       if (mode === "batch") {
-        processNextInQueue(reviewQueue);
+        advanceQueue(reviewQueue);
       } else {
         setReview(null);
       }
@@ -262,7 +279,7 @@ export function ScanWorkspace({
     setItems((prev) => prev.filter((i) => !review.itemIds.includes(i.id)));
     
     if (mode === "batch") {
-      processNextInQueue(reviewQueue);
+      advanceQueue(reviewQueue);
     } else {
       setReview(null);
     }
@@ -284,6 +301,10 @@ export function ScanWorkspace({
         <ScanModeTabs
           mode={mode}
           onChange={(m) => {
+            if (m === "batch" && !isPremium && !batchAllowedTemp) {
+               setShowAdDialog(true);
+               return;
+            }
             setMode(m);
             setItems([]);
             setReview(null);
@@ -328,6 +349,7 @@ export function ScanWorkspace({
             )}
           </div>
           <ReceiptReviewForm
+            key={review.itemIds.join("-")}
             result={review.result}
             categories={categories}
             saving={saving}
@@ -342,6 +364,11 @@ export function ScanWorkspace({
             disabled={remainingCredits === 0 && !isPremium}
             onFiles={handleFilesAdded}
             onRejected={setNotice}
+            multiSubtitle={
+              mode === "batch"
+                ? "Birden fazla farklı fişi toplu yükleyebilirsiniz (JPEG/PNG, maks 5 MB)"
+                : undefined
+            }
           />
 
           <FilePreviewGrid
@@ -353,6 +380,7 @@ export function ScanWorkspace({
             }))}
             onRetry={handleRetry}
             onRemove={handleRemove}
+            onCrop={setCropItemId}
           />
 
           {mode === "multi" && pendingMultiCount > 0 && (
@@ -368,6 +396,38 @@ export function ScanWorkspace({
           )}
         </>
       )}
+
+      {cropItemId && (
+        <CropModal
+          open={true}
+          imageUrl={items.find(i => i.id === cropItemId)?.previewUrl || ""}
+          onClose={() => setCropItemId(null)}
+          onComplete={handleCropComplete}
+        />
+      )}
+
+      <Dialog
+        open={showAdDialog}
+        onClose={() => setShowAdDialog(false)}
+        title="Premium Özellik"
+      >
+        <div className="space-y-4 mt-2">
+          <div className="rounded-control border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-text-primary">
+            <p>
+              Toplu fiş tarama Premium üyelere özel bir özelliktir. 
+              Ücretsiz olarak kullanmaya devam etmek için <strong>Fişştech Mobil Uygulamasını</strong> indirip reklam izleyerek toplu tarama hakkı kazanabilirsiniz!
+            </p>
+          </div>
+          <div className="flex justify-end pt-2">
+            <Button
+              className="w-full sm:w-auto"
+              onClick={() => router.push("/pricing")}
+            >
+              Premium'a Geç
+            </Button>
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 }

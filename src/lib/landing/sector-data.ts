@@ -30,7 +30,7 @@ export const SECTOR_SOLUTIONS: SectorSolution[] = [
     features: [
       "Ajanda ve randevu takvimi",
       "Atölye / iş takip panosu (Kanban)",
-      "WhatsApp ile otomatik bilgilendirme",
+      "WhatsApp ile hızlı bilgilendirme",
       "Hizmet kataloğu ve fiyatlandırma",
     ],
   },

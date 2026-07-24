@@ -74,9 +74,9 @@ const LINK_COLUMNS = [
 // Sosyal medya hesaplarının gerçek URL'leri elimizde yok — tahmini/yanlış bir
 // bağlantı vermemek için ikonlar şimdilik tıklanabilir link değil, dekoratif.
 const SOCIAL_ICONS = [
-  { icon: IconX, label: "X (Twitter)" },
-  { icon: IconInstagram, label: "Instagram" },
-  { icon: IconLinkedin, label: "LinkedIn" },
+  { icon: IconX, label: "X (Twitter)", href: "#" },
+  { icon: IconInstagram, label: "Instagram", href: "https://www.instagram.com/fisstechapp/" },
+  { icon: IconLinkedin, label: "LinkedIn", href: "#" },
 ];
 
 export function LandingFooter() {
@@ -134,16 +134,29 @@ export function LandingFooter() {
         <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 sm:flex-row">
           <p className="text-xs text-text-secondary">© {new Date().getFullYear()} Fişştech. Tüm hakları saklıdır.</p>
           <div className="flex items-center gap-4">
-            {SOCIAL_ICONS.map(({ icon: Icon, label }) => (
-              <span
-                key={label}
-                aria-label={label}
-                title={`${label} — yakında`}
-                className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-text-secondary"
-              >
-                <Icon className="h-4 w-4" />
-              </span>
-            ))}
+            {SOCIAL_ICONS.map(({ icon: Icon, label, href }) =>
+              href && href !== "#" ? (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-text-secondary transition-colors hover:border-accent hover:text-accent"
+                >
+                  <Icon className="h-4 w-4" />
+                </a>
+              ) : (
+                <span
+                  key={label}
+                  aria-label={label}
+                  title={`${label} — yakında`}
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-text-secondary opacity-50"
+                >
+                  <Icon className="h-4 w-4" />
+                </span>
+              )
+            )}
             <a
               href="mailto:fisstechapp@gmail.com"
               className="flex items-center gap-2 text-sm text-text-secondary hover:text-accent transition-colors"

@@ -110,6 +110,13 @@ export function ReceiptReviewForm({
         <div>
           <Label>Kalemler</Label>
           <div className="space-y-2">
+            <div className="flex gap-2 text-xs font-medium text-text-secondary px-1 pb-1">
+              <div className="flex-[2]">Ürün / Hizmet</div>
+              <div className="flex-1">Kategori</div>
+              <div className="w-24">Birim Fiyat (₺)</div>
+              <div className="w-16">Adet</div>
+              <div className="w-9"></div>
+            </div>
             {fields.map((field, index) => (
               <div key={field.id} className="flex items-center gap-2">
                 <Input
@@ -134,8 +141,8 @@ export function ReceiptReviewForm({
                 <Input
                   className="w-16"
                   type="number"
-                  step="1"
-                  placeholder="Adet"
+                  step="any"
+                  placeholder="Adet/Miktar"
                   {...register(`items.${index}.quantity`)}
                 />
                 <button

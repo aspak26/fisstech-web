@@ -35,6 +35,7 @@ export const PRICING_PLANS: PricingPlan[] = [
       "Fişştech AI: Tüm verinizi analiz eden muhasebe uzmanı",
       "Aylık 50 AI sohbet limiti",
       "Sınırsız fiş tarama",
+      "Sınırsız toplu fiş tarama",
       "Gelişmiş analiz raporları",
       "Ortak bütçe (Grup)",
       "Veri dışa aktarma (CSV/PDF)",
@@ -66,7 +67,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     yearly: "1.199,99",
     yearlyEffective: "99,99",
     yearlySavings: "%17",
-    features: ["Tüm Premium özellikler", "4 kişiye kadar aile üyesi", "Her üye kendi hesabı"],
+    features: ["Tüm Premium özellikler", "Sınırsız toplu fiş tarama", "4 kişiye kadar aile üyesi", "Her üye kendi hesabı"],
   },
 ];
 

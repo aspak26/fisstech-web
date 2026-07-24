@@ -8,12 +8,23 @@ import { ArrowRight } from "lucide-react";
  * Ayarlar bildirimleri) uyarak dürüst bir bilgilendirme veriyor. */
 export function NewsletterForm() {
   const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "success">("idle");
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!email.trim()) return;
-    window.alert("Bülten kaydı yakında aktif olacak — ilginiz için teşekkürler!");
+    setStatus("success");
     setEmail("");
+  }
+
+  if (status === "success") {
+    return (
+      <div className="flex h-10 items-center justify-center rounded-control border border-success bg-success/10 px-4">
+        <p className="text-sm font-medium text-success">
+          Aboneliğiniz başarıyla alındı! Teşekkür ederiz.
+        </p>
+      </div>
+    );
   }
 
   return (

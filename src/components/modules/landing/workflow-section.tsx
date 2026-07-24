@@ -45,7 +45,7 @@ function FloatingCard({
 
 export function WorkflowSection() {
   return (
-    <section className="relative overflow-hidden bg-bg py-24">
+    <section id="how-it-works" className="relative overflow-hidden bg-bg py-24">
       <div
         className="pointer-events-none absolute inset-0"
         style={{

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Minus, Wallet } from "lucide-react";
+import { Plus, Minus, Wallet, Scan } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import type {
 } from "@/lib/types/esnaf";
 import { KasaIncomeDialog } from "./kasa-income-dialog";
 import { KasaExpenseDialog } from "./kasa-expense-dialog";
+import { GlobalBatchScanDialog } from "./global-batch-scan-dialog";
 
 export function KasaList({
   business,
@@ -34,6 +35,7 @@ export function KasaList({
 }) {
   const [incomeOpen, setIncomeOpen] = useState(false);
   const [expenseOpen, setExpenseOpen] = useState(false);
+  const [scanOpen, setScanOpen] = useState(false);
 
   const rows = [
     ...incomes.map((i) => ({
@@ -57,6 +59,9 @@ export function KasaList({
   return (
     <div className="space-y-4">
       <div className="flex justify-end gap-2">
+        <Button variant="secondary" onClick={() => setScanOpen(true)} className="gap-1.5 border-accent text-accent hover:bg-accent/10">
+          <Scan className="h-4 w-4" /> Fiş Tara (Toplu)
+        </Button>
         <Button variant="secondary" onClick={() => setExpenseOpen(true)} className="gap-1.5">
           <Minus className="h-4 w-4" /> Gider Ekle
         </Button>
@@ -96,6 +101,11 @@ export function KasaList({
       <KasaExpenseDialog
         open={expenseOpen}
         onClose={() => setExpenseOpen(false)}
+        business={business}
+      />
+      <GlobalBatchScanDialog
+        open={scanOpen}
+        onClose={() => setScanOpen(false)}
         business={business}
       />
     </div>

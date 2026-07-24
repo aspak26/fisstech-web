@@ -6,8 +6,10 @@ import { CheckCircle2, Lock, Loader2, RotateCcw, ScanLine } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { DropzoneUploader } from "@/components/modules/scan/dropzone-uploader";
-import { DEMO_RECEIPT_RESULTS, type DemoReceiptResult } from "@/lib/landing/demo-receipts";
+import type { DemoReceiptResult } from "@/lib/landing/demo-receipts";
+import { scanDemoReceipt } from "@/lib/actions/scan-demo";
 import { Reveal } from "./reveal";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 const MAX_TRIES = 5;
 const STORAGE_KEY = "fisstech_demo_scans_used";
@@ -24,24 +26,54 @@ export function ScanDemo() {
   const [overrideCount, setOverrideCount] = useState<number | null>(null);
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<DemoReceiptResult | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string>("");
 
   // Plain render-time read once mounted — matches SSR/first hydration pass
   // (mounted=false → 0), real value appears on the client-only re-render.
   const storedCount = mounted ? Number(window.localStorage.getItem(STORAGE_KEY) ?? "0") : 0;
   const usedCount = overrideCount ?? (Number.isFinite(storedCount) ? Math.min(storedCount, MAX_TRIES) : 0);
 
-  function handleFiles() {
-    if (usedCount >= MAX_TRIES) return;
+  async function handleFiles(files: File[]) {
+    if (usedCount >= MAX_TRIES || files.length === 0) return;
+    
+    if (!turnstileToken) {
+      setErrorMsg("Güvenlik doğrulaması henüz tamamlanmadı, lütfen bekleyin.");
+      return;
+    }
+
     setScanning(true);
     setResult(null);
-    window.setTimeout(() => {
-      const next = DEMO_RECEIPT_RESULTS[usedCount % DEMO_RECEIPT_RESULTS.length];
-      setResult(next);
-      setScanning(false);
-      const newCount = usedCount + 1;
+    setErrorMsg(null);
+    
+    try {
+      const file = files[0];
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          resolve(result.split(",")[1] ?? "");
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      const data = await scanDemoReceipt(base64, turnstileToken);
+      setResult(data);
+      
+      const newCount = MAX_TRIES - data.remaining;
       setOverrideCount(newCount);
       window.localStorage.setItem(STORAGE_KEY, String(newCount));
-    }, 1600);
+    } catch (err: any) {
+      if (err.message?.includes("RATE_LIMIT")) {
+        setErrorMsg("RATE_LIMIT");
+        setOverrideCount(MAX_TRIES);
+      } else {
+        setErrorMsg("Fiş okunamadı veya bir hata oluştu.");
+      }
+    } finally {
+      setScanning(false);
+    }
   }
 
   const remaining = MAX_TRIES - usedCount;
@@ -133,7 +165,7 @@ export function ScanDemo() {
                 <DropzoneUploader
                   multiple={false}
                   onFiles={handleFiles}
-                  onRejected={() => handleFiles()}
+                  onRejected={() => setErrorMsg("Geçersiz dosya.")}
                   title="Bir fiş fotoğrafı yükle veya sürükle"
                   subtitle="Herhangi bir fiş/fatura görseli olabilir — JPEG veya PNG"
                 />
@@ -141,9 +173,33 @@ export function ScanDemo() {
             </>
           )}
 
+          {errorMsg === "RATE_LIMIT" ? (
+            <div className="mt-4 flex flex-col items-center gap-3 rounded-lg border-2 border-dashed border-accent/40 bg-accent-soft/40 px-6 py-6 text-center">
+              <p className="font-medium text-text-primary">
+                Harika bir başlangıç! Ücretsiz deneme hakkınız doldu.
+              </p>
+              <Link href="/register" className={buttonVariants("primary", "md")}>
+                Sınırsız Kullanım İçin Ücretsiz Üye Olun
+              </Link>
+            </div>
+          ) : errorMsg ? (
+            <div className="mt-4 rounded-lg bg-danger/10 px-4 py-2 text-center text-sm font-medium text-danger">
+              {errorMsg}
+            </div>
+          ) : null}
+
+          <div className="mt-4 flex justify-center">
+            <Turnstile
+              siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
+              onSuccess={(token) => setTurnstileToken(token)}
+              onError={() => setErrorMsg("Bot doğrulaması başarısız oldu.")}
+              options={{ theme: "auto" }}
+            />
+          </div>
+
           <p className="mt-5 text-center text-xs text-text-secondary">
             Bu alanda taranan fişler veritabanına veya gerçek harcama geçmişine kaydedilmez, sadece test
-            amaçlı simülasyondur.
+            amaçlıdır.
           </p>
         </Card>
       </Reveal>

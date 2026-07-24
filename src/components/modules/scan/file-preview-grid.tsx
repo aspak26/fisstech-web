@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { Loader2, RotateCw, X } from "lucide-react";
+import { Loader2, RotateCw, X, Scissors } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils/cn";
+
 import type { ScanFileStatus } from "./scan-workspace";
 
 const STATUS_LABEL: Record<ScanFileStatus, string> = {
@@ -24,10 +24,12 @@ export function FilePreviewGrid({
   items,
   onRetry,
   onRemove,
+  onCrop,
 }: {
   items: FilePreviewItem[];
   onRetry: (id: string) => void;
   onRemove: (id: string) => void;
+  onCrop?: (id: string) => void;
 }) {
   if (items.length === 0) return null;
 
@@ -70,16 +72,26 @@ export function FilePreviewGrid({
               </button>
             )}
           </div>
-          <button
-            type="button"
-            aria-label="Kaldır"
-            onClick={() => onRemove(item.id)}
-            className={cn(
-              "absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100",
+          <div className="absolute right-1.5 top-1.5 flex gap-1.5 opacity-0 transition-opacity group-hover:opacity-100">
+            {(item.status === "pending" || item.status === "error") && onCrop && (
+              <button
+                type="button"
+                aria-label="Kırp"
+                onClick={() => onCrop(item.id)}
+                className="flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+              >
+                <Scissors className="h-3.5 w-3.5" />
+              </button>
             )}
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
+            <button
+              type="button"
+              aria-label="Kaldır"
+              onClick={() => onRemove(item.id)}
+              className="flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white hover:bg-danger transition-colors"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </div>
       ))}
     </div>

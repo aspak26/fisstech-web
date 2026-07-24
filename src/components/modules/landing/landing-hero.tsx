@@ -44,7 +44,7 @@ export function LandingHero({ isAuthenticated }: { isAuthenticated: boolean }) {
               <Image src="/logo-visor.png" alt="Fisstech Logo" fill className="object-cover" />
             </div>
             <p className="leading-relaxed">
-              <strong className="text-accent block sm:inline">Beta Yayında! 🎉</strong> Mobil uygulamamız çok yakında Play Store'da! Web sürümümüzü hemen şimdi <strong>ÜCRETSİZ</strong> denemeye başlayabilirsiniz.
+              <strong className="text-accent block sm:inline">Web Sürümü Yayında! 🎉</strong> Mobil uygulamamız çok yakında Play Store&apos;da! Hemen şimdi <strong>ÜCRETSİZ</strong> denemeye başlayabilirsiniz.
             </p>
           </div>
 

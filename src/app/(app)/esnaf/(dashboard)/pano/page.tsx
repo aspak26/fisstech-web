@@ -6,7 +6,8 @@ import { currentMonthString, getMonthRange } from "@/lib/utils/date";
 import { formatCurrency } from "@/lib/utils/currency";
 import { Card } from "@/components/ui/card";
 import { SmartRemindersSection } from "@/components/modules/esnaf/smart-reminders-section";
-import { ArrowDownCircle, ArrowUpCircle, TrendingUp } from "lucide-react";
+import { ArrowDownCircle, ArrowUpCircle, TrendingUp, ScanText, FileBarChart, PlusCircle, MinusCircle, Wallet, FileText, Users, UserPlus, Settings } from "lucide-react";
+import Link from "next/link";
 
 export default async function EsnafPanoPage() {
   const business = await getActiveBusiness();
@@ -44,6 +45,34 @@ export default async function EsnafPanoPage() {
 
   return (
     <div className="space-y-6">
+      {/* Hızlı İşlemler / Quick Actions */}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <Link href="/esnaf/kasa" className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-surface p-4 text-center transition-colors hover:bg-surface-hover">
+          <div className="rounded-full bg-accent/10 p-3 text-accent">
+            <ScanText className="h-6 w-6" />
+          </div>
+          <span className="text-sm font-medium text-text-primary">Toplu Fiş Tarama</span>
+        </Link>
+        <Link href="/esnaf/raporlar" className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-surface p-4 text-center transition-colors hover:bg-surface-hover">
+          <div className="rounded-full bg-accent/10 p-3 text-accent">
+            <FileBarChart className="h-6 w-6" />
+          </div>
+          <span className="text-sm font-medium text-text-primary">Özet Rapor</span>
+        </Link>
+        <Link href="/esnaf/kasa?action=income" className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-surface p-4 text-center transition-colors hover:bg-surface-hover">
+          <div className="rounded-full bg-success/10 p-3 text-success">
+            <PlusCircle className="h-6 w-6" />
+          </div>
+          <span className="text-sm font-medium text-text-primary">Gelir Ekle</span>
+        </Link>
+        <Link href="/esnaf/kasa?action=expense" className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-surface p-4 text-center transition-colors hover:bg-surface-hover">
+          <div className="rounded-full bg-danger/10 p-3 text-danger">
+            <MinusCircle className="h-6 w-6" />
+          </div>
+          <span className="text-sm font-medium text-text-primary">Gider Ekle</span>
+        </Link>
+      </div>
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Card className="flex items-center gap-3">
           <ArrowUpCircle className="h-8 w-8 text-success" strokeWidth={1.5} />
@@ -77,6 +106,48 @@ export default async function EsnafPanoPage() {
       </div>
 
       {isHizmet && <SmartRemindersSection reminders={reminders} />}
+
+      <div className="space-y-4">
+        <h2 className="font-display text-lg font-semibold text-text-primary">Kısayollar</h2>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <Link href="/esnaf/kasa?action=expense" className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-surface p-4 text-center transition-colors hover:bg-surface-hover">
+            <div className="rounded-full bg-danger/10 p-3 text-danger">
+              <Wallet className="h-6 w-6" />
+            </div>
+            <span className="text-sm font-medium text-text-primary">Giderler</span>
+          </Link>
+          <Link href="/esnaf/faturalar" className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-surface p-4 text-center transition-colors hover:bg-surface-hover">
+            <div className="rounded-full bg-accent/10 p-3 text-accent">
+              <FileText className="h-6 w-6" />
+            </div>
+            <span className="text-sm font-medium text-text-primary">Faturalar</span>
+          </Link>
+          <Link href="/esnaf/ekip" className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-surface p-4 text-center transition-colors hover:bg-surface-hover">
+            <div className="rounded-full bg-accent/10 p-3 text-accent">
+              <Users className="h-6 w-6" />
+            </div>
+            <span className="text-sm font-medium text-text-primary">Ekip</span>
+          </Link>
+          <Link href="/esnaf/personel" className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-surface p-4 text-center transition-colors hover:bg-surface-hover">
+            <div className="rounded-full bg-accent/10 p-3 text-accent">
+              <UserPlus className="h-6 w-6" />
+            </div>
+            <span className="text-sm font-medium text-text-primary">Personel</span>
+          </Link>
+          <Link href="/esnaf/raporlar" className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-surface p-4 text-center transition-colors hover:bg-surface-hover">
+            <div className="rounded-full bg-accent/10 p-3 text-accent">
+              <FileBarChart className="h-6 w-6" />
+            </div>
+            <span className="text-sm font-medium text-text-primary">Raporlar</span>
+          </Link>
+          <Link href="/esnaf/ayarlar" className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-surface p-4 text-center transition-colors hover:bg-surface-hover">
+            <div className="rounded-full bg-accent/10 p-3 text-accent">
+              <Settings className="h-6 w-6" />
+            </div>
+            <span className="text-sm font-medium text-text-primary">Ayarlar</span>
+          </Link>
+        </div>
+      </div>
 
       <Card>
         <h2 className="mb-3 font-display text-lg font-semibold text-text-primary">

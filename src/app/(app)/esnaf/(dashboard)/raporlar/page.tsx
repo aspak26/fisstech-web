@@ -9,6 +9,7 @@ import { IncomeItemTrendChart } from "@/components/modules/esnaf/income-item-tre
 import { formatCurrency } from "@/lib/utils/currency";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PieChart, TrendingUp } from "lucide-react";
+import { AiSummaryModal } from "@/components/modules/esnaf/ai-summary-modal";
 
 export default async function EsnafRaporlarPage() {
   const business = await getActiveBusiness();
@@ -19,7 +20,10 @@ export default async function EsnafRaporlarPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-display text-xl font-semibold text-text-primary">İşletme Raporları</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="font-display text-xl font-semibold text-text-primary">İşletme Raporları</h1>
+        <AiSummaryModal />
+      </div>
 
       <Card>
         <CardHeader>

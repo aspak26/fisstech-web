@@ -41,6 +41,7 @@ const BASE_TABS = [
   { href: "/esnaf/evrak", label: "Evrak Arşivi", icon: FolderOpen },
   { href: "/esnaf/personel", label: "Personel", icon: Users },
   { href: "/esnaf/ekip", label: "Ekip", icon: UserPlus },
+  { href: "/esnaf/musteri", label: "Müşteriler", icon: Contact },
   { href: "/esnaf/stok", label: "Stok", icon: Package },
   { href: "/esnaf/raporlar", label: "Raporlar", icon: BarChart3 },
   { href: "/esnaf/ayarlar", label: "Ayarlar", icon: Settings },
@@ -62,7 +63,6 @@ const SECTOR_TABS: Record<string, { href: string; label: string; icon: typeof Wa
   hizmet: [
     { href: "/esnaf/hizmet/ajanda", label: "Ajanda", icon: CalendarClock },
     { href: "/esnaf/hizmet/atolye", label: "Atölye", icon: Wrench },
-    { href: "/esnaf/hizmet/musteri", label: "Müşteriler", icon: Contact },
     { href: "/esnaf/hizmet/katalog", label: "Katalog", icon: BookOpen },
   ],
   toptan: [
@@ -74,13 +74,11 @@ const SECTOR_TABS: Record<string, { href: string; label: string; icon: typeof Wa
   freelance: [
     { href: "/esnaf/freelance/projeler", label: "Projeler", icon: FolderKanban },
     { href: "/esnaf/freelance/gorevler", label: "Görevler", icon: ListChecks },
-    { href: "/esnaf/freelance/musteri", label: "Müşteriler", icon: Contact },
     { href: "/esnaf/freelance/finans", label: "Finans", icon: Receipt },
   ],
   satis: [
     { href: "/esnaf/satis/portfoy", label: "Portföy", icon: ImageIcon },
     { href: "/esnaf/satis/surecler", label: "Süreçler", icon: GitBranch },
-    { href: "/esnaf/satis/musteri", label: "Müşteriler", icon: Contact },
     { href: "/esnaf/perakende/kasa", label: "Hızlı Kasa", icon: ShoppingCart },
   ],
 };
