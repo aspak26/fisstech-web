@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { animate, motion, useInView } from "framer-motion";
-import { Camera, FileUp, FolderCheck, MousePointer2, Receipt, Settings, Smartphone } from "lucide-react";
+import { Camera, Check, FileUp, FolderCheck, MousePointer2, Receipt, Settings } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { formatCurrency } from "@/lib/utils/currency";
 import { Reveal } from "./reveal";
@@ -54,21 +54,79 @@ function AnimatedAmount({ target }: { target: number }) {
   return <span ref={ref}>{formatCurrency(display)}</span>;
 }
 
+// Kilit noktası "en" harici kenarlıklı bir çerçeve olsun diye 5 dişli bir
+// fiş silüeti — zigzag alt kenar, receipt.tsx'teki AI Tarayıcı önizlemesiyle
+// aynı görsel dilde (gerçek fiş kesim çizgisi hissi veriyor).
+const RECEIPT_CLIP_PATH =
+  "polygon(0% 0%, 100% 0%, 100% 90%, 90% 100%, 80% 90%, 70% 100%, 60% 90%, 50% 100%, 40% 90%, 30% 100%, 20% 90%, 10% 100%, 0% 90%)";
+
+// Telefonun fişin fotoğrafını GERÇEKTEN çekmesini canlandıran görsel:
+// odak köşeleri nabız gibi atıyor ("focusing"), döngünün ~%55'inde deklanşör
+// basılıyor + ekran flaş veriyor + fiş hafifçe "titreşiyor" (snap hissi),
+// hemen ardından kısa süreliğine bir onay rozeti beliriyor ("kaydedildi").
+function PhoneCaptureVisual() {
+  return (
+    <div className="relative flex h-44 w-24 flex-col items-center justify-between rounded-2xl border-2 border-border bg-bg px-2 pb-3 pt-5">
+      <div className="absolute top-2.5 h-1 w-5 rounded-full bg-border" />
+
+      <div className="relative mt-1 flex h-28 w-full items-center justify-center overflow-hidden rounded-lg bg-text-primary/5">
+        <motion.div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0"
+          animate={{ opacity: [0.35, 0.85, 0.35] }}
+          transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <span className="absolute left-1 top-1 h-2 w-2 border-l-2 border-t-2 border-accent" />
+          <span className="absolute right-1 top-1 h-2 w-2 border-r-2 border-t-2 border-accent" />
+          <span className="absolute bottom-1 left-1 h-2 w-2 border-b-2 border-l-2 border-accent" />
+          <span className="absolute bottom-1 right-1 h-2 w-2 border-b-2 border-r-2 border-accent" />
+        </motion.div>
+
+        <motion.div
+          animate={{ scale: [1, 1, 0.9, 1, 1] }}
+          transition={{ duration: 2.8, repeat: Infinity, times: [0, 0.53, 0.56, 0.6, 1], ease: "easeOut" }}
+          className="relative flex h-20 w-12 flex-col gap-1 rounded-[2px] bg-surface p-1.5 shadow-sm"
+          style={{ clipPath: RECEIPT_CLIP_PATH }}
+        >
+          <span className="h-0.5 w-full rounded-full bg-border" />
+          <span className="h-0.5 w-3/4 rounded-full bg-border" />
+          <span className="h-0.5 w-full rounded-full bg-border" />
+          <span className="mt-auto h-1 w-1/2 rounded-full bg-accent/70" />
+        </motion.div>
+
+        <motion.div
+          aria-hidden="true"
+          animate={{ opacity: [0, 0, 0.95, 0, 0] }}
+          transition={{ duration: 2.8, repeat: Infinity, times: [0, 0.53, 0.56, 0.62, 1], ease: "easeOut" }}
+          className="pointer-events-none absolute inset-0 bg-white"
+        />
+
+        <motion.span
+          animate={{ opacity: [0, 0, 0, 1, 1, 0, 0], scale: [0.4, 0.4, 0.4, 1, 1, 0.7, 0.4] }}
+          transition={{ duration: 2.8, repeat: Infinity, times: [0, 0.56, 0.6, 0.64, 0.82, 0.9, 1], ease: "easeOut" }}
+          className="pointer-events-none absolute flex h-7 w-7 items-center justify-center rounded-full bg-accent text-on-accent"
+          style={{ boxShadow: "0 0 14px 2px color-mix(in srgb, var(--color-accent) 60%, transparent)" }}
+        >
+          <Check className="h-4 w-4" />
+        </motion.span>
+      </div>
+
+      <motion.span
+        animate={{ scale: [1, 1, 0.82, 1, 1] }}
+        transition={{ duration: 2.8, repeat: Infinity, times: [0, 0.5, 0.55, 0.6, 1], ease: "easeInOut" }}
+        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent"
+        style={{ boxShadow: "0 0 12px 1px color-mix(in srgb, var(--color-accent) 55%, transparent)" }}
+      >
+        <Camera className="h-3 w-3" />
+      </motion.span>
+    </div>
+  );
+}
+
 function UploadVisual() {
   return (
     <div className="flex h-64 items-center justify-center gap-6 rounded-2xl border border-border bg-surface">
-      <div className="relative flex h-40 w-20 items-center justify-center rounded-2xl border-2 border-border bg-bg">
-        <div className="absolute top-2.5 h-1 w-5 rounded-full bg-border" />
-        <Smartphone className="h-8 w-8 text-text-secondary/30" />
-        <motion.span
-          animate={{ opacity: [0, 1, 0], scale: [0.8, 1.15, 0.8] }}
-          transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute flex h-9 w-9 items-center justify-center rounded-full bg-accent text-on-accent"
-          style={{ boxShadow: "0 0 20px 2px color-mix(in srgb, var(--color-accent) 70%, transparent)" }}
-        >
-          <Camera className="h-4 w-4" />
-        </motion.span>
-      </div>
+      <PhoneCaptureVisual />
 
       <div className="relative flex h-32 w-32 items-center justify-center rounded-2xl border-2 border-dashed border-border">
         <motion.span
