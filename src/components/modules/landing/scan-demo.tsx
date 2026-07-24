@@ -61,6 +61,11 @@ export function ScanDemo() {
       });
 
       const data = await scanDemoReceipt(base64, finalToken);
+      if ('error' in data) {
+        setErrorMsg(data.error);
+        setScanning(false);
+        return;
+      }
       setResult(data);
       
       const newCount = MAX_TRIES - data.remaining;

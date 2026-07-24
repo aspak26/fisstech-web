@@ -19,7 +19,7 @@ let globalScanCount = 0;
 export async function scanDemoReceipt(
   imageBase64: string,
   turnstileToken: string
-): Promise<DemoReceiptResult & { remaining: number }> {
+): Promise<(DemoReceiptResult & { remaining: number }) | { error: string }> {
   const cookieStore = await cookies();
   const headersList = await headers();
   const today = new Date().toISOString().split("T")[0];
@@ -144,26 +144,27 @@ GENEL KURALLAR
   );
 
   if (!response.ok) {
-    throw new Error("Görüntü işlenirken bir hata oluştu");
+    const errData = await response.text();
+    return { error: `Google API Hatası (${response.status}): ${errData.slice(0, 150)}` };
   }
 
   const geminiData = await response.json();
   const text = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
 
   if (!text) {
-    throw new Error("receipt_unreadable");
+    return { error: `Yapay zeka yanıt üretemedi: ${JSON.stringify(geminiData).slice(0, 150)}` };
   }
 
   let cleanedText = text.trim();
-  if (cleanedText.startsWith("\`\`\`")) {
-    cleanedText = cleanedText.replace(/^\`\`\`(?:json)?\n?/, "").replace(/\n?\`\`\`$/, "");
+  if (cleanedText.startsWith("```")) {
+    cleanedText = cleanedText.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
   }
 
   let parsed;
   try {
     parsed = JSON.parse(cleanedText);
   } catch (parseError) {
-    throw new Error("receipt_unreadable");
+    return { error: `Yapay zeka geçersiz format döndürdü: ${cleanedText.slice(0, 100)}` };
   }
 
   // Increment rate limits
