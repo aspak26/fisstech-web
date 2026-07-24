@@ -10,6 +10,7 @@ export interface ComparisonRow {
 export const COMPARISON_ROWS: ComparisonRow[] = [
   { feature: "Aylık fiş tarama hakkı", premium: "Sınırsız", esnaf: "Sınırsız", family: "Sınırsız" },
   { feature: "Yapay zeka ile fiş okuma", premium: true, esnaf: true, family: true },
+  { feature: "Toplu fiş tarama (birden fazla fişi tek seferde)", premium: true, esnaf: false, family: true },
   { feature: "Aylık AI sohbet limiti", premium: "50", esnaf: false, family: "Kişi başı 50" },
   { feature: "Veri dışa aktarma (PDF/CSV)", premium: true, esnaf: true, family: true },
   { feature: "Kasa, stok ve satış takibi", premium: false, esnaf: true, family: false },

@@ -421,9 +421,9 @@ export function ScanWorkspace({
           <div className="flex justify-end pt-2">
             <Button
               className="w-full sm:w-auto"
-              onClick={() => router.push("/pricing")}
+              onClick={() => router.push("/#pricing")}
             >
-              Premium'a Geç
+              Premium&apos;a Geç
             </Button>
           </div>
         </div>

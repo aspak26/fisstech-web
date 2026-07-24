@@ -67,7 +67,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     yearly: "1.199,99",
     yearlyEffective: "99,99",
     yearlySavings: "%17",
-    features: ["Tüm Premium özellikler", "Sınırsız toplu fiş tarama", "4 kişiye kadar aile üyesi", "Her üye kendi hesabı"],
+    features: ["Tüm Premium özellikler", "4 kişiye kadar aile üyesi", "Her üye kendi hesabı"],
   },
 ];
 

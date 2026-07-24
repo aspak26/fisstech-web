@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCategoriesForScan } from "@/lib/data/categories";
 import { getRemainingScanCredits } from "@/lib/scan/credits";
+import { getUserPlanInfo, isPersonalPremium } from "@/lib/utils/entitlements";
 import { ScanWorkspace } from "@/components/modules/scan/scan-workspace";
 
 export default async function ScanPage() {
@@ -10,13 +11,13 @@ export default async function ScanPage() {
   } = await supabase.auth.getUser();
   const userId = user!.id;
 
-  const [categories, remainingCredits, profile] = await Promise.all([
+  const [categories, remainingCredits, planInfo] = await Promise.all([
     getCategoriesForScan(supabase),
     getRemainingScanCredits(supabase, userId),
-    supabase.from("users").select("plan").eq("id", userId).maybeSingle(),
+    getUserPlanInfo(supabase, userId),
   ]);
 
-  const isPremium = profile.data?.plan === "premium";
+  const isPremium = isPersonalPremium(planInfo.planType);
 
   return (
     <div>
