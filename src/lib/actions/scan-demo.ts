@@ -16,6 +16,8 @@ const ipScanCounts = new Map<string, number>();
 let globalScanDate = new Date().toISOString().split("T")[0];
 let globalScanCount = 0;
 
+export const maxDuration = 60;
+
 export async function scanDemoReceipt(
   imageBase64: string,
   turnstileToken: string
@@ -125,7 +127,7 @@ GENEL KURALLAR
 - ÇOK ÖNEMLİ (Miktar ve Fiyat): Fişteki ürün miktarını (quantity) KESİNLİKLE doğru çıkar. Özellikle "2 X 14,00" veya "3 AD x 5,00" ibareleri varsa "quantity" değerini 2, 3 gibi belirle. "price" alanına ise toplam tutarı değil, ürünün BİRİM FİYATINI (14.00, 5.00 vb.) yaz.`;
 
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

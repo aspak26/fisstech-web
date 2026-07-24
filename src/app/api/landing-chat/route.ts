@@ -35,6 +35,8 @@ Cevap: Fişştech'i temel özellikleriyle ücretsiz kullanabilirsin. Ancak sın�
 const MAX_MESSAGE_LENGTH = 500;
 const isRateLimited = createRateLimiter(10, 10 * 60 * 1000);
 
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
@@ -71,7 +73,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

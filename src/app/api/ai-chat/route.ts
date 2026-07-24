@@ -52,6 +52,8 @@ Cevap: Hayır, Premium paket (49,99 ₺) sadece kişisel finans özelliklerini i
 Soru: Uygulama tamamen ücretsiz mi yoksa para ödemem şart mı?
 Cevap: Fişştech'i temel özellikleriyle ücretsiz kullanabilirsin. Ancak sınırsız fiş tarama, aylık 50 yapay zeka sohbeti ve ortak bütçe gibi eşsiz özellikleri açmak istersen aylık 49,99 ₺'ye Premium pakete geçebilirsin.`;
 
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   try {
     const authHeader = request.headers.get("Authorization");
@@ -213,7 +215,7 @@ ${JSON.stringify(contextJson, null, 2)}`;
     }
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
