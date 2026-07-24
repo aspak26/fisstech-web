@@ -1,7 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { calculatePeriodRange } from "@/lib/utils/period";
 import { requireUserId } from "@/lib/utils/auth";
+import { getUserPlanInfo, isPersonalPremium } from "@/lib/utils/entitlements";
 import { CHART_COLORS, normalizeStoreName, parentGroupIcon, type CategoryBreakdownPoint, type StoreBreakdownPoint } from "@/lib/data/analytics";
+
+/** Mirrors GroupService's owned-group cap in fisle_app (free=1, premium/aile=3). */
+const FREE_OWNED_GROUP_LIMIT = 1;
+const PREMIUM_OWNED_GROUP_LIMIT = 3;
 
 export interface GroupRow {
   id: string;
@@ -58,6 +63,20 @@ export async function createGroup(
   userId: string,
   name: string,
 ): Promise<string> {
+  const { planType } = await getUserPlanInfo(supabase, userId);
+  const limit = isPersonalPremium(planType) ? PREMIUM_OWNED_GROUP_LIMIT : FREE_OWNED_GROUP_LIMIT;
+  const { count } = await supabase
+    .from("groups")
+    .select("id", { count: "exact", head: true })
+    .eq("owner_id", userId);
+  if ((count ?? 0) >= limit) {
+    throw new Error(
+      isPersonalPremium(planType)
+        ? `En fazla ${limit} grup oluşturabilirsiniz.`
+        : `Ücretsiz planda en fazla ${limit} grup oluşturabilirsiniz. Daha fazlası için Premium'a geçin.`,
+    );
+  }
+
   const { data, error } = await supabase
     .from("groups")
     .insert({ name, owner_id: userId })

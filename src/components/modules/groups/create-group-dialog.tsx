@@ -12,12 +12,14 @@ import { createGroup } from "@/lib/data/groups";
 export function CreateGroupDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { register, handleSubmit, reset } = useForm<{ name: string }>({
     defaultValues: { name: "" },
   });
 
   async function onSubmit(values: { name: string }) {
     setSaving(true);
+    setError(null);
     try {
       const supabase = createClient();
       const {
@@ -29,6 +31,8 @@ export function CreateGroupDialog({ open, onClose }: { open: boolean; onClose: (
       onClose();
       router.push(`/groups/${groupId}`);
       router.refresh();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Grup oluşturulamadı");
     } finally {
       setSaving(false);
     }
@@ -41,6 +45,7 @@ export function CreateGroupDialog({ open, onClose }: { open: boolean; onClose: (
           <Label htmlFor="group-name">Grup Adı</Label>
           <Input id="group-name" placeholder="Aile, Ev arkadaşları..." {...register("name", { required: true })} />
         </div>
+        {error && <p className="text-sm text-danger">{error}</p>}
         <div className="flex justify-end gap-3">
           <Button type="button" variant="secondary" onClick={onClose} disabled={saving}>
             İptal

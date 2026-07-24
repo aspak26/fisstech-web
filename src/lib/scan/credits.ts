@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { getUserPlanInfo, isPersonalPremium } from "@/lib/utils/entitlements";
 
 /** Mirrors ScanService.freeMonthlyLimit in fisle_app scan_service.dart. */
 export const FREE_MONTHLY_LIMIT = 20;
@@ -8,13 +9,16 @@ function currentMonth(): string {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 }
 
+// Önceden burada `users.plan === 'premium'` kontrolü vardı — ama RevenueCat
+// webhook'u `plan='premium'`'ı Esnaf Modu ödemelerinde de yazıyor (tier
+// ayrımı sadece `plan_type`'ta var), yani bir esnaf-only abone burada
+// yanlışlıkla "sınırsız tarama hakkı" görünüyordu (server-taraflı
+// `try_consume_scan_credit` RPC'si zaten doğru `plan_type` kontrolü
+// yapıyordu — sadece bu UI/okuma tarafı tutarsızdı). `isPersonalPremium`
+// ile tekilleştirildi.
 async function isPremium(supabase: SupabaseClient, userId: string): Promise<boolean> {
-  const { data } = await supabase
-    .from("users")
-    .select("plan")
-    .eq("id", userId)
-    .maybeSingle();
-  return data?.plan === "premium";
+  const { planType } = await getUserPlanInfo(supabase, userId);
+  return isPersonalPremium(planType);
 }
 
 export async function getRemainingScanCredits(

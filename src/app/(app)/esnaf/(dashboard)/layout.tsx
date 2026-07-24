@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
-import { getActiveBusiness, getUserBusinesses } from "@/lib/esnaf/active-business";
+import { getActiveBusiness, getUserBusinesses, isBusinessSubscribed } from "@/lib/esnaf/active-business";
 import { EsnafSubNav } from "@/components/modules/esnaf/esnaf-sub-nav";
 import { BusinessSwitcher } from "@/components/modules/esnaf/business-switcher";
 import { RealtimeRefresh } from "@/components/ui/realtime-refresh";
+import { UpgradePrompt } from "@/components/modules/shell/upgrade-prompt";
 
 /** Esnaf Modu tablo listesi — docs/sql/047_web_realtime.sql çalıştırılmadan
  * bu abonelikler sessizce hiçbir olay almaz (no-op).
@@ -62,6 +63,22 @@ export default async function EsnafDashboardLayout({
     redirect("/esnaf");
   }
   const businesses = await getUserBusinesses();
+
+  const subscribed = await isBusinessSubscribed(business.id);
+  if (!subscribed) {
+    return (
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-4">
+          <BusinessSwitcher businesses={businesses} activeId={business.id} />
+        </div>
+        <UpgradePrompt
+          title="Esnaf Modu bir abonelik gerektirir"
+          description={`"${business.name}" işletmesini kullanmaya devam etmek için Esnaf Modu aboneliği gerekiyor. Bu ayrı bir pakettir, kişisel Premium'u kapsamaz.`}
+        />
+      </div>
+    );
+  }
+
   const realtimeTables = [...COMMON_REALTIME_TABLES, ...(SECTOR_REALTIME_TABLES[business.business_type] ?? [])];
 
   return (

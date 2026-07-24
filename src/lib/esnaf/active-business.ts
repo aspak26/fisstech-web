@@ -51,6 +51,21 @@ export async function getUserBusinesses(): Promise<BusinessRow[]> {
   return (owned ?? []) as BusinessRow[];
 }
 
+/** İşletmenin Esnaf Modu aboneliği aktif mi — sahibin `esnaf_plan`'ına göre
+ * belirleniyor (personel de işverenin aboneliği üzerinden erişsin diye,
+ * kendi planı değil). Bkz. docs/sql/053_paywall_enforcement.sql,
+ * get_business_owner_plan(). RPC henüz production'da yoksa (migration
+ * çalıştırılmadan) erişimi KİLİTLEMEK yerine izin veriyoruz — fail-open,
+ * 050_my_businesses.sql'de yaşanan "SQL çalıştırılmadan herkesin erişimi
+ * kayboldu" regresyonunu tekrarlamamak için. */
+export async function isBusinessSubscribed(businessId: string): Promise<boolean> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("get_business_owner_plan", { p_business_id: businessId });
+  if (error) return true;
+  const rows = (data ?? []) as { esnaf_plan: string }[];
+  return rows[0]?.esnaf_plan === "esnaf_premium";
+}
+
 export async function setActiveBusinessId(businessId: string): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.set(COOKIE_NAME, businessId, {
