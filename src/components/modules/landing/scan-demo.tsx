@@ -190,7 +190,11 @@ export function ScanDemo() {
 
           <div className="mt-4 flex justify-center">
             <Turnstile
-              siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
+              siteKey={
+                process.env.NODE_ENV === "development"
+                  ? "1x00000000000000000000AA"
+                  : process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!
+              }
               onSuccess={(token) => setTurnstileToken(token)}
               onError={() => setErrorMsg("Bot doğrulaması başarısız oldu.")}
               options={{ theme: "auto" }}

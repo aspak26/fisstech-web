@@ -25,7 +25,10 @@ export async function scanDemoReceipt(
   const today = new Date().toISOString().split("T")[0];
 
   // 1. Verify Turnstile Token
-  const turnstileSecret = process.env.TURNSTILE_SECRET_KEY || "1x0000000000000000000000000000000AA";
+  const turnstileSecret =
+    process.env.NODE_ENV === "development"
+      ? "1x0000000000000000000000000000000AA"
+      : process.env.TURNSTILE_SECRET_KEY!;
   
   if (!turnstileToken) {
     throw new Error("Bot doğrulaması başarısız oldu (Token eksik).");
