@@ -115,6 +115,13 @@ GRANT EXECUTE ON FUNCTION public.get_business_owner_plan(uuid) TO authenticated;
 -- kendisi hiç bakmıyordu, yani API doğrudan çağrılarak limit bypass
 -- edilebiliyordu. Fonksiyonun geri kalanı 039_security_hardening.sql'deki
 -- ile birebir aynı, sadece INSERT'ten hemen önce bir kota kontrolü eklendi.
+--
+-- Not: production'daki mevcut fonksiyonun dönüş tipi migration
+-- dosyalarındakinden farklı çıktı (42P13 hatası) — CREATE OR REPLACE bunu
+-- değiştiremiyor, önce DROP gerekiyor. Bu tek fonksiyonun kısa bir an için
+-- yok olması (aynı SQL Editor çalıştırmasında hemen ardından yeniden
+-- oluşturuluyor) düşük trafikli bu RPC için güvenli kabul edildi.
+DROP FUNCTION IF EXISTS public.accept_business_invite(text);
 CREATE OR REPLACE FUNCTION public.accept_business_invite(p_token text)
 RETURNS json LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
 DECLARE
