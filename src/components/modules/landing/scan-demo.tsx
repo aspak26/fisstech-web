@@ -76,7 +76,7 @@ export function ScanDemo() {
         setErrorMsg("RATE_LIMIT");
         setOverrideCount(MAX_TRIES);
       } else {
-        setErrorMsg("Fiş okunamadı veya bir hata oluştu.");
+        setErrorMsg(err.message || "Fiş okunamadı veya bir hata oluştu.");
       }
     } finally {
       setScanning(false);
