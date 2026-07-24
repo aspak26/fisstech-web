@@ -52,9 +52,40 @@ export function ScanDemo() {
       const file = files[0];
       const base64 = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = () => {
-          const result = reader.result as string;
-          resolve(result.split(",")[1] ?? "");
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            let width = img.width;
+            let height = img.height;
+            const maxDim = 800; // Compress heavily for speed
+
+            if (width > height) {
+              if (width > maxDim) {
+                height = Math.round(height * (maxDim / width));
+                width = maxDim;
+              }
+            } else {
+              if (height > maxDim) {
+                width = Math.round(width * (maxDim / height));
+                height = maxDim;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            if (!ctx) {
+              resolve((e.target?.result as string).split(",")[1] ?? "");
+              return;
+            }
+            
+            ctx.drawImage(img, 0, 0, width, height);
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.6); // 60% quality JPEG
+            resolve(dataUrl.split(",")[1]);
+          };
+          img.onerror = () => reject(new Error("Görsel yüklenemedi"));
+          img.src = e.target?.result as string;
         };
         reader.onerror = reject;
         reader.readAsDataURL(file);
@@ -208,10 +239,15 @@ export function ScanDemo() {
             />
           </div>
 
-          <p className="mt-5 text-center text-xs text-text-secondary">
-            Bu alanda taranan fişler veritabanına veya gerçek harcama geçmişine kaydedilmez, sadece test
-            amaçlıdır.
-          </p>
+          <div className="mt-5 space-y-2 text-center text-xs text-text-secondary">
+            <p>
+              Bu alanda taranan fişler veritabanına veya gerçek harcama geçmişine kaydedilmez, sadece test
+              amaçlıdır.
+            </p>
+            <p className="font-medium text-accent">
+              Lütfen buraya uzun fiş yüklemeyiniz, uzun fişler hatalı okunabilir. Bundan dolayı özel bir sistem kurduk, uzun fiş taramak için <Link href="/register" className="underline">giriş yapmalısınız</Link>.
+            </p>
+          </div>
         </Card>
       </Reveal>
     </section>
