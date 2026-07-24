@@ -181,12 +181,15 @@ GENEL KURALLAR
   });
 
   // Map to DemoReceiptResult
-  const items = (parsed.items || []).map((item: any) => ({
-    icon: "📦", // Default icon for demo
-    name: item.name || "Bilinmeyen Ürün",
-    category: item.category || "Diğer",
-    amount: formatCurrency(item.price * (item.quantity || 1)),
-  }));
+  const items = (parsed.items || []).map((item: any) => {
+    const qty = item.quantity || 1;
+    return {
+      icon: "📦", // Default icon for demo
+      name: qty > 1 ? `${qty}x ${item.name || "Bilinmeyen Ürün"}` : (item.name || "Bilinmeyen Ürün"),
+      category: item.category || "Diğer",
+      amount: formatCurrency(item.price * qty),
+    };
+  });
 
   return {
     storeName: parsed.store_name || "Bilinmiyor",
