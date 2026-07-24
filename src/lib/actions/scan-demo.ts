@@ -122,7 +122,9 @@ GENEL KURALLAR
 - Yalnızca geçerli JSON döndür, başka bir şey yazma.
 - İndirim, kampanya, promosyon ve eksi (−) değerli satırları items listesine EKLEME.
 - Tutar değerlerinde virgül/nokta ayırıcılarını düzelt (16.864,03 → 16864.03).
-- ÇOK ÖNEMLİ (Miktar ve Fiyat): Fişteki ürün miktarını (quantity) KESİNLİKLE doğru çıkar. Özellikle "2 X 14,00" veya "3 AD x 5,00" ibareleri varsa "quantity" değerini 2, 3 gibi belirle. "price" alanına ise toplam tutarı değil, ürünün BİRİM FİYATINI (14.00, 5.00 vb.) yaz.`;
+- ÇOK ÖNEMLİ (Miktar ve Fiyat): Fişteki ürün miktarını (quantity) KESİNLİKLE doğru çıkar. Özellikle "2 X 14,00" veya "3 AD x 5,00" ibareleri varsa "quantity" değerini 2, 3 gibi belirle. "price" alanına ise toplam tutarı değil, ürünün BİRİM FİYATINI (14.00, 5.00 vb.) yaz.
+- DİKKAT (KDV Oranları): A101/BİM gibi market fişlerinde ürün adının yanındaki %01, %10, %20 gibi yüzdeler KDV oranıdır. BUNLARI KESİNLİKLE ADET (quantity) OLARAK ALMA!
+- Eğer ürünün altında "2 X 14,00" gibi bir adet ibaresi yoksa, adet daima 1'dir. Başka hiçbir sayıyı adet olarak alma.`;
 
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
