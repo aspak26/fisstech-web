@@ -124,7 +124,13 @@ GENEL KURALLAR
 - Tutar değerlerinde virgül/nokta ayırıcılarını düzelt (16.864,03 → 16864.03).
 - ÇOK ÖNEMLİ (Miktar ve Fiyat): Fişteki ürün miktarını (quantity) KESİNLİKLE doğru çıkar. Özellikle "2 X 14,00" veya "3 AD x 5,00" ibareleri varsa "quantity" değerini 2, 3 gibi belirle. "price" alanına ise toplam tutarı değil, ürünün BİRİM FİYATINI (14.00, 5.00 vb.) yaz.
 - DİKKAT (KDV Oranları): A101/BİM gibi market fişlerinde ürün adının yanındaki %01, %10, %20 gibi yüzdeler KDV oranıdır. BUNLARI KESİNLİKLE ADET (quantity) OLARAK ALMA!
-- Eğer ürünün altında "2 X 14,00" gibi bir adet ibaresi yoksa, adet daima 1'dir. Başka hiçbir sayıyı adet olarak alma.`;
+- ÖRNEK A101 FİŞ OKUMASI:
+  2 X 14,00
+  GONG BALLI 34G ETI  %01  *28,00
+  (Doğru JSON -> name: "GONG BALLI 34G ETI", quantity: 2, price: 14.00) (28.00 toplam fiyattır. %01 KDV'dir, 1 adet DEĞİLDİR.)
+  DiDi ŞEF. 2.5 L  %10  *71,50
+  (Doğru JSON -> name: "DiDi ŞEF. 2.5 L", quantity: 1, price: 71.50) (%10 KDV'dir, sakın 10 adet sanma!)
+- Adetler daima X veya AD ile gösterilir (2 X 1,00 gibi). Bu ibare bir ürünün hemen üstünde yazıyorsa o ürüne aittir. Başka hiçbir sayıyı adet olarak alma.`;
 
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
