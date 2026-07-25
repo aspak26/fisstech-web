@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { LandingNavbar } from "@/components/modules/landing/landing-navbar";
 import { LandingHero } from "@/components/modules/landing/landing-hero";
 import { WhyFisstech } from "@/components/modules/landing/why-fisstech";
+import { PersonalModeShowcase } from "@/components/modules/landing/personal-mode-showcase";
 import { ScanDemo } from "@/components/modules/landing/scan-demo";
 import { FeaturesSection } from "@/components/modules/landing/features-section";
 import { WorkflowSection } from "@/components/modules/landing/workflow-section";
@@ -47,6 +48,7 @@ export default async function RootPage() {
         <LandingHero isAuthenticated={!!user} />
         <StepSlider />
         <AiScannerShowcase />
+        <PersonalModeShowcase />
         <SectorSolutions />
         <WhyFisstech />
         <ScanDemo />
