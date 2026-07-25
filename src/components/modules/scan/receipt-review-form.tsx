@@ -21,7 +21,7 @@ interface FormValues {
   date: string;
   total: number;
   paymentMethod: string;
-  items: { name: string; category: string; price: number; quantity: number }[];
+  items: { name: string; category: string; price: number; quantity: number; unit: string }[];
 }
 
 export function ReceiptReviewForm({
@@ -114,7 +114,8 @@ export function ReceiptReviewForm({
               <div className="flex-[2]">Ürün / Hizmet</div>
               <div className="flex-1">Kategori</div>
               <div className="w-24">Birim Fiyat (₺)</div>
-              <div className="w-16">Adet</div>
+              <div className="w-16">Miktar</div>
+              <div className="w-20">Birim</div>
               <div className="w-9"></div>
             </div>
             {fields.map((field, index) => (
@@ -145,6 +146,10 @@ export function ReceiptReviewForm({
                   placeholder="Adet/Miktar"
                   {...register(`items.${index}.quantity`)}
                 />
+                <Select className="w-20" {...register(`items.${index}.unit`)}>
+                  <option value="adet">adet</option>
+                  <option value="kg">kg</option>
+                </Select>
                 <button
                   type="button"
                   aria-label="Kalemi sil"

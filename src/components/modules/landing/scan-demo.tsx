@@ -179,6 +179,11 @@ export function ScanDemo() {
                           <span className="rounded-full bg-bg px-2 py-0.5 text-xs text-text-secondary">
                             {item.category}
                           </span>
+                          {item.vatRate ? (
+                            <span className="rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent">
+                              %{item.vatRate} KDV
+                            </span>
+                          ) : null}
                         </span>
                         <span className="font-medium text-text-secondary">{item.amount}</span>
                       </li>

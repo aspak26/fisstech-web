@@ -3,6 +3,7 @@ export interface DemoReceiptItem {
   name: string;
   category: string;
   amount: string;
+  vatRate?: number;
 }
 
 export interface DemoReceiptResult {

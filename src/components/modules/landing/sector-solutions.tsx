@@ -24,7 +24,7 @@ export function SectorSolutions() {
         </p>
       </Reveal>
 
-      <div className="mt-12 grid min-w-0 gap-8 lg:grid-cols-[minmax(0,280px)_minmax(0,1fr)] lg:gap-10">
+      <div className="mt-12 grid min-w-0 items-start gap-8 lg:grid-cols-[minmax(0,280px)_minmax(0,1fr)] lg:gap-10">
         {/* min-w-0 zorunlu — CSS Grid item'ları varsayılan min-width:auto
             alır, bu da içindeki overflow-x-auto sekme çubuğunun kaydırma
             yerine grid sütununu (ve sayfayı) genişletmesine yol açıyordu. */}
@@ -53,7 +53,7 @@ export function SectorSolutions() {
         </Reveal>
 
         <Reveal delay={140} className="min-w-0">
-          <div className="grid gap-8 md:grid-cols-2 md:items-center">
+          <div className="grid items-start gap-8 md:grid-cols-2 lg:gap-12">
             <AnimatePresence mode="wait">
               <motion.div
                 key={active.id}
@@ -85,20 +85,26 @@ export function SectorSolutions() {
                 className="rounded-2xl border border-border bg-surface p-5"
                 style={{ boxShadow: "0 0 50px -12px color-mix(in srgb, var(--color-accent) 35%, transparent)" }}
               >
-                <div className="flex items-center gap-2.5 border-b border-border pb-3">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-control bg-accent-soft text-accent">
-                    <active.icon className="h-4.5 w-4.5" />
+                <div className="flex items-center gap-2.5 border-b border-border pb-4">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-control bg-accent-soft text-accent">
+                    <active.icon className="h-5 w-5" />
                   </span>
-                  <p className="font-display text-sm font-semibold text-text-primary">{active.label} Paneli</p>
+                  <p className="font-display text-base font-semibold text-text-primary">{active.label} Özellikleri</p>
                 </div>
-                <ul className="mt-3 space-y-2.5">
-                  {active.features.slice(0, 4).map((f) => (
-                    <li key={f} className="flex items-center gap-2 rounded-control bg-bg px-3 py-2 text-xs text-text-secondary">
-                      <Check className="h-3.5 w-3.5 shrink-0 text-accent" />
-                      {f}
-                    </li>
+                
+                <div className="mt-5 space-y-4">
+                  {active.highlights.map((highlight) => (
+                    <div key={highlight.title} className="flex gap-4 rounded-xl border border-border/40 bg-bg p-4 transition-colors hover:border-accent/30 hover:bg-accent-soft/30">
+                      <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-control bg-surface text-accent shadow-sm">
+                        <highlight.icon className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <h4 className="font-display text-sm font-semibold text-text-primary">{highlight.title}</h4>
+                        <p className="mt-1 text-sm text-text-secondary leading-relaxed">{highlight.desc}</p>
+                      </div>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </motion.div>
             </AnimatePresence>
           </div>

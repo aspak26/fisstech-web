@@ -6,9 +6,11 @@
 // (mobil repo, SALT OKUNUR referans) web'e ait bir kopyasıdır — mobil ve web
 // AYNI canlı Supabase projesini paylaşıyor, bu yüzden asıl deploy edilmiş
 // fonksiyon hangi kaynaktan güncellenirse güncellensin ikisini de etkiler.
-// TİP C bloğu (fatura/banka ekstresi/resmi belge) bu turda EKLENDİ — geri
-// kalan mantık orijinal dosyayla birebir aynı. DEPLOY BU TURDA YAPILMADI,
-// bkz. docs/PROGRESS.md.
+// TİP C bloğu (fatura/banka ekstresi/resmi belge) web'e özgüdür.
+// 2026-07-25: Fiş doğruluk turu — "price" alanının birim fiyat/toplam
+// karışıklığı ve ağırlıklı (kg) ürünlerde adet/kg birim tespiti mobil
+// tarafla birebir aynı mantığa getirildi ("unit" alanı + self-check kuralı
+// eklendi). DEPLOY BU TURDA YAPILMADI, bkz. docs/PROGRESS.md.
 
 import { serve } from 'https://deno.land/std@0.208.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
@@ -142,7 +144,7 @@ Normal market/restoran/mağaza fişi ise şu JSON'u döndür:
   "is_installment": false,
   "installment_options": [],
   "items": [
-    {"name": "ürün adı", "category": "kategori adı", "price": birim_fiyat, "quantity": adet}
+    {"name": "ürün adı", "category": "kategori adı", "price": birim_fiyat, "quantity": adet_veya_agirlik, "unit": "adet veya kg", "vat_rate": KDV_orani}
   ]
 }
 
@@ -154,15 +156,15 @@ fişi (TİP B) DEĞİLSE ve aşağıdaki üç durumdan biriyse TİP C'dir. TİP 
 şemasını kullan ama "items" dizisine SADECE TEK bir eleman koy:
 
 1) FATURA (elektrik, su, doğalgaz, internet, telefon vb. abonelik/hizmet faturası):
-   items: [{"name": "<fatura türü, örn. Elektrik Faturası>", "category": "Faturalar", "price": <toplam_tutar>, "quantity": 1}]
+   items: [{"name": "<fatura türü, örn. Elektrik Faturası>", "category": "Faturalar", "price": <toplam_tutar>, "quantity": 1, "unit": "adet", "vat_rate": 0}]
    store_name: faturayı kesen kurum/şirket adı
 
 2) BANKA EKSTRESİ (kredi kartı ekstresi, hesap ekstresi):
-   items: [{"name": "Banka Ekstresi", "category": "Faturalar", "price": <toplam_borç_tutarı>, "quantity": 1}]
+   items: [{"name": "Banka Ekstresi", "category": "Faturalar", "price": <toplam_borç_tutarı>, "quantity": 1, "unit": "adet", "vat_rate": 0}]
    store_name: banka adı
 
 3) SÖZLEŞME / RESMİ BELGE (kontrat, iş anlaşması, noter belgesi, resmi yazışma):
-   items: [{"name": "<belge/sözleşme başlığı>", "category": "Diğer", "price": 0, "quantity": 1}]
+   items: [{"name": "<belge/sözleşme başlığı>", "category": "Diğer", "price": 0, "quantity": 1, "unit": "adet", "vat_rate": 0}]
    store_name: karşı taraf / kurum adı
    total: 0
 
@@ -180,7 +182,53 @@ GENEL KURALLAR
 - Yalnızca geçerli JSON döndür, başka bir şey yazma.
 - İndirim, kampanya, promosyon ve eksi (−) değerli satırları items listesine EKLEME.
 - Tutar değerlerinde virgül/nokta ayırıcılarını düzelt (16.864,03 → 16864.03).
-- ÇOK ÖNEMLİ (Miktar ve Fiyat): Fişteki ürün miktarını (quantity) KESİNLİKLE doğru çıkar. Özellikle "2 X 14,00" veya "3 AD x 5,00" ibareleri varsa "quantity" değerini 2, 3 gibi belirle. "price" alanına ise toplam tutarı değil, ürünün BİRİM FİYATINI (14.00, 5.00 vb.) yaz.`
+- ÖNEMLİ: A101, BİM gibi marketlerde "2 X 14,00" gibi adet satırları, DAİMA ALTINDAKİ (bir sonraki) ürünün bilgisidir. Bu satırı ayrı ürün yapma!
+- DİKKAT (KDV Oranları): A101/BİM gibi market fişlerinde ürün adının yanındaki %01, %10, %20 gibi yüzdeler KDV oranıdır. Bunları KESİNLİKLE ADET (quantity) OLARAK ALMA! Bu oranları (1, 10, 20 vb. tam sayı olarak) "vat_rate" alanına yaz. Eğer üründe KDV yazmıyorsa 0 yaz.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+KESİN KURAL — "price" ALANI HER ZAMAN BİRİM FİYATTIR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+"price" alanı ASLA yıldızlı (*) satır toplamı değildir. "price" her zaman "N X fiyat" ya da "ağırlık KG X fiyat" kalıbındaki X'ten SONRA gelen BİRİM tutardır.
+Bir üründe böyle bir "X" satırı YOKSA: price = o ürünün yıldızlı (*) toplam tutarı, quantity = 1, unit = "adet".
+Bir üründe "X" satırı VARSA: price = X'ten sonraki birim tutar, quantity = X'ten önceki sayı, ve price × quantity çarpımı MUTLAKA ürünün yıldızlı (*) toplam tutarına eşit (±0.05 TL tolerans) olmalıdır. JSON'u döndürmeden önce bunu KENDİN KONTROL ET; eşleşmiyorsa price veya quantity'yi yanlış okumuşsundur, satırı tekrar incele.
+
+ÖRNEK 1 — ADET BAZLI ÇOKLU ÜRÜN (A101/BİM/marketler):
+Fişte şöyle yazıyorsa:
+TORKU 230ML MOCHA     *47,50
+2 X 14,00
+GONG BALLI 34G ETİ    *28,00
+DiDi ŞEF. 2.5 L       *71,50
+2 X 1,00
+ALIŞVERİŞ POŞETİ      *2,00
+
+Şu JSON'u üretmelisin:
+items: [
+  {"name": "TORKU 230ML MOCHA", "price": 47.50, "quantity": 1, "unit": "adet"},
+  {"name": "GONG BALLI 34G ETİ", "price": 14.00, "quantity": 2, "unit": "adet"},
+  {"name": "DiDi ŞEF. 2.5 L", "price": 71.50, "quantity": 1, "unit": "adet"},
+  {"name": "ALIŞVERİŞ POŞETİ", "price": 1.00, "quantity": 2, "unit": "adet"}
+]
+(Kontrol: 14.00×2=28.00 ✓, 1.00×2=2.00 ✓ — yıldızlı toplamlarla eşleşiyor.)
+
+ÖRNEK 2 — AĞIRLIKLA SATILAN ÜRÜNLER (manav, kasap, şarküteri):
+Fişte "9,910 KG X 13,90" gibi bir satır görürsen bu da tıpkı adet satırı gibi DAİMA ALTINDAKİ ürünün bilgisidir, sadece adet yerine ağırlıktır:
+9,910 KG X 13,90
+MANAV KARPUZ           *137,75
+0,747 kg X 99,00
+DOY PİLİÇ KAL BUT       *73,95
+1,245 kg X 44,90
+PORTAKAL                *55,90
+
+Şu JSON'u üretmelisin:
+items: [
+  {"name": "MANAV KARPUZ", "price": 13.90, "quantity": 9.910, "unit": "kg"},
+  {"name": "DOY PİLİÇ KAL BUT", "price": 99.00, "quantity": 0.747, "unit": "kg"},
+  {"name": "PORTAKAL", "price": 44.90, "quantity": 1.245, "unit": "kg"}
+]
+(Kontrol: 13.90×9.910≈137.75 ✓, 99.00×0.747≈73.95 ✓, 44.90×1.245≈55.90 ✓ — DOY PİLİÇ'te price'ı yanlışlıkla 73.95 (toplam) yazmak YAYGIN BİR HATADIR, bundan kaçın: price her zaman 99.00'dır, 73.95 değil.)
+
+- "unit" alanı: ürün "KG X" veya "KG" ibaresiyle tartılarak satılmışsa "kg", aksi halde (adet/paket bazlı ürünlerde) "adet" yaz.
+- Ürün adedini/ağırlığını (quantity) yalnızca açıkça yazılı miktardan al. Belirsizse quantity=1, unit="adet" yaz.`
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,

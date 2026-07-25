@@ -110,7 +110,7 @@ Normal market/restoran/mağaza fişi ise şu JSON'u döndür:
   "is_installment": false,
   "installment_options": [],
   "items": [
-    {"name": "ürün adı", "category": "kategori adı", "price": birim_fiyat, "quantity": adet}
+    {"name": "ürün adı", "category": "kategori adı", "price": birim_fiyat, "quantity": adet_veya_agirlik, "unit": "adet veya kg", "vat_rate": KDV_orani}
   ]
 }
 
@@ -122,15 +122,30 @@ GENEL KURALLAR
 - Yalnızca geçerli JSON döndür, başka bir şey yazma.
 - İndirim, kampanya, promosyon ve eksi (−) değerli satırları items listesine EKLEME.
 - Tutar değerlerinde virgül/nokta ayırıcılarını düzelt (16.864,03 → 16864.03).
-- ÇOK ÖNEMLİ (Miktar ve Fiyat): Fişteki ürün miktarını (quantity) KESİNLİKLE doğru çıkar. Özellikle "2 X 14,00" veya "3 AD x 5,00" ibareleri varsa "quantity" değerini 2, 3 gibi belirle. "price" alanına ise toplam tutarı değil, ürünün BİRİM FİYATINI (14.00, 5.00 vb.) yaz.
-- DİKKAT (KDV Oranları): A101/BİM gibi market fişlerinde ürün adının yanındaki %01, %10, %20 gibi yüzdeler KDV oranıdır. BUNLARI KESİNLİKLE ADET (quantity) OLARAK ALMA!
-- ÖRNEK A101 FİŞ OKUMASI:
+- DİKKAT (KDV Oranları): A101/BİM gibi market fişlerinde ürün adının yanındaki %01, %10, %20 gibi yüzdeler KDV oranıdır. Bunları KESİNLİKLE ADET (quantity) OLARAK ALMA! Bu oranları (1, 10, 20 vb. tam sayı olarak) "vat_rate" alanına yaz. Eğer üründe KDV yazmıyorsa 0 yaz.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+KESİN KURAL — "price" ALANI HER ZAMAN BİRİM FİYATTIR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+"price" alanı ASLA yıldızlı (*) satır toplamı değildir. "price" her zaman "N X fiyat" ya da "ağırlık KG X fiyat" kalıbındaki X'ten SONRA gelen BİRİM tutardır.
+Bir üründe böyle bir "X" satırı YOKSA: price = o ürünün yıldızlı (*) toplam tutarı, quantity = 1, unit = "adet".
+Bir üründe "X" satırı VARSA: price = X'ten sonraki birim tutar, quantity = X'ten önceki sayı, ve price × quantity çarpımı MUTLAKA ürünün yıldızlı (*) toplam tutarına eşit (±0.05 TL tolerans) olmalıdır. JSON'u döndürmeden önce bunu KENDİN KONTROL ET; eşleşmiyorsa price veya quantity'yi yanlış okumuşsundur, satırı tekrar incele.
+
+ÖRNEK 1 — ADET BAZLI ÇOKLU ÜRÜN (A101/BİM/marketler):
   2 X 14,00
   GONG BALLI 34G ETI  %01  *28,00
-  (Doğru JSON -> name: "GONG BALLI 34G ETI", quantity: 2, price: 14.00) (28.00 toplam fiyattır. %01 KDV'dir, 1 adet DEĞİLDİR.)
   DiDi ŞEF. 2.5 L  %10  *71,50
-  (Doğru JSON -> name: "DiDi ŞEF. 2.5 L", quantity: 1, price: 71.50) (%10 KDV'dir, sakın 10 adet sanma!)
-- Adetler daima X veya AD ile gösterilir (2 X 1,00 gibi). Bu ibare bir ürünün hemen üstünde yazıyorsa o ürüne aittir. Başka hiçbir sayıyı adet olarak alma.`;
+  (Doğru JSON -> {"name": "GONG BALLI 34G ETI", "price": 14.00, "quantity": 2, "unit": "adet", "vat_rate": 1}, {"name": "DiDi ŞEF. 2.5 L", "price": 71.50, "quantity": 1, "unit": "adet", "vat_rate": 10})
+
+ÖRNEK 2 — AĞIRLIKLA SATILAN ÜRÜNLER (manav, kasap, şarküteri):
+Fişte "9,910 KG X 13,90" gibi bir satır görürsen bu da tıpkı adet satırı gibi DAİMA ALTINDAKİ ürünün bilgisidir, sadece adet yerine ağırlıktır:
+  0,747 kg X 99,00
+  DOY PİLİÇ KAL BUT       *73,95
+  (Doğru JSON -> {"name": "DOY PİLİÇ KAL BUT", "price": 99.00, "quantity": 0.747, "unit": "kg", "vat_rate": 1})
+  (Kontrol: 99.00×0.747≈73.95 ✓ — price'ı yanlışlıkla 73.95 (toplam) yazmak YAYGIN BİR HATADIR, bundan kaçın: price her zaman 99.00'dır, 73.95 değil.)
+
+- "unit" alanı: ürün "KG X" veya "KG" ibaresiyle tartılarak satılmışsa "kg", aksi halde "adet" yaz.
+- Adetler/ağırlıklar daima X veya AD ile gösterilir (2 X 1,00 gibi). Bu ibare bir ürünün hemen üstünde yazıyorsa o ürüne aittir. Başka hiçbir sayıyı adet olarak alma.`;
 
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
@@ -191,11 +206,15 @@ GENEL KURALLAR
   // Map to DemoReceiptResult
   const items = (parsed.items || []).map((item: any) => {
     const qty = item.quantity || 1;
+    const unit = item.unit === "kg" ? "kg" : "adet";
+    const namePrefix =
+      unit === "kg" ? `${qty} kg ` : qty > 1 ? `${qty}x ` : "";
     return {
       icon: "📦", // Default icon for demo
-      name: qty > 1 ? `${qty}x ${item.name || "Bilinmeyen Ürün"}` : (item.name || "Bilinmeyen Ürün"),
+      name: `${namePrefix}${item.name || "Bilinmeyen Ürün"}`,
       category: item.category || "Diğer",
       amount: formatCurrency(item.price * qty),
+      vatRate: item.vat_rate || 0,
     };
   });
 

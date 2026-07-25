@@ -82,6 +82,7 @@ export async function saveExpense(
         category_id: categoryMap.get(item.category) ?? null,
         price: item.price,
         quantity: item.quantity,
+        unit: item.unit,
       })),
     );
   }

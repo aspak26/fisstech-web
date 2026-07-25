@@ -34,3 +34,14 @@ export async function uploadBusinessLogo(
 
   return url;
 }
+
+export async function removeBusinessLogo(
+  supabase: SupabaseClient,
+  businessId: string,
+): Promise<void> {
+  const { error } = await supabase
+    .from("businesses")
+    .update({ logo_url: null })
+    .eq("id", businessId);
+  if (error) throw error;
+}

@@ -31,6 +31,9 @@ const SectorSolutions = dynamic(() =>
 const FaqSection = dynamic(() =>
   import("@/components/modules/landing/faq-section").then((m) => m.FaqSection),
 );
+const FeedbackSection = dynamic(() =>
+  import("@/components/modules/landing/feedback-section").then((m) => m.FeedbackSection),
+);
 
 // / artık herkese açık bir pazarlama sayfası (bkz. PUBLIC_ROUTES,
 // src/lib/supabase/middleware.ts) — oturum açmış ziyaretçi buradan
@@ -56,6 +59,7 @@ export default async function RootPage() {
         <WorkflowSection />
         <PricingSection />
         <ComparisonTable />
+        <FeedbackSection />
         <FaqSection />
         <ClosingCta />
       </main>

@@ -3,6 +3,7 @@ export interface ScanResultItem {
   category: string;
   price: number;
   quantity: number;
+  unit: string;
 }
 
 export interface ScanInstallmentOption {
@@ -42,7 +43,7 @@ export interface ScanReceiptResponse {
     label?: string;
     badge?: string | null;
   }[];
-  items?: { name?: string; category?: string; price?: number; quantity?: number }[];
+  items?: { name?: string; category?: string; price?: number; quantity?: number; unit?: string }[];
   error?: string;
 }
 
@@ -57,6 +58,7 @@ export function scanResultFromResponse(json: ScanReceiptResponse): ScanResult {
       category: item.category ?? "Diğer",
       price: item.price ?? 0,
       quantity: item.quantity ?? 1,
+      unit: item.unit ?? "adet",
     })),
     isInstallment: json.is_installment ?? false,
     installmentOptions: (json.installment_options ?? []).map((opt) => ({
