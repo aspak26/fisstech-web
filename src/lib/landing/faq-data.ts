@@ -17,7 +17,7 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     question: "Fiş tarama gerçekten yapay zekâ mı kullanıyor?",
     answer:
-      "Evet, gerçek uygulamada fişler yapay zekâ destekli bir OCR motoruyla okunur; mağaza adı, tarih, ürünler ve kategoriler otomatik çıkarılır. Bu sitedeki ücretsiz demo alanı ise örnek/simüle sonuçlar gösterir, gerçek tarama motorunu tetiklemez.",
+      "Evet, uygulamamızda olduğu gibi, bu sitede yer alan ücretsiz tarama alanında da fişleriniz gerçek zamanlı olarak yapay zekâ destekli OCR motorumuzla taranır; mağaza adı, tarih, ürünler ve kategoriler otomatik olarak saniyeler içinde çıkarılır.",
   },
   {
     question: "Mobil uygulama ile web sitesi senkronize mi?",
