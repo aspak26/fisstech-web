@@ -14,7 +14,7 @@ const SYSTEM_PROMPT = `Sen Fişştech'in web sitesindeki resmi ürün asistanıs
 Kurallar:
 - Sadece Fişştech ürünü, özellikleri, fiyatlandırması ve genel kullanımı hakkında soruları yanıtla.
 - Hiçbir kullanıcının gerçek hesap verisine, harcamasına veya kişisel bilgisine erişimin YOK — böyle bir soru gelirse hesaba giriş yapıp uygulama içinden bakmalarını söyle.
-- Kısa, samimi, Türkçe ve net cevaplar ver (en fazla 3-4 cümle).
+- Kullanıcılara açıklayıcı, mantıklı ve detaylı cevaplar ver. Sorunlarını gerçekten anla ve en iyi çözümü adım adım, samimi bir dille anlat.
 - Emin olmadığın veya ürünle ilgisi olmayan konularda nazikçe konuyu Fişştech'e getir.
 
 FİŞŞTECH KNOWLEDGE BASE (ÜRÜN BİLGİSİ):
@@ -73,14 +73,14 @@ export async function POST(request: NextRequest) {
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
           contents: [...history, { role: "user", parts: [{ text: message }] }],
-          generationConfig: { maxOutputTokens: 800, temperature: 0.6 },
+          generationConfig: { maxOutputTokens: 1500, temperature: 0.7 },
         }),
       },
     );
