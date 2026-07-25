@@ -1,13 +1,14 @@
 "use client";
 
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils/currency";
 import type { CategoryOption } from "@/lib/scan/types";
-import type { ScanResult } from "@/lib/scan/types";
+import type { ScanResult, ScanResultItem } from "@/lib/scan/types";
+import { totalVat } from "@/lib/scan/types";
 
 const PAYMENT_METHODS = [
   { value: "cash", label: "Nakit" },
@@ -21,7 +22,14 @@ interface FormValues {
   date: string;
   total: number;
   paymentMethod: string;
-  items: { name: string; category: string; price: number; quantity: number; unit: string }[];
+  items: {
+    name: string;
+    category: string;
+    price: number;
+    quantity: number;
+    unit: string;
+    vatRate: number;
+  }[];
 }
 
 export function ReceiptReviewForm({
@@ -47,8 +55,22 @@ export function ReceiptReviewForm({
     },
   });
   const { fields, remove } = useFieldArray({ control, name: "items" });
+  const watchedItems = useWatch({ control, name: "items" });
 
   const categoryNames = [...new Set(categories.map((c) => c.name))];
+
+  const liveTotalVat = totalVat(
+    (watchedItems ?? []).map(
+      (item): ScanResultItem => ({
+        name: item.name ?? "",
+        category: item.category ?? "",
+        price: Number(item.price) || 0,
+        quantity: Number(item.quantity) || 0,
+        unit: item.unit ?? "adet",
+        vatRate: Number(item.vatRate) || 0,
+      }),
+    ),
+  );
 
   function submit(values: FormValues) {
     onConfirm({
@@ -61,6 +83,7 @@ export function ReceiptReviewForm({
         ...item,
         price: Number(item.price),
         quantity: Number(item.quantity),
+        vatRate: Number(item.vatRate) || 0,
       })),
     });
   }
@@ -116,6 +139,7 @@ export function ReceiptReviewForm({
               <div className="w-24">Birim Fiyat (₺)</div>
               <div className="w-16">Miktar</div>
               <div className="w-20">Birim</div>
+              <div className="w-16">KDV %</div>
               <div className="w-9"></div>
             </div>
             {fields.map((field, index) => (
@@ -150,6 +174,13 @@ export function ReceiptReviewForm({
                   <option value="adet">adet</option>
                   <option value="kg">kg</option>
                 </Select>
+                <Input
+                  className="w-16"
+                  type="number"
+                  step="1"
+                  placeholder="KDV"
+                  {...register(`items.${index}.vatRate`)}
+                />
                 <button
                   type="button"
                   aria-label="Kalemi sil"
@@ -160,6 +191,14 @@ export function ReceiptReviewForm({
                 </button>
               </div>
             ))}
+            {liveTotalVat > 0 && (
+              <div className="flex justify-end gap-2 pt-1 pr-11 text-sm">
+                <span className="font-medium text-text-secondary">Toplam KDV:</span>
+                <span className="font-semibold text-text-primary">
+                  {formatCurrency(liveTotalVat)}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       )}

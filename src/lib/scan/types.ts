@@ -4,6 +4,22 @@ export interface ScanResultItem {
   price: number;
   quantity: number;
   unit: string;
+  vatRate: number;
+}
+
+/** Satır toplamı (KDV dahil) — fişte yazan tutar. */
+export function lineTotal(item: ScanResultItem): number {
+  return item.price * item.quantity;
+}
+
+/** Fiyatlar KDV dahil yazıldığı için KDV tutarı satır toplamından
+ * geriye doğru çıkarılır: toplam × oran / (100 + oran). */
+export function vatAmount(item: ScanResultItem): number {
+  return item.vatRate > 0 ? (lineTotal(item) * item.vatRate) / (100 + item.vatRate) : 0;
+}
+
+export function totalVat(items: ScanResultItem[]): number {
+  return items.reduce((sum, item) => sum + vatAmount(item), 0);
 }
 
 export interface ScanInstallmentOption {
@@ -43,7 +59,14 @@ export interface ScanReceiptResponse {
     label?: string;
     badge?: string | null;
   }[];
-  items?: { name?: string; category?: string; price?: number; quantity?: number; unit?: string }[];
+  items?: {
+    name?: string;
+    category?: string;
+    price?: number;
+    quantity?: number;
+    unit?: string;
+    vat_rate?: number;
+  }[];
   error?: string;
 }
 
@@ -59,6 +82,7 @@ export function scanResultFromResponse(json: ScanReceiptResponse): ScanResult {
       price: item.price ?? 0,
       quantity: item.quantity ?? 1,
       unit: item.unit ?? "adet",
+      vatRate: item.vat_rate ?? 0,
     })),
     isInstallment: json.is_installment ?? false,
     installmentOptions: (json.installment_options ?? []).map((opt) => ({

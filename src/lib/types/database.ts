@@ -90,6 +90,8 @@ export interface ExpenseItemsRow {
   category_id: string | null;
   price: number;
   quantity: number;
+  unit: string;
+  vat_rate: number;
 }
 
 export interface IncomesRow {

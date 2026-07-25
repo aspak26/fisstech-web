@@ -89,16 +89,45 @@ export function ExpenseDetail({
 
         {expense.expense_items.length > 0 && (
           <ul className="mt-4 divide-y divide-border border-t border-border">
-            {expense.expense_items.map((item) => (
-              <li key={item.id} className="flex items-center justify-between py-2.5 text-sm">
-                <span className="text-text-primary">
-                  {item.name} {item.quantity > 1 ? `× ${item.quantity}` : ""}
-                </span>
-                <span className="font-medium text-text-primary">
-                  {formatCurrency(Number(item.price) * item.quantity)}
-                </span>
-              </li>
-            ))}
+            {expense.expense_items.map((item) => {
+              const qty = Number(item.quantity);
+              const unit = item.unit || "adet";
+              const lineTotal = Number(item.price) * qty;
+              const vatRate = Number(item.vat_rate) || 0;
+              const vatAmount = vatRate > 0 ? (lineTotal * vatRate) / (100 + vatRate) : 0;
+              return (
+                <li key={item.id} className="flex items-center justify-between py-2.5 text-sm">
+                  <span className="text-text-primary">
+                    {item.name} {qty !== 1 ? `× ${qty} ${unit}` : ""}
+                  </span>
+                  <span className="text-right">
+                    <span className="block font-medium text-text-primary">
+                      {formatCurrency(lineTotal)}
+                    </span>
+                    {vatRate > 0 && (
+                      <span className="block text-xs text-text-secondary">
+                        KDV %{vatRate} · {formatCurrency(vatAmount)}
+                      </span>
+                    )}
+                  </span>
+                </li>
+              );
+            })}
+            {(() => {
+              const totalVat = expense.expense_items.reduce((sum, item) => {
+                const lineTotal = Number(item.price) * Number(item.quantity);
+                const vatRate = Number(item.vat_rate) || 0;
+                return sum + (vatRate > 0 ? (lineTotal * vatRate) / (100 + vatRate) : 0);
+              }, 0);
+              return totalVat > 0 ? (
+                <li className="flex items-center justify-between py-2.5 text-sm">
+                  <span className="font-semibold text-text-primary">Toplam KDV</span>
+                  <span className="font-semibold text-text-primary">
+                    {formatCurrency(totalVat)}
+                  </span>
+                </li>
+              ) : null;
+            })()}
           </ul>
         )}
       </Card>

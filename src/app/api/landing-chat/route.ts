@@ -73,14 +73,14 @@ export async function POST(request: NextRequest) {
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
           contents: [...history, { role: "user", parts: [{ text: message }] }],
-          generationConfig: { maxOutputTokens: 300, temperature: 0.6 },
+          generationConfig: { maxOutputTokens: 800, temperature: 0.6 },
         }),
       },
     );

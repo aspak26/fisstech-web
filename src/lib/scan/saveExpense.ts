@@ -83,6 +83,7 @@ export async function saveExpense(
         price: item.price,
         quantity: item.quantity,
         unit: item.unit,
+        vat_rate: item.vatRate,
       })),
     );
   }
