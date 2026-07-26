@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils/cn";
 import { createClient } from "@/lib/supabase/client";
 
 const NAV_LINKS = [
+  { href: "#demo", label: "Ücretsiz Fiş Tarama" },
   { href: "#features", label: "Özellikler" },
   { href: "#how-it-works", label: "Nasıl Çalışır?" },
   { href: "#faq", label: "S.S.S" },
