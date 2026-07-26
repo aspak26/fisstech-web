@@ -20,6 +20,11 @@ export const FAQ_ITEMS: FaqItem[] = [
       "Evet, uygulamamızda olduğu gibi, bu sitede yer alan ücretsiz tarama alanında da fişleriniz gerçek zamanlı olarak yapay zekâ destekli OCR motorumuzla taranır; mağaza adı, tarih, ürünler ve kategoriler otomatik olarak saniyeler içinde çıkarılır.",
   },
   {
+    question: "Sadece fiş mi tarayabilirim? Fatura veya banka ekstresi de okur mu?",
+    answer:
+      "Hayır, sadece fişlerle sınırlı değilsiniz. Gelişmiş yapay zekâ modelimiz; su/elektrik faturaları, kredi kartı ekstreleri, e-ticaret sipariş özetleri ve restoran adisyonları dâhil olmak üzere tüm harcama belgelerini tanır ve saniyeler içinde bütçenize işler.",
+  },
+  {
     question: "Mobil uygulama ile web sitesi senkronize mi?",
     answer:
       "Evet, ikisi de aynı hesabı ve aynı veritabanını kullanır. Telefonda eklediğin bir harcamayı anında web'de, web'de eklediğini de anında telefonda görürsün.",

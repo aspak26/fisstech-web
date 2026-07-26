@@ -9,8 +9,8 @@ import { Reveal } from "./reveal";
 const STEPS = [
   {
     icon: UploadCloud,
-    title: "Fişi Yükleyin",
-    description: "Fişini veya faturanı telefonundan ya da bilgisayarından tek tıkla yükle.",
+    title: "Belgeyi Yükleyin",
+    description: "Fişini, faturanı veya kredi kartı ekstreni telefonundan ya da bilgisayarından tek tıkla yükle.",
   },
   {
     icon: ScanLine,

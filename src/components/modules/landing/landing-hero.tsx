@@ -58,7 +58,7 @@ export function LandingHero({ isAuthenticated }: { isAuthenticated: boolean }) {
           </h1>
 
           <p className="mt-5 max-w-lg text-lg leading-relaxed text-text-secondary">
-            Fişştech; market fişinden esnaf kasasına kadar tüm harcamalarını saniyeler içinde okur,
+            Fişştech; market fişlerinden, su faturası ve banka ekstrelerine kadar tüm harcama belgelerini saniyeler içinde okur,
             kategorize eder ve net bir bütçe resmi çizer. Kişisel finansından işletmene, tek uygulama.
           </p>
 

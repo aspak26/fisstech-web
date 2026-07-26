@@ -5,7 +5,7 @@ const FLAGSHIP = {
   icon: ScanLine,
   title: "Akıllı Fiş Taraması",
   description:
-    "Market fişinden restoran adisyonuna kadar her belgeyi yapay zekâ ile saniyeler içinde dijitalleştir — mağaza, tarih, ürün ve kategori otomatik çıkarılır.",
+    "Market fişinden su faturasına, kredi kartı ekstresinden restoran adisyonuna kadar her belgeyi yapay zekâ ile saniyeler içinde dijitalleştir — mağaza, tarih, ürün ve kategori otomatik çıkarılır.",
 };
 
 const FEATURES = [
