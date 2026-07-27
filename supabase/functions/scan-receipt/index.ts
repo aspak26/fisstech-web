@@ -7,10 +7,13 @@
 // AYNI canlı Supabase projesini paylaşıyor, bu yüzden asıl deploy edilmiş
 // fonksiyon hangi kaynaktan güncellenirse güncellensin ikisini de etkiler.
 // TİP C bloğu (fatura/banka ekstresi/resmi belge) web'e özgüdür.
-// 2026-07-25: Fiş doğruluk turu — "price" alanının birim fiyat/toplam
-// karışıklığı ve ağırlıklı (kg) ürünlerde adet/kg birim tespiti mobil
-// tarafla birebir aynı mantığa getirildi ("unit" alanı + self-check kuralı
-// eklendi). DEPLOY BU TURDA YAPILMADI, bkz. docs/PROGRESS.md.
+// 2026-07-25/26: Fiş doğruluk turu — "price" alanının birim fiyat/toplam
+// karışıklığı, ağırlıklı (kg) ürünlerde adet/kg birim tespiti ve ürün
+// başına KDV oranı (vat_rate) mobil tarafla birebir aynı mantığa
+// getirildi. Bu dosya (TİP C dahil en kapsamlı sürüm) canlıya deploy
+// edildi — mobil repodaki kopya da aynı mantığı içerir ama TİP C'yi
+// içermez, bundan sonra güncellemeler öncelikle burada yapılıp deploy
+// edilmeli.
 
 import { serve } from 'https://deno.land/std@0.208.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'

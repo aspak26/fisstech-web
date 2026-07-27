@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { fileToBase64, invokeScanReceipt, ScanUnreadableError } from "@/lib/scan/scanClient";
 import { consumeScanCredit, refundScanCredit } from "@/lib/scan/credits";
+import { tryConsumeFeatureCredit } from "@/lib/features/unlocks";
 import { mergeResults } from "@/lib/scan/mergeResults";
 import { uploadReceipts, saveExpense } from "@/lib/scan/saveExpense";
 import type { CategoryOption, ScanResult } from "@/lib/scan/types";
@@ -64,6 +65,21 @@ export function ScanWorkspace({
 
   const [batchAllowedTemp, setBatchAllowedTemp] = useState(false);
   const [showAdDialog, setShowAdDialog] = useState(false);
+  const [checkingUnlock, setCheckingUnlock] = useState(false);
+
+  /** Mobilde reklamla kazanılmış ama henüz kullanılmamış bir "batch_scan"
+   * hakkı varsa tüketir ve true döner. Web hiçbir zaman hak kazanamaz
+   * (reklam SDK'sı yok), sadece mobilde kazanılmış hakları burada tüketir. */
+  async function tryUnlockBatch(): Promise<boolean> {
+    setCheckingUnlock(true);
+    try {
+      const unlocked = await tryConsumeFeatureCredit(supabase, userId, "batch_scan");
+      if (unlocked) setBatchAllowedTemp(true);
+      return unlocked;
+    } finally {
+      setCheckingUnlock(false);
+    }
+  }
 
   function handleCropComplete(blob: Blob) {
     if (!cropItemId) return;
@@ -300,10 +316,13 @@ export function ScanWorkspace({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <ScanModeTabs
           mode={mode}
-          onChange={(m) => {
+          onChange={async (m) => {
             if (m === "batch" && !isPremium && !batchAllowedTemp) {
-               setShowAdDialog(true);
-               return;
+              const unlocked = await tryUnlockBatch();
+              if (!unlocked) {
+                setShowAdDialog(true);
+                return;
+              }
             }
             setMode(m);
             setItems([]);
@@ -414,11 +433,30 @@ export function ScanWorkspace({
         <div className="space-y-4 mt-2">
           <div className="rounded-control border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-text-primary">
             <p>
-              Toplu fiş tarama Premium üyelere özel bir özelliktir. 
-              Ücretsiz olarak kullanmaya devam etmek için <strong>Fişştech Mobil Uygulamasını</strong> indirip reklam izleyerek toplu tarama hakkı kazanabilirsiniz!
+              Toplu fiş tarama Premium üyelere özel bir özelliktir.
+              Ücretsiz olarak kullanmak için <strong>Fişştech Mobil Uygulamasını</strong> açıp
+              reklam izleyerek toplu tarama hakkı kazanabilirsin — kazandığın hak burada, web
+              sitesinde de geçerli olur.
             </p>
           </div>
-          <div className="flex justify-end pt-2">
+          <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
+            <Button
+              variant="secondary"
+              className="w-full sm:w-auto"
+              disabled={checkingUnlock}
+              onClick={async () => {
+                const unlocked = await tryUnlockBatch();
+                if (unlocked) {
+                  setShowAdDialog(false);
+                  setMode("batch");
+                  setItems([]);
+                  setReview(null);
+                  setReviewQueue([]);
+                }
+              }}
+            >
+              {checkingUnlock ? "Kontrol ediliyor…" : "Reklamı İzledim, Tekrar Dene"}
+            </Button>
             <Button
               className="w-full sm:w-auto"
               onClick={() => router.push("/#pricing")}

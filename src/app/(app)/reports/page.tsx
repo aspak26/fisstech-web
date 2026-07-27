@@ -1,7 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { getReportData } from "@/lib/data/reports";
+import { getUserPlanInfo, isPersonalPremium } from "@/lib/utils/entitlements";
+import { tryConsumeFeatureCredit } from "@/lib/features/unlocks";
 import { ReportPeriodSelector } from "@/components/modules/reports/report-period-selector";
 import { ReportView } from "@/components/modules/reports/report-view";
+import { AdUnlockPrompt } from "@/components/modules/shell/ad-unlock-prompt";
 
 export default async function ReportsPage({
   searchParams,
@@ -22,6 +25,21 @@ export default async function ReportsPage({
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  const planInfo = await getUserPlanInfo(supabase, user!.id);
+  const hasAccess =
+    isPersonalPremium(planInfo.planType) ||
+    (await tryConsumeFeatureCredit(supabase, user!.id, "report"));
+
+  if (!hasAccess) {
+    return (
+      <AdUnlockPrompt
+        title="Özet Rapor — Premium Özellik"
+        description="Raporu görüntülemenin yanı sıra PDF veya Excel olarak da indirebilirsin."
+      />
+    );
+  }
+
   const data = await getReportData(supabase, user!.id, start, end);
 
   return (
