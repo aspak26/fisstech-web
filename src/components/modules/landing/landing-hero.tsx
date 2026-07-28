@@ -41,7 +41,7 @@ export function LandingHero({ isAuthenticated }: { isAuthenticated: boolean }) {
         <Reveal>
           <div className="mb-6 flex w-full max-w-lg items-start gap-3 rounded-xl border border-accent/20 bg-accent/10 p-4 text-sm text-text-primary shadow-sm sm:items-center">
             <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl shadow-[0_0_20px_rgba(74,222,128,0.4)]">
-              <Image src="/logo.svg" alt="Fisstech Logo" fill className="object-cover" />
+              <Image src="/logo-visor.png" alt="Fisstech Logo" fill className="object-cover" />
             </div>
             <p className="leading-relaxed">
               <strong className="text-accent block sm:inline">Web Sürümü Yayında! 🎉</strong> Mobil uygulamamız çok yakında Play Store&apos;da! Hemen şimdi <strong>ÜCRETSİZ</strong> denemeye başlayabilirsiniz.
