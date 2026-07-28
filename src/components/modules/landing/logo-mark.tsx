@@ -4,7 +4,7 @@ import Image from "next/image";
 // bol şeffaf boşluklu). Playwright canvas ile alpha bounding box'a otomatik
 // kırpılıp public/'a kondu (bkz. PROGRESS.md): logo-f-icon.png 1415x1646,
 // logo-wordmark.png 1205x326 — next/image bu gerçek en-boy oranlarını kullanıyor.
-const ICON_RATIO = 1415 / 1646;
+const ICON_RATIO = 1; // SVG is a square
 const WORDMARK_RATIO = 1205 / 326;
 
 /** İkisi de düz beyaz/şeffaf sanat eseri — açık modda (beyaz navbar üstünde)
@@ -22,11 +22,11 @@ export function LogoHorizontal({ className, height = 32 }: { className?: string;
 export function LogoIcon({ className, height = 32 }: { className?: string; height?: number }) {
   return (
     <Image
-      src="/logo-f-icon.png"
+      src="/logo.svg"
       alt="Fişştech"
       width={Math.round(height * ICON_RATIO)}
       height={height}
-      className={`invert dark:invert-0 ${className ?? ""}`}
+      className={`rounded-lg object-contain ${className ?? ""}`}
       priority
     />
   );
