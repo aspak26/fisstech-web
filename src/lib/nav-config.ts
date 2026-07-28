@@ -49,7 +49,7 @@ export const upcomingNavItems: NavItem[] = [
 export const bottomNavItems: NavItem[] = [
   { label: "Ayarlar", href: "/settings", icon: Settings, status: "active" },
   { label: "Ana Sayfaya Dön", href: "/", icon: Globe, status: "active" },
-  { label: "Esnaf Modu", href: "/esnaf", icon: Store, status: "active" },
+  { label: "Esnaf Modu", href: "/esnaf", icon: Store, status: "soon" },
 ];
 
 export const allNavItems: NavItem[] = [
