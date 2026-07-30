@@ -32,26 +32,37 @@ export function InvestmentsList({
   prices: Record<string, number>;
 }) {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const hasLivePrices = Object.keys(prices).length > 0;
 
-  const totalValue = investments.reduce((s, inv) => s + currentValue(inv, prices), 0);
-  const totalCost = investments.reduce((s, inv) => s + (inv.purchase_price ? Number(inv.purchase_price) * Number(inv.amount) : 0), 0);
+  // `prices` sadece canlı fiyatı GERÇEKTEN alınabilen asset'leri içeriyor
+  // (bkz. getInvestmentPrices — 0 değerler artık filtreleniyor). Bu yüzden
+  // toplamlar da global bir "hepsi var/yok" bayrağı yerine, her satırı
+  // kendi fiyatının olup olmamasına göre değerlendiriyor — bir kaynağın
+  // (örn. sadece altın) geçici olarak düşmesi diğer asset'lerin (kripto,
+  // döviz) doğru gösterilmesini engellemesin diye.
+  const pricedInvestments = investments.filter((inv) => prices[inv.asset_type] !== undefined);
+  const anyLivePrice = pricedInvestments.length > 0;
+  const allLivePrice = investments.length > 0 && pricedInvestments.length === investments.length;
+
+  const totalValue = pricedInvestments.reduce((s, inv) => s + currentValue(inv, prices), 0);
+  const totalCost = pricedInvestments.reduce((s, inv) => s + (inv.purchase_price ? Number(inv.purchase_price) * Number(inv.amount) : 0), 0);
   const totalPl = totalCost > 0 ? totalValue - totalCost : null;
+
+  const statusMessage = allLivePrice
+    ? "Canlı piyasa fiyatlarıyla (altın/döviz, kripto) güncel değer."
+    : anyLivePrice
+      ? "Bazı varlıklar için canlı fiyat alınamadı — onlar alış maliyeti üzerinden gösteriliyor."
+      : "Canlı fiyatlar şu an alınamadı — alış maliyeti üzerinden takip.";
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-text-secondary">
-          {hasLivePrices
-            ? "Canlı piyasa fiyatlarıyla (Truncgil altın/döviz, CoinGecko kripto) güncel değer."
-            : "Canlı fiyatlar şu an alınamadı — alış maliyeti üzerinden takip."}
-        </p>
+        <p className="text-sm text-text-secondary">{statusMessage}</p>
         <Button onClick={() => setDialogOpen(true)} className="shrink-0 gap-1.5">
           <Plus className="h-4 w-4" /> Yatırım Ekle
         </Button>
       </div>
 
-      {hasLivePrices && (
+      {anyLivePrice && (
         <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar">
           {ASSET_TYPES.map((asset) => {
             const price = prices[asset.key];
@@ -67,7 +78,7 @@ export function InvestmentsList({
         </div>
       )}
 
-      {hasLivePrices && investments.length > 0 && (
+      {anyLivePrice && (
         <Card className="flex items-center justify-between">
           <div>
             <p className="text-sm text-text-secondary">Toplam Değer</p>
@@ -89,8 +100,9 @@ export function InvestmentsList({
           <ul className="divide-y divide-border">
             {investments.map((inv) => {
               const cost = inv.purchase_price ? Number(inv.purchase_price) * Number(inv.amount) : null;
-              const value = hasLivePrices ? currentValue(inv, prices) : null;
-              const pl = hasLivePrices ? profitLoss(inv, prices) : null;
+              const hasPrice = prices[inv.asset_type] !== undefined;
+              const value = hasPrice ? currentValue(inv, prices) : null;
+              const pl = hasPrice ? profitLoss(inv, prices) : null;
               return (
                 <li key={inv.id} className="flex items-center justify-between gap-3 py-3">
                   <div className="flex min-w-0 flex-1 items-center gap-3">

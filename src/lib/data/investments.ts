@@ -36,10 +36,16 @@ export async function deleteInvestment(supabase: SupabaseClient, id: string): Pr
 
 /** Ported from mobile's InvestmentPriceService.fetchPrices — same
  * `get-investment-prices` Supabase Edge Function (already deployed and
- * live; sources Truncgil for gold/currency + CoinGecko for crypto, no API
- * key needed by design). Returns asset_type key → TRY price, e.g.
- * `gram_altin`, `bitcoin`, `dolar`. Fails soft to an empty map so the list
- * still renders (purchase-cost-only) if the function is briefly down. */
+ * live; sources gold from Truncgil, USD/EUR from TCMB's official feed, and
+ * crypto from CoinGecko, no API key needed by design). Returns asset_type
+ * key → TRY price, e.g. `gram_altin`, `bitcoin`, `dolar`. The edge function
+ * fetches its 3 sources independently and fails soft PER SOURCE — an asset
+ * whose source is down comes back as `0`, not omitted, so `0` here means
+ * "no live price available", never a real free price. Zero values are
+ * filtered out here (not just at the top level) so callers can tell
+ * "no live price for THIS asset" apart from "actually worth zero" — the
+ * whole map used to come back empty on any single-source failure, which
+ * blanked out unrelated assets that had a perfectly good price. */
 export async function getInvestmentPrices(supabase: SupabaseClient): Promise<Record<string, number>> {
   try {
     const { data, error } = await supabase.functions.invoke<Record<string, number | string>>("get-investment-prices");
@@ -47,7 +53,7 @@ export async function getInvestmentPrices(supabase: SupabaseClient): Promise<Rec
     const prices: Record<string, number> = {};
     for (const [key, value] of Object.entries(data)) {
       if (key === "updated_at") continue;
-      if (typeof value === "number") prices[key] = value;
+      if (typeof value === "number" && value > 0) prices[key] = value;
     }
     return prices;
   } catch {
