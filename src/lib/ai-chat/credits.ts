@@ -14,10 +14,18 @@ function currentMonth(): string {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 }
 
-export async function getRemainingAiChatCredits(
+export interface AiChatQuota {
+  limit: number;
+  used: number;
+  remaining: number;
+}
+
+/** Hak harcamadan kalan kota — sayfa ilk yüklendiğinde göstergeyi (X/50)
+ * doldurmak için. */
+export async function getAiChatQuotaStatus(
   supabase: SupabaseClient,
   userId: string,
-): Promise<number> {
+): Promise<AiChatQuota> {
   const { planType } = await getUserPlanInfo(supabase, userId);
   const limit = isPersonalPremium(planType) ? PREMIUM_MONTHLY_LIMIT : FREE_MONTHLY_LIMIT;
 
@@ -28,17 +36,29 @@ export async function getRemainingAiChatCredits(
     .eq("month", currentMonth())
     .maybeSingle();
 
-  return Math.max(0, limit - (data?.used_count ?? 0));
+  const used = data?.used_count ?? 0;
+  return { limit, used, remaining: Math.max(0, limit - used) };
 }
 
-/** docs/sql/053_paywall_enforcement.sql çalıştırılmadan RPC production'da
- * yok — bu durumda sohbeti kilitlemek yerine izin veriyoruz (fail-open),
- * eksik bir migration yüzünden çalışan bir özelliği kırmamak için. SQL
- * çalıştırılınca kota otomatik devreye girer. */
+/**
+ * Mesaj gönderilmeden ÖNCE çağrılır — atomik SQL RPC ile kota tüketir.
+ *
+ * ÖNEMLİ DÜZELTME: try_consume_ai_chat_credit artık jsonb
+ * {allowed, code, limit, used, remaining} döndürüyor (bkz.
+ * fisle_app/supabase/migrations/063_ai_chat_quota.sql — mobil ve web AYNI
+ * RPC'yi paylaşıyor). Burada önceden `data === true` kontrol ediliyordu; bu
+ * karşılaştırma bir nesneyle asla doğru olamayacağı için RPC hatasız her
+ * döndüğünde `hasCredit` daima false oluyordu — yani web'de AI sohbet HER
+ * mesajda "kota doldu" (402) hatası veriyordu, gerçek kotadan bağımsız
+ * olarak. RPC gerçekten hata verirse (örn. henüz deploy edilmemişse)
+ * kilitlemek yerine izin veriyoruz (fail-open); bu durumda gerçek limit
+ * bilgisi olmadığından `limit: -1` ile işaretleniyor, UI bu durumda sayacı
+ * gizler.
+ */
 export async function consumeAiChatCredit(
   supabase: SupabaseClient,
   userId: string,
-): Promise<boolean> {
+): Promise<{ allowed: boolean } & AiChatQuota> {
   const { data, error } = await supabase.rpc("try_consume_ai_chat_credit", {
     p_user_id: userId,
     p_month: currentMonth(),
@@ -46,6 +66,10 @@ export async function consumeAiChatCredit(
     p_premium_limit: PREMIUM_MONTHLY_LIMIT,
   });
 
-  if (error) return true;
-  return data === true;
+  if (error || !data) {
+    return { allowed: true, limit: -1, used: -1, remaining: -1 };
+  }
+
+  const result = data as { allowed: boolean; limit: number; used: number; remaining: number };
+  return { allowed: result.allowed, limit: result.limit, used: result.used, remaining: result.remaining };
 }

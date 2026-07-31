@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState, useEffect } from "react";
 import { Send, Sparkles, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { invokeAiChat, type ChatMessage } from "@/lib/ai-chat/client";
+import { invokeAiChat, AiChatQuotaError, type ChatMessage, type AiChatQuota } from "@/lib/ai-chat/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 
@@ -13,7 +13,20 @@ const SUGGESTIONS = [
   "Geçen aya göre harcamalarım nasıl değişti?",
 ];
 
-export function ChatWorkspace({ periodLabel, startDate, endDate }: { periodLabel: string, startDate: string | null, endDate: string | null }) {
+export function ChatWorkspace({
+  periodLabel,
+  startDate,
+  endDate,
+  onQuotaUpdate,
+}: {
+  periodLabel: string;
+  startDate: string | null;
+  endDate: string | null;
+  /** Her başarılı gönderimden (ve kota-doldu hatasından) sonra güncel
+   * {limit, used, remaining} ile çağrılır — üstteki sayaç rozetini canlı
+   * tutmak için (sayfa server-side sadece ilk yüklemede hesaplanıyordu). */
+  onQuotaUpdate?: (quota: AiChatQuota) => void;
+}) {
   const supabase = useMemo(() => createClient(), []);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -33,10 +46,12 @@ export function ChatWorkspace({ periodLabel, startDate, endDate }: { periodLabel
     setInput("");
     setLoading(true);
     try {
-      const reply = await invokeAiChat(supabase, text, messages, periodLabel, startDate ?? undefined, endDate ?? undefined);
-      setMessages([...nextMessages, { role: "model", content: reply }]);
+      const result = await invokeAiChat(supabase, text, messages, periodLabel, startDate ?? undefined, endDate ?? undefined);
+      setMessages([...nextMessages, { role: "model", content: result.reply }]);
+      if (result.quota) onQuotaUpdate?.(result.quota);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Bir hata oluştu");
+      if (e instanceof AiChatQuotaError && e.quota) onQuotaUpdate?.(e.quota);
     } finally {
       setLoading(false);
     }

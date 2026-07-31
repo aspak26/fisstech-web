@@ -88,10 +88,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Mesaj çok uzun." }, { status: 400 });
     }
 
-    const hasCredit = await consumeAiChatCredit(supabase, user.id);
-    if (!hasCredit) {
+    const creditResult = await consumeAiChatCredit(supabase, user.id);
+    const quota = { limit: creditResult.limit, used: creditResult.used, remaining: creditResult.remaining };
+    if (!creditResult.allowed) {
       return NextResponse.json(
-        { error: "Bu ayki AI sohbet hakkınız doldu. Daha fazlası için Premium'a geçebilirsiniz." },
+        { error: "Bu ayki AI sohbet hakkınız doldu. Daha fazlası için Premium'a geçebilirsiniz.", quota },
         { status: 402 },
       );
     }
@@ -238,7 +239,7 @@ ${JSON.stringify(contextJson, null, 2)}`;
       return NextResponse.json({ error: "Boş yanıt alındı." }, { status: 502 });
     }
 
-    return NextResponse.json({ reply });
+    return NextResponse.json({ reply, quota });
 
   } catch (error: any) {
     console.error("AI Chat API Error:", error);
