@@ -30,6 +30,24 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Güvenlik denetimi bulgusu: bu fonksiyon üçüncü taraf fiyat API'lerine
+// (CoinGecko/TCMB/Truncgil) proxy görevi görüyor, PII yok ama korumasız
+// bırakılırsa amplifikasyon/kota-tüketim aracı olarak kötüye kullanılabilir.
+// scan-demo.ts'teki aynı desen: instance-local, best-effort IP limiti.
+const MAX_REQUESTS_PER_MINUTE = 20;
+const ipRequestLog = new Map<string, { count: number; resetAt: number }>();
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = ipRequestLog.get(ip);
+  if (!entry || now > entry.resetAt) {
+    ipRequestLog.set(ip, { count: 1, resetAt: now + 60_000 });
+    return false;
+  }
+  entry.count += 1;
+  return entry.count > MAX_REQUESTS_PER_MINUTE;
+}
+
 /** Yanıt gövdesini `Response.text()`'e güvenmeden, ReadableStream'i elle
  * `done: true` oluncaya kadar okuyup birleştirir — bkz. yukarıdaki not #2. */
 async function readBody(res: Response): Promise<string> {
@@ -68,6 +86,14 @@ async function fetchText(url: string, attempts = 2): Promise<string> {
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
+  }
+
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown';
+  if (isRateLimited(ip)) {
+    return new Response(
+      JSON.stringify({ error: 'Çok fazla istek, lütfen daha sonra tekrar deneyin.' }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 429 },
+    );
   }
 
   const truncgil = await fetchText('https://finans.truncgil.com/today.json')

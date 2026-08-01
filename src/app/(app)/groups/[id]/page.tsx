@@ -37,7 +37,7 @@ export default async function GroupDetailPage({
   const userId = user!.id;
 
   const [group, expenses, members, messages, categoryBreakdown, parentBreakdown, storeBreakdown] = await Promise.all([
-    getGroup(supabase, id),
+    getGroup(supabase, id, userId),
     getGroupExpenses(supabase, id),
     getMembers(supabase, id, userId),
     getMessages(supabase, id),

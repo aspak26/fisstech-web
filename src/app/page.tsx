@@ -8,8 +8,6 @@ import { WhyFisstech } from "@/components/modules/landing/why-fisstech";
 import { PersonalModeShowcase } from "@/components/modules/landing/personal-mode-showcase";
 import { ScanDemo } from "@/components/modules/landing/scan-demo";
 import { FeaturesSection } from "@/components/modules/landing/features-section";
-import { WorkflowSection } from "@/components/modules/landing/workflow-section";
-import { PricingSection } from "@/components/modules/landing/pricing-section";
 import { ComparisonTable } from "@/components/modules/landing/comparison-table";
 import { ClosingCta } from "@/components/modules/landing/closing-cta";
 import { LandingFooter } from "@/components/modules/landing/landing-footer";
@@ -33,6 +31,12 @@ const FaqSection = dynamic(() =>
 );
 const FeedbackSection = dynamic(() =>
   import("@/components/modules/landing/feedback-section").then((m) => m.FeedbackSection),
+);
+const WorkflowSection = dynamic(() =>
+  import("@/components/modules/landing/workflow-section").then((m) => m.WorkflowSection),
+);
+const PricingSection = dynamic(() =>
+  import("@/components/modules/landing/pricing-section").then((m) => m.PricingSection),
 );
 
 // / artık herkese açık bir pazarlama sayfası (bkz. PUBLIC_ROUTES,

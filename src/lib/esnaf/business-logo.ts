@@ -26,10 +26,13 @@ export async function uploadBusinessLogo(
   const { data } = supabase.storage.from("business_logos").getPublicUrl(path);
   const url = data.publicUrl;
 
+  // Güvenlik denetimi bulgusu: RLS'e ek defense-in-depth — sahibi olmayan
+  // bir businessId verilse bile bu satır sessizce 0 satır etkiler.
   const { error: updateError } = await supabase
     .from("businesses")
     .update({ logo_url: url })
-    .eq("id", businessId);
+    .eq("id", businessId)
+    .eq("user_id", userId);
   if (updateError) throw updateError;
 
   return url;
@@ -37,11 +40,13 @@ export async function uploadBusinessLogo(
 
 export async function removeBusinessLogo(
   supabase: SupabaseClient,
+  userId: string,
   businessId: string,
 ): Promise<void> {
   const { error } = await supabase
     .from("businesses")
     .update({ logo_url: null })
-    .eq("id", businessId);
+    .eq("id", businessId)
+    .eq("user_id", userId);
   if (error) throw error;
 }

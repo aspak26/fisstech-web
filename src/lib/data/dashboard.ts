@@ -5,28 +5,11 @@ import type {
   FixedExpensesRow,
   SubscriptionsRow,
   UserNotesRow,
-  UsersRow,
 } from "@/lib/types/database";
 
 /** Every function here fails soft — a missing/empty table renders an empty
  * state instead of crashing the dashboard, matching the mobile app's
  * try/catch-per-tile resilience pattern in dashboard_screen.dart. */
-
-export async function getUserProfile(
-  supabase: SupabaseClient,
-  userId: string,
-): Promise<Pick<UsersRow, "name" | "email" | "plan" | "plan_type"> | null> {
-  try {
-    const { data } = await supabase
-      .from("users")
-      .select("name, email, plan, plan_type")
-      .eq("id", userId)
-      .maybeSingle();
-    return data ?? null;
-  } catch {
-    return null;
-  }
-}
 
 export async function getMonthlyExpenseSummary(
   supabase: SupabaseClient,

@@ -30,7 +30,13 @@ export async function scanDemoReceipt(
       ? "1x0000000000000000000000000000000AA"
       : process.env.TURNSTILE_SECRET_KEY!;
   
-  if (turnstileToken !== "bypass") {
+  // Güvenlik denetimi bulgusu (Critical): "bypass" sihirli string'i önceden
+  // prod dahil HER ortamda Turnstile doğrulamasını atlıyordu — bir saldırgan
+  // widget'ı hiç çözmeden bu server action'ı doğrudan çağırıp sınırsız
+  // Gemini API isteği tetikleyebiliyordu. Artık sadece development'ta VE
+  // sadece Cloudflare'ın resmi test secret'ı kullanılıyorsa atlanıyor.
+  const allowBypass = process.env.NODE_ENV !== "production";
+  if (!(allowBypass && turnstileToken === "bypass")) {
     if (!turnstileToken) {
       throw new Error("Bot doğrulaması başarısız oldu (Token eksik).");
     }

@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { getExpenses } from "@/lib/data/expenses";
-import { getCategoriesForScan, getCategoriesFull } from "@/lib/data/categories";
+import { getCategoriesFull } from "@/lib/data/categories";
 import { getGroups } from "@/lib/data/groups";
 import { calculatePeriodRange, DEFAULT_EXPENSE_PERIOD } from "@/lib/utils/period";
 import { PeriodSelector } from "@/components/ui/period-selector";
@@ -22,13 +22,17 @@ export default async function ExpensesPage({
   } = await supabase.auth.getUser();
   const userId = user!.id;
 
-  const [expenses, categories, categoriesFull, groups] = await Promise.all([
+  const [expenses, categoriesFull, groups] = await Promise.all([
     getExpenses(supabase, userId, { start, end }),
-    getCategoriesForScan(supabase),
     getCategoriesFull(supabase),
     getGroups(supabase),
   ]);
 
+  const categories = categoriesFull.map((c) => ({
+    name: c.name,
+    group: c.parent_group ?? "",
+    emoji: c.icon,
+  }));
   const categoryNamesById: [string, string][] = categoriesFull.map((c) => [c.id, c.name]);
 
   return (

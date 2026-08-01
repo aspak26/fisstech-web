@@ -53,7 +53,23 @@ export async function getGroups(supabase: SupabaseClient): Promise<GroupRow[]> {
   }
 }
 
-export async function getGroup(supabase: SupabaseClient, id: string): Promise<GroupRow | null> {
+/** Güvenlik denetimi bulgusu: RLS zaten üye-olmayanları filtreliyor, ama bu
+ * fonksiyon üyeliği açıkça doğrulamıyordu — defense-in-depth için ekleniyor
+ * (bkz. assertCanManageGroup/assertIsBusinessOwner ile aynı desen). */
+export async function getGroup(
+  supabase: SupabaseClient,
+  id: string,
+  userId: string,
+): Promise<GroupRow | null> {
+  const { data: membership } = await supabase
+    .from("group_members")
+    .select("user_id")
+    .eq("group_id", id)
+    .eq("user_id", userId)
+    .is("left_at", null)
+    .maybeSingle();
+  if (!membership) return null;
+
   const { data } = await supabase.from("groups").select("*").eq("id", id).maybeSingle();
   return (data as GroupRow) ?? null;
 }

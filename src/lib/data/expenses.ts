@@ -54,11 +54,13 @@ export async function deleteExpense(supabase: SupabaseClient, id: string): Promi
 export async function getExpenseById(
   supabase: SupabaseClient,
   id: string,
+  userId: string,
 ): Promise<ExpenseWithItems | null> {
   const { data } = await supabase
     .from("expenses")
     .select("*, expense_items(*)")
     .eq("id", id)
+    .eq("user_id", userId)
     .maybeSingle();
   if (!data) return null;
 

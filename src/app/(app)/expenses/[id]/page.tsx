@@ -12,9 +12,13 @@ export default async function ExpenseDetailPage({
 }) {
   const { id } = await params;
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) notFound();
 
   const [expense, categories, categoriesFull, groups] = await Promise.all([
-    getExpenseById(supabase, id),
+    getExpenseById(supabase, id, user.id),
     getCategoriesForScan(supabase),
     getCategoriesFull(supabase),
     getGroups(supabase),

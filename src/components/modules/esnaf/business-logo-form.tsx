@@ -44,7 +44,11 @@ export function BusinessLogoForm({ business }: { business: BusinessRow }) {
     setError(null);
     try {
       const supabase = createClient();
-      await removeBusinessLogo(supabase, business.id);
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+      await removeBusinessLogo(supabase, user.id, business.id);
       setPreview(null);
       router.refresh();
     } catch {

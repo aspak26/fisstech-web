@@ -1,32 +1,19 @@
 "use server";
 
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import type { BusinessRow } from "@/lib/types/esnaf";
 
 const COOKIE_NAME = "fisstech-active-business";
 
-/** Returns the user's active business, resolving from the cookie (if it's
- * still one of theirs) or falling back to their first business. "Theirs"
- * includes both owned businesses and ones they've joined as Ekip staff via
- * an accepted invite — see get_my_businesses() (docs/sql/050_my_businesses.sql),
- * needed because businesses' own RLS SELECT policy is owner-only. */
-export async function getActiveBusiness(): Promise<BusinessRow | null> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
-
-  const businesses = await getUserBusinesses();
-  if (businesses.length === 0) return null;
-
-  const cookieStore = await cookies();
-  const activeId = cookieStore.get(COOKIE_NAME)?.value;
-  return businesses.find((b) => b.id === activeId) ?? businesses[0];
-}
-
-export async function getUserBusinesses(): Promise<BusinessRow[]> {
+/** Optimizasyon denetimi bulgusu (Critical): layout.tsx + her page.tsx bu iki
+ * fonksiyonu (ve dolayısıyla auth.getUser()/get_my_businesses RPC'sini)
+ * birbirinden habersiz, tekrar tekrar çağırıyordu — tek bir esnaf sayfa
+ * yüklemesinde ~8 auth round-trip + aynı RPC'nin 3 kez sıralı çalıştırılması.
+ * React cache() aynı istek/render ömrü içindeki tekrar çağrıları birleştirir
+ * — imza değişmiyor, mevcut çağıranların hiçbiri güncellenmeden fayda görür. */
+export const getUserBusinesses = cache(async (): Promise<BusinessRow[]> => {
   const supabase = await createClient();
   const {
     data: { user },
@@ -49,7 +36,21 @@ export async function getUserBusinesses(): Promise<BusinessRow[]> {
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
   return (owned ?? []) as BusinessRow[];
-}
+});
+
+/** Returns the user's active business, resolving from the cookie (if it's
+ * still one of theirs) or falling back to their first business. "Theirs"
+ * includes both owned businesses and ones they've joined as Ekip staff via
+ * an accepted invite — see get_my_businesses() (docs/sql/050_my_businesses.sql),
+ * needed because businesses' own RLS SELECT policy is owner-only. */
+export const getActiveBusiness = cache(async (): Promise<BusinessRow | null> => {
+  const businesses = await getUserBusinesses();
+  if (businesses.length === 0) return null;
+
+  const cookieStore = await cookies();
+  const activeId = cookieStore.get(COOKIE_NAME)?.value;
+  return businesses.find((b) => b.id === activeId) ?? businesses[0];
+});
 
 /** İşletmenin Esnaf Modu aboneliği aktif mi — sahibin `esnaf_plan`'ına göre
  * belirleniyor (personel de işverenin aboneliği üzerinden erişsin diye,

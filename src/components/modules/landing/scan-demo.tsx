@@ -37,12 +37,13 @@ export function ScanDemo() {
   async function handleFiles(files: File[]) {
     if (usedCount >= MAX_TRIES || files.length === 0) return;
     
-    const finalToken = turnstileToken || "bypass";
-    // Geçici olarak Turnstile zorunluluğunu kaldırıyoruz ki site çalışsın.
-    // if (!turnstileToken) {
-    //   setErrorMsg("Güvenlik doğrulaması henüz tamamlanmadı, lütfen bekleyin.");
-    //   return;
-    // }
+    // Güvenlik denetimi bulgusu (Critical): "bypass" fallback'i prod'da
+    // Turnstile'ı fiilen devre dışı bırakıyordu (server action artık bunu
+    // reddediyor) — token gelmeden isteği hiç göndermiyoruz.
+    if (!turnstileToken) {
+      setErrorMsg("Güvenlik doğrulaması henüz tamamlanmadı, lütfen bekleyin.");
+      return;
+    }
 
     setScanning(true);
     setResult(null);
@@ -91,7 +92,7 @@ export function ScanDemo() {
         reader.readAsDataURL(file);
       });
 
-      const data = await scanDemoReceipt(base64, finalToken);
+      const data = await scanDemoReceipt(base64, turnstileToken);
       if ('error' in data) {
         setErrorMsg(data.error);
         setScanning(false);
