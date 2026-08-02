@@ -246,6 +246,16 @@ interface GroupExpenseDetail {
   expense_items: GroupExpenseItemDetail[];
 }
 
+/** Mobil `GroupService.contributeToGoal` (bkz. fisle_app migration 074,
+ * `contribute_to_goal_atomic`) hedefe katkıyı gerçek bir harcama olarak
+ * `"🎯 {hedef} katkısı"` store_name'iyle kaydediyor — bu, gerçek bir
+ * market/mağaza değil. Paylaşılan backend yüzünden mobilde yapılan bir
+ * katkı bu ekranda da görünür, o yüzden aynı filtre burada da uygulanmalı
+ * (bkz. fisle_app lib/features/groups/models/group_model.dart aynı isimli fonksiyon). */
+function isGoalContributionExpense(storeName: string | null): boolean {
+  return storeName != null && storeName.startsWith("🎯 ") && storeName.endsWith(" katkısı");
+}
+
 async function getGroupExpenseDetails(
   supabase: SupabaseClient,
   groupId: string,
@@ -260,7 +270,10 @@ async function getGroupExpenseDetails(
   if (range.end) query = query.lte("expenses.date", range.end);
 
   const { data } = await query;
-  return ((data ?? []) as unknown as { expenses: GroupExpenseDetail }[]).map((row) => row.expenses).filter(Boolean);
+  return ((data ?? []) as unknown as { expenses: GroupExpenseDetail }[])
+    .map((row) => row.expenses)
+    .filter(Boolean)
+    .filter((e) => !isGoalContributionExpense(e.store_name));
 }
 
 function groupBreakdown(

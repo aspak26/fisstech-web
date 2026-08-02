@@ -130,6 +130,11 @@ export function ExpensesList({
                             {PAYMENT_LABELS[expense.payment_method] ?? expense.payment_method}
                             {expense.note ? ` · ${expense.note}` : ""}
                           </p>
+                          {expense.group_names.length > 0 && (
+                            <Badge tone="accent" className="mt-1 text-[11px]">
+                              {expense.group_names[0]}
+                            </Badge>
+                          )}
                         </div>
                         <div className="text-right">
                           <span className="font-medium text-text-primary">

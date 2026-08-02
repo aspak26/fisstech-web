@@ -72,6 +72,10 @@ export async function getFixedExpenses(
 
 export interface RecentExpense extends ExpensesRow {
   item_count: number;
+  // bkz. lib/data/expenses.ts ExpenseWithItems.group_names aynı gerekçe —
+  // grup hedefi katkısı gibi gruba bağlı harcamalar Pano'da hangi gruba ait
+  // olduğu belirtilmeden görünmesin diye eklendi.
+  group_names: string[];
 }
 
 export async function getRecentExpenses(
@@ -82,17 +86,22 @@ export async function getRecentExpenses(
   try {
     const { data } = await supabase
       .from("expenses")
-      .select("*, expense_items(count)")
+      .select("*, expense_items(count), expense_groups(groups(name))")
       .eq("user_id", userId)
       .order("date", { ascending: false })
       .order("created_at", { ascending: false })
       .limit(limit);
 
     return (data ?? []).map((row) => {
-      const { expense_items, ...rest } = row as ExpensesRow & {
+      const { expense_items, expense_groups, ...rest } = row as ExpensesRow & {
         expense_items: { count: number }[];
+        expense_groups: { groups: { name: string } | { name: string }[] | null }[] | null;
       };
-      return { ...rest, item_count: expense_items?.[0]?.count ?? 0 };
+      const groupNames = (expense_groups ?? [])
+        .map((r) => (Array.isArray(r.groups) ? r.groups[0] : r.groups))
+        .map((g) => g?.name)
+        .filter((n): n is string => Boolean(n));
+      return { ...rest, item_count: expense_items?.[0]?.count ?? 0, group_names: groupNames };
     });
   } catch {
     return [];

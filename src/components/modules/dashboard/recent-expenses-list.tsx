@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Receipt } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatCurrency } from "@/lib/utils/currency";
 import type { RecentExpense } from "@/lib/data/dashboard";
@@ -41,6 +42,11 @@ export function RecentExpensesList({ expenses }: { expenses: RecentExpense[] }) 
                   {expense.date} · {expense.item_count} kalem ·{" "}
                   {PAYMENT_LABELS[expense.payment_method] ?? expense.payment_method}
                 </p>
+                {expense.group_names.length > 0 && (
+                  <Badge tone="accent" className="mt-1 text-[11px]">
+                    {expense.group_names[0]}
+                  </Badge>
+                )}
               </div>
               <span className="font-medium text-text-primary">
                 {formatCurrency(Number(expense.total))}

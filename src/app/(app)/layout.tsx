@@ -6,7 +6,15 @@ import { RealtimeRefresh } from "@/components/ui/realtime-refresh";
 
 /** Kişisel modüllerin tablo listesi — docs/sql/047_web_realtime.sql
  * çalıştırılmadan bu abonelikler sessizce hiçbir olay almaz (no-op),
- * asla sahte bir "canlı" görünüm üretmez. */
+ * asla sahte bir "canlı" görünüm üretmez.
+ *
+ * Optimizasyon denetimi bulgusu (mobil taraftaki aynı bulgunun web
+ * karşılığı): `user_notes` kasıtlı olarak listede DEĞİL. Notlar hiçbir
+ * finansal veriyle ilişkili değil ve Dashboard'daki tek tüketicisi
+ * (NotesTeaser) sadece not başlıklarını gösteriyor, checklist tamamlanma
+ * durumunu değil — ama tabloda olsaydı, bir checklist maddesini her
+ * tikleyişte (mobilden bile) bu sayfanın TÜM server-side verisi
+ * router.refresh() ile gereksiz yere yeniden çekilirdi. */
 const PERSONAL_REALTIME_TABLES = [
   "expenses",
   "expense_items",
@@ -19,7 +27,6 @@ const PERSONAL_REALTIME_TABLES = [
   "savings_pool",
   "investments",
   "subscriptions",
-  "user_notes",
 ];
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
