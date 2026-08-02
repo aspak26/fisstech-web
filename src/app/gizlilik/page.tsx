@@ -183,9 +183,23 @@ export default function GizlilikPage() {
       <section>
         <h2>7. Çocukların Gizliliği</h2>
         <p>
-          Fişştech, 18 yaş altındaki kişilere yönelik değildir ve bilerek 18 yaş altı kişilerden veri
-          toplamayız. 18 yaşından küçük bir kullanıcının verisini topladığımızı fark edersek bu veriyi
-          derhâl sileriz.
+          Fişştech&apos;i 13 yaş ve üzeri herkes kendi adına kullanabilir. <strong>13 yaşından küçük
+          kullanıcılar, ancak bir ebeveyn veya yasal velinin bilgisi, onayı ve gözetimi altında</strong>{" "}
+          uygulamayı kullanabilir; hesabın oluşturulması ve devam eden kullanımı için veli sorumludur.
+          13 yaşından küçük bir kullanıcının verisini, veli onayı olmaksızın topladığımızı fark
+          edersek bu veriyi derhâl sileriz.
+        </p>
+        <p className="mt-3">
+          Premium, Aile Planı veya Esnaf Modu gibi <strong>ücretli abonelik gerektiren
+          özellikler yalnızca reşit (18 yaş ve üzeri) kullanıcılar veya velisinin onayıyla hareket eden
+          reşit olmayan kullanıcılar</strong> tarafından satın alınabilir; uygulama içi satın alma
+          işlemleri Apple/Google&apos;ın kendi yaş ve ödeme doğrulama kurallarına tabidir.
+        </p>
+        <p className="mt-3">
+          Veli veya vasi iseniz ve gözetiminizdeki bir çocuğun bizimle onayınız olmadan veri
+          paylaştığını düşünüyorsanız, verinin silinmesini talep etmek için{" "}
+          <a href="mailto:fisstechapp@gmail.com">fisstechapp@gmail.com</a> adresinden bize
+          ulaşabilirsiniz.
         </p>
       </section>
 
