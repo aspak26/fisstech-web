@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { primaryNavItems, upcomingNavItems, bottomNavItems } from "@/lib/nav-config";
 import { NavLink } from "./nav-link";
