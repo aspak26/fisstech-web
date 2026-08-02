@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCategoriesForScan } from "@/lib/data/categories";
 import { getRemainingScanCredits } from "@/lib/scan/credits";
-import { getUserPlanInfo, isPersonalPremium } from "@/lib/utils/entitlements";
+import { getUserPlanInfo, isPersonalPremiumOrTrial } from "@/lib/utils/entitlements";
 import { ScanWorkspace } from "@/components/modules/scan/scan-workspace";
 
 export default async function ScanPage() {
@@ -17,7 +17,7 @@ export default async function ScanPage() {
     getUserPlanInfo(supabase, userId),
   ]);
 
-  const isPremium = isPersonalPremium(planInfo.planType);
+  const isPremium = isPersonalPremiumOrTrial(planInfo);
 
   return (
     <div>

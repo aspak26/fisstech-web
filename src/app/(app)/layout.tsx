@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/modules/shell/sidebar";
 import { Topbar } from "@/components/modules/shell/topbar";
 import { RealtimeRefresh } from "@/components/ui/realtime-refresh";
+import { TrialOfferDialog } from "@/components/modules/shell/trial-offer-dialog";
+import { getUserPlanInfo } from "@/lib/utils/entitlements";
 
 /** Kişisel modüllerin tablo listesi — docs/sql/047_web_realtime.sql
  * çalıştırılmadan bu abonelikler sessizce hiçbir olay almaz (no-op),
@@ -39,11 +41,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     redirect("/login");
   }
 
-  const { data: profile } = await supabase
-    .from("users")
-    .select("name, email, plan_type")
-    .eq("id", user.id)
-    .maybeSingle();
+  const [{ data: profile }, planInfo] = await Promise.all([
+    supabase.from("users").select("name, email, plan_type").eq("id", user.id).maybeSingle(),
+    getUserPlanInfo(supabase, user.id),
+  ]);
+  const showTrialOffer = planInfo.canStartTrial && !planInfo.trialOfferDismissed;
 
   return (
     <div className="flex h-full min-h-screen bg-bg">
@@ -54,6 +56,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         İçeriğe geç
       </a>
       <RealtimeRefresh tables={PERSONAL_REALTIME_TABLES} />
+      {showTrialOffer && <TrialOfferDialog />}
       <div className="print:hidden">
         <Sidebar />
       </div>

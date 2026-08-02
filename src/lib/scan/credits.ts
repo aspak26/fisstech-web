@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { getUserPlanInfo, isPersonalPremium } from "@/lib/utils/entitlements";
+import { getUserPlanInfo, isPersonalPremiumOrTrial } from "@/lib/utils/entitlements";
 
 /** Mirrors ScanService.freeMonthlyLimit in fisle_app scan_service.dart. */
 export const FREE_MONTHLY_LIMIT = 20;
@@ -17,8 +17,8 @@ function currentMonth(): string {
 // yapıyordu — sadece bu UI/okuma tarafı tutarsızdı). `isPersonalPremium`
 // ile tekilleştirildi.
 async function isPremium(supabase: SupabaseClient, userId: string): Promise<boolean> {
-  const { planType } = await getUserPlanInfo(supabase, userId);
-  return isPersonalPremium(planType);
+  const planInfo = await getUserPlanInfo(supabase, userId);
+  return isPersonalPremiumOrTrial(planInfo);
 }
 
 export async function getRemainingScanCredits(

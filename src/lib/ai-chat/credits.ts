@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { getUserPlanInfo, isPersonalPremium } from "@/lib/utils/entitlements";
+import { getUserPlanInfo, isPersonalPremiumOrTrial } from "@/lib/utils/entitlements";
 
 /** Pazarlama metninde vaat edilen "aylık 50 AI sohbet hakkı" (Premium) —
  * bkz. ai-chat/route.ts sistem promptu ve landing fiyatlandırma kartları.
@@ -26,8 +26,8 @@ export async function getAiChatQuotaStatus(
   supabase: SupabaseClient,
   userId: string,
 ): Promise<AiChatQuota> {
-  const { planType } = await getUserPlanInfo(supabase, userId);
-  const limit = isPersonalPremium(planType) ? PREMIUM_MONTHLY_LIMIT : FREE_MONTHLY_LIMIT;
+  const planInfo = await getUserPlanInfo(supabase, userId);
+  const limit = isPersonalPremiumOrTrial(planInfo) ? PREMIUM_MONTHLY_LIMIT : FREE_MONTHLY_LIMIT;
 
   const { data } = await supabase
     .from("ai_chat_usage")

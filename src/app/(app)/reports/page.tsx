@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getReportData } from "@/lib/data/reports";
-import { getUserPlanInfo, isPersonalPremium } from "@/lib/utils/entitlements";
+import { getUserPlanInfo, isPersonalPremiumOrTrial } from "@/lib/utils/entitlements";
 import { tryConsumeFeatureCredit } from "@/lib/features/unlocks";
 import { ReportPeriodSelector } from "@/components/modules/reports/report-period-selector";
 import { ReportView } from "@/components/modules/reports/report-view";
@@ -28,7 +28,7 @@ export default async function ReportsPage({
 
   const planInfo = await getUserPlanInfo(supabase, user!.id);
   const hasAccess =
-    isPersonalPremium(planInfo.planType) ||
+    isPersonalPremiumOrTrial(planInfo) ||
     (await tryConsumeFeatureCredit(supabase, user!.id, "report"));
 
   if (!hasAccess) {
