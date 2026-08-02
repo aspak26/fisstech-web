@@ -25,9 +25,19 @@ export function LoginForm() {
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithPassword(values);
     if (error) {
+      // "Invalid login credentials" tek bir Supabase hatası ama en az iki
+      // farklı gerçek nedeni kapsıyor: gerçekten yanlış şifre, VEYA hesap
+      // Google ile oluşturulmuş ve hiç şifresi yok (auth.users'ta password
+      // credential'ı yok). Supabase bu ikisini güvenlik gereği (hesap
+      // enumeration'ı önlemek için) tek bir genel mesajla dönüyor, ayırt
+      // etmiyor — bunu ayırt etmek servis-role anahtarlı bir admin sorgusu
+      // gerektirirdi (bu projede web tarafında henüz kurulu değil). Bunun
+      // yerine, gerçekten yanlış şifreyi giren kullanıcıyı yanlış yönlendirmeden,
+      // Google hesabıyla karışan kullanıcıya da çıkış yolu gösteren tek bir
+      // ipucu ekleniyor.
       setServerError(
         error.message === "Invalid login credentials"
-          ? "E-posta veya şifre hatalı."
+          ? "E-posta veya şifre hatalı. Bu hesabı Google ile oluşturduysanız “Google ile Giriş Yap”ı kullanın ya da “Şifremi Unuttum” ile yeni bir şifre belirleyin."
           : error.message,
       );
       return;
