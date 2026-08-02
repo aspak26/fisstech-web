@@ -33,6 +33,7 @@ interface FormValues {
   paymentMethod: string;
   cardLabel: string;
   note: string;
+  total: number;
   items: { name: string; category: string; price: number; quantity: number }[];
 }
 
@@ -64,6 +65,7 @@ export function ExpenseFormDialog({
       paymentMethod: expense?.payment_method ?? "cash",
       cardLabel: expense?.card_label ?? "",
       note: expense?.note ?? "",
+      total: expense ? Number(expense.total) : 0,
       items: expense
         ? expense.expense_items.map((i) => ({
             name: i.name,
@@ -75,6 +77,20 @@ export function ExpenseFormDialog({
     },
   });
   const { fields, append, remove } = useFieldArray({ control, name: "items" });
+
+  // Mobildeki expense_detail_screen.dart'ta "Toplam Tutar" kalemlerden
+  // BAĞIMSIZ, doğrudan düzenlenebilir kendi alanı — kalem sayısı/tutarı
+  // ne olursa olsun ayrıca saklanıyor. Web'de önceden total HER KAYITTA
+  // kalemlerin toplamından yeniden hesaplanıyordu; kalemsiz bir harcamayı
+  // (örn. grup hedefine katkı — mobil bunu 0 kalemli bir harcama olarak
+  // kaydediyor) sadece açıp kaydetmek gerçek tutarı sessizce ₺0'a
+  // düşürüyordu. Artık `total` kendi alanı: DÜZENLERKEN her zaman
+  // `expense.total`'dan başlıyor ve kalemler değişse bile OTOMATİK
+  // değişmiyor (mobille birebir); YENİ manuel harcamada kullanıcı henüz
+  // elle bir tutar girmediyse kalem toplamını takip ediyor (kolaylık).
+  const totalTouchedRef = useRef(!!expense);
+
+  // ── Yeni kategori ekleme (mobildeki CategoryPickerSheet "Yeni") ───────────
 
   // ── Yeni kategori ekleme (mobildeki CategoryPickerSheet "Yeni") ───────────
   const [extraCategories, setExtraCategories] = useState<CategoriesRow[]>([]);
@@ -115,6 +131,7 @@ export function ExpenseFormDialog({
 
   useEffect(() => {
     if (!open) return;
+    totalTouchedRef.current = !!expense;
     const inst = expense?.installment ?? null;
     setIsInstallment(!!inst);
     setInstallmentCount(String(inst?.total_count ?? 12));
@@ -215,8 +232,7 @@ export function ExpenseFormDialog({
         (rawCategories ?? []).map((c: { id: string; name: string }) => [c.name, c.id]),
       );
 
-      const itemsTotal = values.items.reduce((sum, i) => sum + Number(i.price || 0) * Number(i.quantity || 1), 0);
-      const total = isInstallment ? installmentTotal : itemsTotal;
+      const total = isInstallment ? installmentTotal : Number(values.total || 0);
       const cardLabel = showCardLabel && values.cardLabel.trim() ? values.cardLabel.trim() : null;
 
       const newReceiptUrls = attachedFiles.length > 0 ? await uploadReceipts(supabase, user.id, attachedFiles) : [];
@@ -389,6 +405,21 @@ export function ExpenseFormDialog({
             <Label htmlFor="storeName">İşyeri</Label>
             <Input id="storeName" {...register("storeName")} />
           </div>
+          {!isInstallment && (
+            <div>
+              <Label htmlFor="total">Toplam Tutar</Label>
+              <Input
+                id="total"
+                type="number"
+                step="0.01"
+                {...register("total", {
+                  onChange: () => {
+                    totalTouchedRef.current = true;
+                  },
+                })}
+              />
+            </div>
+          )}
           <div>
             <Label htmlFor="date">Tarih</Label>
             <Input id="date" type="date" {...register("date")} />
@@ -493,7 +524,9 @@ export function ExpenseFormDialog({
               </div>
             ))}
           </div>
-          {!isInstallment && <ItemsTotalDisplay control={control} />}
+          {!isInstallment && (
+            <ItemsTotalDisplay control={control} setValue={setValue} totalTouchedRef={totalTouchedRef} />
+          )}
         </div>
 
         <div className="rounded-control border border-border p-3">
@@ -629,16 +662,36 @@ export function ExpenseFormDialog({
  * en üst seviyede çağrılıyordu, bu da HERHANGİ bir kalem alanına yapılan
  * her tuş vuruşunda 600+ satırlık formun TAMAMININ yeniden render olmasına
  * yol açıyordu. `useWatch` sadece bu küçük alt bileşeni yeniden render eder,
- * geri kalan form (register ile uncontrolled input'lar) etkilenmez. */
-function ItemsTotalDisplay({ control }: { control: Control<FormValues> }) {
+ * geri kalan form (register ile uncontrolled input'lar) etkilenmez.
+ *
+ * Bu artık sadece BİLGİLENDİRME amaçlı — "Toplam Tutar" kaydedilen gerçek
+ * değer, kalemlerden bağımsız kendi alanı (mobille aynı, bkz. yukarıdaki
+ * totalTouchedRef notu). Sadece kullanıcı henüz "Toplam Tutar"a elle
+ * dokunmadıysa (yeni manuel harcama girerken bir kolaylık olarak) bu alanı
+ * kalem toplamıyla senkron tutuyor — mevcut bir harcama düzenlenirken asla
+ * otomatik değiştirmiyor. */
+function ItemsTotalDisplay({
+  control,
+  setValue,
+  totalTouchedRef,
+}: {
+  control: Control<FormValues>;
+  setValue: (name: "total", value: number) => void;
+  totalTouchedRef: { current: boolean };
+}) {
   const items = useWatch({ control, name: "items" });
   const itemsTotal = useMemo(
     () => items.reduce((sum, i) => sum + Number(i.price || 0) * Number(i.quantity || 1), 0),
     [items],
   );
+
+  useEffect(() => {
+    if (!totalTouchedRef.current) setValue("total", itemsTotal);
+  }, [itemsTotal, setValue, totalTouchedRef]);
+
   return (
     <p className="mt-2 text-sm text-text-secondary">
-      Toplam: <span className="font-medium text-text-primary">{formatCurrency(itemsTotal)}</span>
+      Kalemler Toplamı: <span className="font-medium text-text-primary">{formatCurrency(itemsTotal)}</span>
     </p>
   );
 }
