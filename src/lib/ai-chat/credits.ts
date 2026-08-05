@@ -3,10 +3,10 @@ import { getUserPlanInfo, isPersonalPremiumOrTrial } from "@/lib/utils/entitleme
 
 /** Pazarlama metninde vaat edilen "aylık 50 AI sohbet hakkı" (Premium) —
  * bkz. ai-chat/route.ts sistem promptu ve landing fiyatlandırma kartları.
- * Free için ayrı bir sayı hiçbir dokümanda belirtilmemişti, ürün kararı
- * gerektirir — tanıtım amaçlı, kolayca ayarlanabilir bir varsayılan olarak
- * 5/ay seçildi (bkz. docs/PROGRESS.md). */
-export const FREE_MONTHLY_LIMIT = 5;
+ * Ürün kararı netleşti: AI sohbet tamamen Premium'a özel, ücretsiz planda
+ * (deneme dışında) kilitli — fisle_app'teki try_consume_ai_chat_credit
+ * RPC'sinin varsayılan p_free_limit=0'ı ile birebir aynı. */
+export const FREE_MONTHLY_LIMIT = 0;
 export const PREMIUM_MONTHLY_LIMIT = 50;
 
 function currentMonth(): string {

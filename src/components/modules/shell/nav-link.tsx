@@ -20,14 +20,16 @@ export function NavLink({ item, collapsed }: { item: NavItem; collapsed?: boolea
         isActive
           ? "bg-accent/10 text-accent"
           : "text-text-secondary hover:bg-bg hover:text-text-primary",
+        item.status === "soon" && "pointer-events-none opacity-60",
       )}
       title={collapsed ? item.label : undefined}
+      tabIndex={item.status === "soon" ? -1 : undefined}
     >
       <Icon className="h-5 w-5 shrink-0" strokeWidth={1.75} />
       <span className={cn("truncate", collapsed && "hidden lg:inline")}>{item.label}</span>
       {item.status === "soon" && (
         <Badge tone="neutral" className={cn("ml-auto shrink-0", collapsed && "hidden lg:inline-flex")}>
-          Yakında
+          Test Aşamasında
         </Badge>
       )}
     </Link>

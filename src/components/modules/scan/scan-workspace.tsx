@@ -129,7 +129,7 @@ export function ScanWorkspace({
       updateItem(item.id, { status: "scanned", result });
 
       if (autoSave) {
-        const imageUrls = await uploadReceipts(supabase, userId, [item.file]);
+        const imageUrls = isPremium ? await uploadReceipts(supabase, userId, [item.file]) : [];
         await saveExpense(supabase, userId, { ...result, imageUrls });
         setItems((prev) => prev.filter((i) => i.id !== item.id));
         setToast("Harcama otomatik kaydedildi");
@@ -175,7 +175,7 @@ export function ScanWorkspace({
       const merged = mergeResults(results);
       if (autoSave) {
         const files = items.filter((i) => pending.find(p => p.id === i.id)).map((i) => i.file);
-        const imageUrls = await uploadReceipts(supabase, userId, files);
+        const imageUrls = isPremium ? await uploadReceipts(supabase, userId, files) : [];
         await saveExpense(supabase, userId, { ...merged, imageUrls });
         setItems((prev) => prev.filter((i) => !pending.find(p => p.id === i.id)));
         setToast("Uzun Fiş otomatik kaydedildi");
@@ -222,7 +222,7 @@ export function ScanWorkspace({
         updateItem(item.id, { status: "scanned", result });
 
         if (autoSave) {
-          const imageUrls = await uploadReceipts(supabase, userId, [item.file]);
+          const imageUrls = isPremium ? await uploadReceipts(supabase, userId, [item.file]) : [];
           await saveExpense(supabase, userId, { ...result, imageUrls });
           setItems((prev) => prev.filter((i) => i.id !== item.id));
           successCount++;
@@ -269,7 +269,7 @@ export function ScanWorkspace({
     setSaving(true);
     try {
       const files = items.filter((i) => review.itemIds.includes(i.id)).map((i) => i.file);
-      const imageUrls = await uploadReceipts(supabase, userId, files);
+      const imageUrls = isPremium ? await uploadReceipts(supabase, userId, files) : [];
       await saveExpense(supabase, userId, { ...edited, imageUrls });
 
       setItems((prev) => prev.filter((i) => !review.itemIds.includes(i.id)));

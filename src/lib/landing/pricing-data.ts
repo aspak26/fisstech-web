@@ -35,6 +35,7 @@ export const PRICING_PLANS: PricingPlan[] = [
       "Fişştech AI: Tüm verinizi analiz eden muhasebe uzmanı",
       "Aylık 50 AI sohbet limiti",
       "Sınırsız fiş tarama",
+      "Fiş arşivi (Sınırsız)",
       "Sınırsız toplu fiş tarama",
       "Gelişmiş analiz raporları",
       "Ortak bütçe (Grup)",

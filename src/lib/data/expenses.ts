@@ -98,8 +98,47 @@ export async function getExpenseById(
     .maybeSingle();
 
   return {
-    ...(rest as Omit<ExpenseWithItems, "installment">),
+    ...rest,
     group_names: extractGroupNames(expense_groups),
-    installment: installment ?? null,
+    installment: (installment as InstallmentPlansRow) ?? null,
   };
+}
+
+export async function getArchivedExpenses(
+  supabase: SupabaseClient,
+  userId: string,
+  opts: { start?: string | null; end?: string | null } = {},
+): Promise<ExpenseWithItems[]> {
+  try {
+    let query = supabase
+      .from("expenses")
+      .select("*, expense_items(*), expense_groups(groups(name))")
+      .eq("user_id", userId)
+      .not("receipt_image_url", "is", null);
+
+    if (opts.start) query = query.gte("date", opts.start);
+    if (opts.end) query = query.lte("date", opts.end);
+
+    const { data } = await query
+      .order("date", { ascending: false })
+      .order("created_at", { ascending: false });
+
+    const rawExpenses = (data ?? []) as (Omit<ExpenseWithItems, "installment" | "group_names"> & {
+      expense_groups: ExpenseGroupJoinRow[] | null;
+    })[];
+    
+    // Sadece gerçekten image URL içerenleri (boş string olmayanları) filtrele
+    const expenses = rawExpenses
+      .filter((e) => e.receipt_image_url && e.receipt_image_url.trim().length > 0)
+      .map(({ expense_groups, ...rest }) => ({
+        ...rest,
+        group_names: extractGroupNames(expense_groups),
+      })) as Omit<ExpenseWithItems, "installment">[];
+      
+    if (expenses.length === 0) return [];
+
+    return expenses.map((e) => ({ ...e, installment: null })); // Archive genelde taksit bilgisine ihtiyaç duymaz
+  } catch {
+    return [];
+  }
 }

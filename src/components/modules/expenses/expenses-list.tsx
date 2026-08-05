@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Receipt, CreditCard, Banknote, HelpCircle } from "lucide-react";
+import { Plus, Receipt, CreditCard, Banknote, HelpCircle, ImageIcon } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -74,18 +74,30 @@ export function ExpensesList({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <button
-          type="button"
-          onClick={() => setInstallmentOnly((v) => !v)}
-          className={cn(
-            "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
-            installmentOnly
-              ? "border-accent bg-accent text-on-accent"
-              : "border-border bg-surface text-text-secondary hover:border-accent",
-          )}
-        >
-          💳 Taksitler
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setInstallmentOnly((v) => !v)}
+            className={cn(
+              "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
+              installmentOnly
+                ? "border-accent bg-accent text-on-accent"
+                : "border-border bg-surface text-text-secondary hover:border-accent",
+            )}
+          >
+            💳 Taksitler
+          </button>
+          
+          <button
+            type="button"
+            onClick={() => router.push("/expenses/archive")}
+            className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-3.5 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:border-accent hover:text-accent"
+          >
+            <ImageIcon className="h-4 w-4" />
+            Fiş Arşivi
+          </button>
+        </div>
+        
         <Button onClick={openAdd} className="gap-1.5">
           <Plus className="h-4 w-4" /> Manuel Ekle
         </Button>

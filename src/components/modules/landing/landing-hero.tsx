@@ -141,7 +141,7 @@ export function LandingHero({ isAuthenticated }: { isAuthenticated: boolean }) {
                 <Zap className="h-3.5 w-3.5" />
               </span>
               <div>
-                <p className="text-xs font-semibold text-text-primary">2.1 saniyede okundu</p>
+                <p className="text-xs font-semibold text-text-primary">4.3 saniyede okundu</p>
                 <p className="text-[11px] text-text-secondary">Yapay zekâ ile</p>
               </div>
             </div>
