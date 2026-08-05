@@ -20,7 +20,7 @@ export function LogoIcon({ className, height = 32 }: { className?: string; heigh
       alt="Fişştech"
       width={Math.round(height * ICON_RATIO)}
       height={height}
-      className={`rounded-lg ${className ?? ""}`}
+      className={`invert dark:invert-0 ${className ?? ""}`}
       priority
     />
   );
