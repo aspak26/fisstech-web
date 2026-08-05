@@ -1,14 +1,14 @@
 import Image from "next/image";
 
-// Yeni şeffaf logo 1:1 kare formatında
+// Yeni şeffaf logo 1:1 kare formatında, wordmark ise eski orijinal oranında
 const ICON_RATIO = 1;
-const WORDMARK_RATIO = 1;
+const WORDMARK_RATIO = 1205 / 326;
 
 export function LogoHorizontal({ className, height = 32 }: { className?: string; height?: number }) {
   return (
     <div className={`flex flex-row items-center gap-2 ${className ?? ""}`}>
       <LogoIcon height={height} />
-      <span className="font-outfit font-bold text-xl dark:text-white text-black leading-none">Fişştech</span>
+      <LogoWordmark height={height} />
     </div>
   );
 }
