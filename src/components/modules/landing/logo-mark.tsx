@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-// Yeni logo 1:1 kare formatında
+// Yeni şeffaf logo 1:1 kare formatında
 const ICON_RATIO = 1;
 const WORDMARK_RATIO = 1;
 
@@ -20,7 +20,7 @@ export function LogoIcon({ className, height = 32 }: { className?: string; heigh
       alt="Fişştech"
       width={Math.round(height * ICON_RATIO)}
       height={height}
-      className={`rounded-lg ${className ?? ""}`}
+      className={`invert dark:invert-0 ${className ?? ""}`}
       priority
     />
   );
@@ -33,7 +33,7 @@ export function LogoWordmark({ className, height = 32 }: { className?: string; h
       alt="Fişştech"
       width={Math.round(height * WORDMARK_RATIO)}
       height={height}
-      className={`rounded-lg ${className ?? ""}`}
+      className={`invert dark:invert-0 ${className ?? ""}`}
       priority
     />
   );
