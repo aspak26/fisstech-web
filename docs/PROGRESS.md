@@ -104,9 +104,9 @@ Mobilde de önce ortak altyapı, sonra sektörel modüller sırasıyla inşa edi
 - [x] Responsive test (mobil ~390px / tablet ~768px / masaüstü ~1440px) — auth ekranlarında Playwright ile, Dashboard'da gerçek kullanıcı hesabıyla doğrulandı
 - [x] Erişilebilirlik kontrolü (klavye odağı, kontrast, azaltılmış hareket) — renk kontrastları hesaplanarak doğrulandı, `prefers-reduced-motion` desteği eklendi, 20 Temmuz 2026'da tam bir a11y taraması yapıldı (bkz. Kararlar Günlüğü): eksik `aria-label`'lar, paylaşılan `Dialog` bileşenine focus trap/restore, skip-to-content linki, `aria-current="page"`, nav landmark'ları.
 - [x] Performans/yükleme hızı kontrolü — 20 Temmuz 2026'da yapıldı (bkz. Kararlar Günlüğü): `xlsx`/`jspdf` lazy-load'a çevrildi, gereksiz sequential sorgu bulunan `/groups/[id]` paralelleştirildi, gereksiz client component taraması yapıldı (hiçbiri bulunamadı — mevcut "use client" kullanımlarının hepsi gerekçeli).
-- [x] Deployment hazırlığı — 20 Temmuz 2026'da kontrol edildi (bkz. Kararlar Günlüğü): `.env.example`/`.gitignore` doğrulandı (kullanılan tüm env değişkenleri kapsanıyor), Next.js zero-config Vercel dağıtımı için `vercel.json`'a gerek olmadığı teyit edildi. **Gerçek dağıtım (Vercel hesabı/proje oluşturma) henüz yapılmadı** — dışa açık/geri alınması zor bir adım olduğu için kullanıcı onayı bekleniyor.
+- [x] Deployment hazırlığı — 20 Temmuz 2026'da kontrol edildi (bkz. Kararlar Günlüğü): `.env.example`/`.gitignore` doğrulandı (kullanılan tüm env değişkenleri kapsanıyor), Next.js zero-config Vercel dağıtımı için `vercel.json`'a gerek olmadığı teyit edildi. **Gerçek dağıtım (Vercel) 11 Ağustos 2026'da kullanıcı onayıyla yapıldı ve `fisstech.co` alan adında canlıya (production) alındı.**
 - [ ] Gerçek içerik/metin geçişi
-- [ ] Yayına alma
+- [x] Yayına alma
 
 ---
 
