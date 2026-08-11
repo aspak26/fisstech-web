@@ -48,7 +48,7 @@ export function DonutBreakdown({ data }: { data: CategoryBreakdownPoint[] }) {
               </span>
             </div>
             <div className="flex shrink-0 items-center gap-3">
-              <span className="text-text-secondary">{total > 0 ? Math.round((entry.total / total) * 100) : 0}%</span>
+              <span className="text-text-secondary">%{total > 0 ? ((entry.total / total) * 100).toFixed(1) : "0.0"}</span>
               <span className="font-medium text-text-primary">{formatCurrency(entry.total)}</span>
             </div>
           </li>

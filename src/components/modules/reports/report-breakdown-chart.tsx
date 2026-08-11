@@ -43,9 +43,10 @@ export function ReportBreakdownChart({ data }: { data: CategoryBreakdownPoint[] 
               />
               <span className="truncate text-text-primary print:text-black">{d.name}</span>
             </span>
-            <span className="shrink-0 text-text-secondary print:text-black">
-              {formatCurrency(d.total)} <span className="text-xs">· %{sum > 0 ? ((d.total / sum) * 100).toFixed(1) : "0.0"}</span>
-            </span>
+            <div className="flex shrink-0 items-center gap-3">
+              <span className="text-text-secondary print:text-black">%{sum > 0 ? ((d.total / sum) * 100).toFixed(1) : "0.0"}</span>
+              <span className="font-medium text-text-primary print:text-black">{formatCurrency(d.total)}</span>
+            </div>
           </li>
         ))}
       </ul>
