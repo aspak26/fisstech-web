@@ -9,13 +9,14 @@ import { CHART_COLORS, type StoreBreakdownPoint } from "@/lib/data/analytics";
  * chart, mobildeki `_StoreChart` ile aynı. */
 export function StoreBreakdownChart({ stores }: { stores: StoreBreakdownPoint[] }) {
   const top = stores.slice(0, 6);
+  const sum = top.reduce((acc, curr) => acc + curr.total, 0);
 
   return (
     <div>
       <div className="h-56 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
-            <Pie data={top} dataKey="total" nameKey="name" innerRadius="50%" outerRadius="85%" label={(e) => `%${Math.round(e.percent! * 100)}`}>
+            <Pie data={top} dataKey="total" nameKey="name" innerRadius="50%" outerRadius="85%" label={(e) => `%${(e.percent! * 100).toFixed(1)}`}>
               {top.map((entry, i) => (
                 <Cell key={entry.name} fill={CHART_COLORS[i % CHART_COLORS.length]} />
               ))}
@@ -34,12 +35,15 @@ export function StoreBreakdownChart({ stores }: { stores: StoreBreakdownPoint[] 
       </div>
       <ul className="mt-2 space-y-1.5">
         {top.map((s, i) => (
-          <li key={s.name} className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
-              <span className="text-text-primary">{s.name}</span>
+          <li key={s.name} className="flex items-center justify-between py-1 text-sm">
+            <div className="flex min-w-0 items-center gap-2">
+              <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
+              <span className="truncate text-text-primary">{s.name}</span>
             </div>
-            <span className="font-medium text-text-primary">{formatCurrency(s.total)}</span>
+            <div className="flex shrink-0 items-center gap-3">
+              <span className="text-text-secondary">%{sum > 0 ? ((s.total / sum) * 100).toFixed(1) : "0.0"}</span>
+              <span className="font-medium text-text-primary">{formatCurrency(s.total)}</span>
+            </div>
           </li>
         ))}
       </ul>
