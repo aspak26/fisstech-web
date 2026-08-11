@@ -16,7 +16,7 @@ export function ReportBreakdownChart({ data }: { data: CategoryBreakdownPoint[] 
       <div className="h-56 w-full shrink-0 sm:w-1/2 print:h-40 print:w-1/2">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
-            <Pie data={data} dataKey="total" nameKey="name" innerRadius="55%" outerRadius="80%" paddingAngle={2}>
+            <Pie data={data} dataKey="total" nameKey="name" innerRadius="55%" outerRadius="80%" paddingAngle={2} label={(e) => `%${(e.percent! * 100).toFixed(1)}`}>
               {data.map((entry) => (
                 <Cell key={entry.name} fill={entry.color} />
               ))}

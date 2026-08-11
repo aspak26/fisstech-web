@@ -17,6 +17,7 @@ export function CategoryDonutChart({ data }: { data: CategoryBreakdownPoint[] })
             innerRadius="55%"
             outerRadius="80%"
             paddingAngle={2}
+            label={(e) => `%${(e.percent! * 100).toFixed(1)}`}
           >
             {data.map((entry) => (
               <Cell key={entry.name} fill={entry.color} />

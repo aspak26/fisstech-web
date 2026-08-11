@@ -16,7 +16,7 @@ export function DonutBreakdown({ data }: { data: CategoryBreakdownPoint[] }) {
       <div className="relative h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
-            <Pie data={data} dataKey="total" nameKey="name" innerRadius="62%" outerRadius="85%" paddingAngle={2}>
+            <Pie data={data} dataKey="total" nameKey="name" innerRadius="62%" outerRadius="85%" paddingAngle={2} label={(e) => `%${(e.percent! * 100).toFixed(1)}`}>
               {data.map((entry, i) => (
                 <Cell key={`${entry.name}-${i}`} fill={entry.color} />
               ))}
