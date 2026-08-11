@@ -427,6 +427,7 @@ export interface GroupMemberRow {
   email: string | null;
   avatarUrl: string | null;
   customAlias: string | null;
+  lastReadAt: string | null;
 }
 
 /** Ported from mobile's GroupService.getMembers — active members
@@ -440,7 +441,7 @@ export async function getMembers(
   try {
     const { data } = await supabase
       .from("group_members")
-      .select("id, group_id, user_id, role, joined_at, users(name, email, avatar_url)")
+      .select("id, group_id, user_id, role, joined_at, last_read_at, users(name, email, avatar_url)")
       .eq("group_id", groupId)
       .is("left_at", null)
       .order("joined_at");
@@ -451,6 +452,7 @@ export async function getMembers(
       user_id: string;
       role: GroupRole;
       joined_at: string;
+      last_read_at: string | null;
       users: { name: string | null; email: string | null; avatar_url: string | null } | { name: string | null; email: string | null; avatar_url: string | null }[] | null;
     }
     const rows = ((data ?? []) as unknown as Row[]).map((r) => ({
@@ -474,6 +476,7 @@ export async function getMembers(
       email: r.users?.email ?? null,
       avatarUrl: r.users?.avatar_url ?? null,
       customAlias: aliasMap.get(r.user_id) ?? null,
+      lastReadAt: r.last_read_at,
     }));
   } catch {
     return [];
@@ -543,6 +546,8 @@ export interface GroupMessageRow {
   user_id: string;
   content: string;
   created_at: string;
+  is_edited: boolean;
+  is_deleted: boolean;
 }
 
 /** Ported from mobile's GroupService.getMessages — initial page load only;
@@ -551,7 +556,7 @@ export async function getMessages(supabase: SupabaseClient, groupId: string, lim
   try {
     const { data } = await supabase
       .from("group_messages")
-      .select("id, group_id, user_id, content, created_at")
+      .select("id, group_id, user_id, content, created_at, is_edited, is_deleted")
       .eq("group_id", groupId)
       .order("created_at", { ascending: false })
       .limit(limit);
@@ -567,8 +572,35 @@ export async function sendMessage(supabase: SupabaseClient, groupId: string, use
   await supabase.from("group_messages").insert({ group_id: groupId, user_id: userId, content: trimmed });
 }
 
+/** Ported from mobile's GroupService.editMessage — content update, only the
+ * sender can edit (RLS + explicit user_id filter, matching mobile's H-4
+ * hardening). */
+export async function editMessage(supabase: SupabaseClient, id: string, userId: string, content: string): Promise<void> {
+  const trimmed = content.trim().slice(0, 2000);
+  if (!trimmed) return;
+  await supabase.from("group_messages").update({ content: trimmed, is_edited: true }).eq("id", id).eq("user_id", userId);
+}
+
+/** Ported from mobile's GroupService.deleteMessage — soft delete (is_deleted
+ * flag, content row kept as-is) so other clients can still render a "Bu
+ * mesaj silindi" placeholder instead of the row just vanishing. */
 export async function deleteMessage(supabase: SupabaseClient, id: string, userId: string): Promise<void> {
-  await supabase.from("group_messages").delete().eq("id", id).eq("user_id", userId);
+  await supabase.from("group_messages").update({ is_deleted: true }).eq("id", id).eq("user_id", userId);
+}
+
+/** Ported from mobile's GroupService.markGroupAsRead — updates the caller's
+ * own group_members.last_read_at watermark, which drives read-receipt
+ * display for everyone else in the group. */
+export async function markGroupAsRead(supabase: SupabaseClient, groupId: string, userId: string): Promise<void> {
+  try {
+    await supabase
+      .from("group_members")
+      .update({ last_read_at: new Date().toISOString() })
+      .eq("group_id", groupId)
+      .eq("user_id", userId);
+  } catch {
+    // Okundu bilgisi güncellenemese bile sohbeti engellemesin.
+  }
 }
 
 /** Owner/admin only — deletes every message in the group. */
