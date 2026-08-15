@@ -58,7 +58,7 @@ export function CardsList({
             return (
               <Card key={c.id} className="relative overflow-hidden p-0" style={{ borderColor: `${accent}55` }}>
                 <div className="absolute inset-y-0 left-0 w-1.5" style={{ backgroundColor: accent }} />
-                <Link href={`/cards/${c.id}`} className="block p-5 pl-6 hover:bg-surface-hover">
+                <Link href={`/cards/${c.id}`} className="block p-5 pl-6 pr-20 hover:bg-surface-hover">
                   <div className="flex items-center gap-3">
                     <div
                       className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
