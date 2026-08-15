@@ -15,7 +15,7 @@ const jakarta = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   title: "Fişştech",
-  description: "Kişisel ve esnaf finans yönetimi — web paneli",
+  description: "Kişisel finans yönetimi — web paneli",
 };
 
 export default function RootLayout({

@@ -35,9 +35,6 @@ export function ComparisonTable() {
                 Premium
               </th>
               <th className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wide text-accent">
-                Esnaf Modu
-              </th>
-              <th className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wide text-accent">
                 Aile Planı
               </th>
             </tr>
@@ -48,9 +45,6 @@ export function ComparisonTable() {
                 <td className="px-6 py-3.5 text-text-primary">{row.feature}</td>
                 <td className="px-4 py-3.5 text-center">
                   <Cell value={row.premium} />
-                </td>
-                <td className="px-4 py-3.5 text-center">
-                  <Cell value={row.esnaf} />
                 </td>
                 <td className="px-4 py-3.5 text-center">
                   <Cell value={row.family} />

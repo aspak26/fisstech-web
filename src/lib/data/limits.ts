@@ -3,19 +3,6 @@ import { currentMonthString } from "@/lib/utils/date";
 import { requireUserId } from "@/lib/utils/auth";
 import type { CategoryLimitsRow } from "@/lib/types/database";
 
-export const PAYMENT_METHOD_OPTIONS = [
-  { value: "cash", label: "Nakit", emoji: "💵" },
-  { value: "credit_card", label: "Kredi Kartı", emoji: "💳" },
-  { value: "debit_card", label: "Banka Kartı", emoji: "🏦" },
-] as const;
-
-function paymentLabel(method: string): string {
-  return PAYMENT_METHOD_OPTIONS.find((p) => p.value === method)?.label ?? method;
-}
-function paymentEmoji(method: string): string {
-  return PAYMENT_METHOD_OPTIONS.find((p) => p.value === method)?.emoji ?? "💳";
-}
-
 export interface CategoryLimitData {
   id: string;
   limitType: CategoryLimitsRow["limit_type"];
@@ -34,14 +21,17 @@ export interface CategoryLimitData {
 
 interface ExpenseForLimits {
   total: number;
-  payment_method: string | null;
-  card_label: string | null;
   expense_items: { price: number; quantity: number; category_id: string | null }[];
 }
 
 /** Ported from mobile's AnalyticsService.getCategoryLimits — fetches limits
  * from (and including) the current month onward, computes "spent" for the
- * current month only (future months always show spent = 0, "Planlandı"). */
+ * current month only (future months always show spent = 0, "Planlandı").
+ *
+ * NOT: "payment_method" limit tipi kaldırıldı (kart bazlı limitler artık
+ * cards.limit_amount üzerinden yönetiliyor, bkz. src/lib/data/cards.ts) —
+ * eski payment_method satırları DB'de kalabilir ama artık "Kategori"
+ * bucket'ına düşer (mobildeki aynı geriye dönük uyumluluk kararı). */
 export async function getCategoryLimits(
   supabase: SupabaseClient,
   userId: string,
@@ -61,15 +51,11 @@ export async function getCategoryLimits(
       .order("month"),
     supabase
       .from("expenses")
-      .select("total, payment_method, card_label, expense_items(price, quantity, category_id)")
+      .select("total, expense_items(price, quantity, category_id)")
       .eq("user_id", userId)
       .gte("date", monthStart)
       .lt("date", monthEnd),
-    supabase
-      .from("subscriptions")
-      .select("amount, frequency, payment_method, card_label")
-      .eq("user_id", userId)
-      .eq("status", "active"),
+    supabase.from("subscriptions").select("amount, frequency").eq("user_id", userId).eq("status", "active"),
   ]);
 
   interface LimitQueryRow {
@@ -89,28 +75,14 @@ export async function getCategoryLimits(
   if (limits.length === 0) return [];
 
   const expenses = (expensesRes.data ?? []) as unknown as ExpenseForLimits[];
-  const activeSubs = (subsRes.data ?? []) as {
-    amount: number;
-    frequency: string;
-    payment_method: string | null;
-    card_label: string | null;
-  }[];
+  const activeSubs = (subsRes.data ?? []) as { amount: number; frequency: string }[];
 
   const categorySpent = new Map<string, number>();
-  const expPaymentSpent = new Map<string, number>();
-  const expCardSpent = new Map<string, number>();
   let monthlySpent = 0;
 
   for (const expense of expenses) {
     const expTotal = Number(expense.total);
-    const payMethod = expense.payment_method ?? "unknown";
-    const expCardLabel = expense.card_label?.toLowerCase();
     monthlySpent += expTotal;
-    expPaymentSpent.set(payMethod, (expPaymentSpent.get(payMethod) ?? 0) + expTotal);
-    if (expCardLabel) {
-      const key = `${payMethod}|${expCardLabel}`;
-      expCardSpent.set(key, (expCardSpent.get(key) ?? 0) + expTotal);
-    }
 
     const items = expense.expense_items ?? [];
     const itemsSum = items.reduce((s, i) => s + Number(i.price) * i.quantity, 0);
@@ -122,20 +94,8 @@ export async function getCategoryLimits(
     }
   }
 
-  const subPaymentSpent = new Map<string, number>();
-  const subCardSpent = new Map<string, number>();
   for (const sub of activeSubs) {
-    const monthly = sub.frequency === "yearly" ? Number(sub.amount) / 12 : Number(sub.amount);
-    monthlySpent += monthly;
-    const pm = sub.payment_method;
-    if (pm) {
-      subPaymentSpent.set(pm, (subPaymentSpent.get(pm) ?? 0) + monthly);
-      const cl = sub.card_label?.toLowerCase();
-      if (cl) {
-        const key = `${pm}|${cl}`;
-        subCardSpent.set(key, (subCardSpent.get(key) ?? 0) + monthly);
-      }
-    }
+    monthlySpent += sub.frequency === "yearly" ? Number(sub.amount) / 12 : Number(sub.amount);
   }
 
   return limits.map((l) => {
@@ -149,19 +109,10 @@ export async function getCategoryLimits(
       spent = isCurrentMonth ? monthlySpent : 0;
       name = "Aylık Toplam";
       icon = "🗓";
-    } else if (l.limit_type === "payment_method") {
-      if (isCurrentMonth && l.payment_method) {
-        if (l.card_label) {
-          const key = `${l.payment_method}|${l.card_label.toLowerCase()}`;
-          spent = (expCardSpent.get(key) ?? 0) + (subCardSpent.get(key) ?? 0);
-        } else {
-          spent = (expPaymentSpent.get(l.payment_method) ?? 0) + (subPaymentSpent.get(l.payment_method) ?? 0);
-        }
-      }
-      const base = paymentLabel(l.payment_method ?? "");
-      name = l.card_label ? `${base} · ${l.card_label}` : base;
-      icon = paymentEmoji(l.payment_method ?? "");
     } else {
+      // "category" ve eski "payment_method" satırları (kaldırılan tip —
+      // artık yeni oluşturulamıyor, ama var olanlar bozulmasın diye kategori
+      // bucket'ına düşüyor, mobildeki aynı geriye dönük uyumluluk kararı).
       spent = isCurrentMonth ? (categorySpent.get(l.category_id ?? "") ?? 0) : 0;
       name = l.categories?.name ?? "Kategori";
       icon = l.categories?.icon ?? "📦";
@@ -186,8 +137,10 @@ export async function getCategoryLimits(
 }
 
 /** Ported from mobile's AnalyticsService.setLimit — upserts by the natural
- * key for each limit type (category+month / payment_method+card_label+month
- * / month), matching the DB's partial unique indexes. */
+ * key for each limit type (category+month / month), matching the DB's
+ * partial unique indexes. "payment_method" limit tipi artık oluşturulamıyor
+ * (bkz. getCategoryLimits'teki not) — bu yüzden paymentMethod/cardLabel
+ * parametreleri kaldırıldı. */
 export async function setLimit(
   supabase: SupabaseClient,
   userId: string,
@@ -195,8 +148,6 @@ export async function setLimit(
     limitType: CategoryLimitsRow["limit_type"];
     amount: number;
     categoryId?: string | null;
-    paymentMethod?: string | null;
-    cardLabel?: string | null;
     month?: string;
     existingId?: string | null;
   },
@@ -221,10 +172,6 @@ export async function setLimit(
   if (params.limitType === "category" && params.categoryId) {
     query = query.eq("category_id", params.categoryId);
   }
-  if (params.limitType === "payment_method" && params.paymentMethod) {
-    query = query.eq("payment_method", params.paymentMethod);
-    query = params.cardLabel ? query.eq("card_label", params.cardLabel) : query.is("card_label", null);
-  }
   const { data: existing } = await query.maybeSingle();
 
   if (existing) {
@@ -243,10 +190,6 @@ export async function setLimit(
     month,
   };
   if (params.limitType === "category" && params.categoryId) insertData.category_id = params.categoryId;
-  if (params.limitType === "payment_method" && params.paymentMethod) {
-    insertData.payment_method = params.paymentMethod;
-    if (params.cardLabel) insertData.card_label = params.cardLabel;
-  }
   await supabase.from("category_limits").insert(insertData);
 }
 

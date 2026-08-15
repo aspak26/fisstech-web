@@ -185,7 +185,7 @@ GENEL KURALLAR
 - Yalnızca geçerli JSON döndür, başka bir şey yazma.
 - İndirim, kampanya, promosyon ve eksi (−) değerli satırları items listesine EKLEME.
 - Tutar değerlerinde virgül/nokta ayırıcılarını düzelt (16.864,03 → 16864.03).
-- ÖNEMLİ: A101, BİM gibi marketlerde "2 X 14,00" gibi adet satırları, DAİMA ALTINDAKİ (bir sonraki) ürünün bilgisidir. Bu satırı ayrı ürün yapma!
+- ÖNEMLİ (A101/BİM KURALI): Fişlerdeki "2 X 14,00" gibi adet satırları, DAİMA KENDİNDEN BİR SONRAKİ (ALTINDAKİ) ürünün bilgisidir! ASLA üstündeki ürüne ait değildir. Bir üstündeki ürünün fiyatını veya adedini KESİNLİKLE değiştirme.
 - DİKKAT (KDV Oranları): A101/BİM gibi market fişlerinde ürün adının yanındaki %01, %10, %20 gibi yüzdeler KDV oranıdır. Bunları KESİNLİKLE ADET (quantity) OLARAK ALMA! Bu oranları (1, 10, 20 vb. tam sayı olarak) "vat_rate" alanına yaz. Eğer üründe KDV yazmıyorsa 0 yaz.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -197,21 +197,21 @@ Bir üründe "X" satırı VARSA: price = X'ten sonraki birim tutar, quantity = X
 
 ÖRNEK 1 — ADET BAZLI ÇOKLU ÜRÜN (A101/BİM/marketler):
 Fişte şöyle yazıyorsa:
-TORKU 230ML MOCHA     *47,50
-2 X 14,00
-GONG BALLI 34G ETİ    *28,00
-DiDi ŞEF. 2.5 L       *71,50
-2 X 1,00
-ALIŞVERİŞ POŞETİ      *2,00
+SÜT YARIM YAĞLI 1L    *30,00
+2 X 15,00
+BİSKÜVİ KAKAOLU 100G  *30,00
+MADEN SUYU SADE       *10,00
+3 X 1,00
+EKMEK 200G            *3,00
 
 Şu JSON'u üretmelisin:
 items: [
-  {"name": "TORKU 230ML MOCHA", "price": 47.50, "quantity": 1, "unit": "adet"},
-  {"name": "GONG BALLI 34G ETİ", "price": 14.00, "quantity": 2, "unit": "adet"},
-  {"name": "DiDi ŞEF. 2.5 L", "price": 71.50, "quantity": 1, "unit": "adet"},
-  {"name": "ALIŞVERİŞ POŞETİ", "price": 1.00, "quantity": 2, "unit": "adet"}
+  {"name": "SÜT YARIM YAĞLI 1L", "price": 30.00, "quantity": 1, "unit": "adet"},
+  {"name": "BİSKÜVİ KAKAOLU 100G", "price": 15.00, "quantity": 2, "unit": "adet"},
+  {"name": "MADEN SUYU SADE", "price": 10.00, "quantity": 1, "unit": "adet"},
+  {"name": "EKMEK 200G", "price": 1.00, "quantity": 3, "unit": "adet"}
 ]
-(Kontrol: 14.00×2=28.00 ✓, 1.00×2=2.00 ✓ — yıldızlı toplamlarla eşleşiyor.)
+(Kontrol: 15.00×2=30.00 ✓, 1.00×3=3.00 ✓ — yıldızlı toplamlarla eşleşiyor. "3 X 1,00" ibaresi EKMEK içindir, üstündeki MADEN SUYU için değildir!)
 
 ÖRNEK 2 — AĞIRLIKLA SATILAN ÜRÜNLER (manav, kasap, şarküteri):
 Fişte "9,910 KG X 13,90" gibi bir satır görürsen bu da tıpkı adet satırı gibi DAİMA ALTINDAKİ ürünün bilgisidir, sadece adet yerine ağırlıktır:
@@ -233,6 +233,36 @@ items: [
 - "unit" alanı: ürün "KG X" veya "KG" ibaresiyle tartılarak satılmışsa "kg", aksi halde (adet/paket bazlı ürünlerde) "adet" yaz.
 - Ürün adedini/ağırlığını (quantity) yalnızca açıkça yazılı miktardan al. Belirsizse quantity=1, unit="adet" yaz.`
 
+    // --- AI DİNAMİK ÖĞRENME (FEW-SHOT INJECTION) ---
+    let aiCorrectionsText = ''
+    try {
+      const { data: correctionsData } = await userClient
+        .from('ai_corrections')
+        .select('raw_name, corrected_category')
+        .order('created_at', { ascending: false })
+        .limit(30)
+
+      if (correctionsData && correctionsData.length > 0) {
+        const uniqueCorrections = new Map<string, string>()
+        for (const c of correctionsData) {
+          if (!uniqueCorrections.has(c.raw_name)) {
+            uniqueCorrections.set(c.raw_name, c.corrected_category)
+          }
+        }
+        
+        if (uniqueCorrections.size > 0) {
+          aiCorrectionsText = `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nÖĞRENİLMİŞ KISALTMALAR (DİKKATE ALINACAK)\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nAşağıda kullanıcıların geçmişte düzelttiği ürün isimleri ve doğru kategorileri yer almaktadır. Görseldeki ürün isimleri bu listedekilere benziyorsa, KESİNLİKLE aşağıdaki doğru kategoriyi kullan:\n`
+          for (const [raw, cat] of uniqueCorrections.entries()) {
+             aiCorrectionsText += `- "${raw}" -> Kategori: "${cat}"\n`
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error fetching ai_corrections:', e)
+    }
+
+    const finalPrompt = prompt + aiCorrectionsText
+
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
       {
@@ -241,7 +271,7 @@ items: [
         body: JSON.stringify({
           contents: [{
             parts: [
-              { text: prompt },
+              { text: finalPrompt },
               { inline_data: { mime_type: 'image/jpeg', data: image_base64 } }
             ]
           }],

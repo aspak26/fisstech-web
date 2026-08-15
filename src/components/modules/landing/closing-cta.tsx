@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { ArrowRight, CreditCard, Lock, Store } from "lucide-react";
+import { ArrowRight, CreditCard, Lock, Users } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 
 const TRUST_ITEMS = [
   { icon: CreditCard, label: "Kredi kartı gerekmez" },
-  { icon: Store, label: "Esnaf ve Aile Modu" },
+  { icon: Users, label: "Aile Modu" },
   { icon: Lock, label: "Uçtan Uca Şifreleme" },
 ];
 
@@ -31,7 +31,7 @@ export function ClosingCta() {
           </h2>
 
           <p className="mx-auto mt-6 max-w-xl text-base text-text-secondary">
-            İster işletmenizin kasasını yönetin, ister aile bütçenizi planlayın. Fişştech ile
+            İster kendi bütçenizi yönetin, ister aile bütçenizi planlayın. Fişştech ile
             saniyeler içinde masraflarınızı dijitalleştirip kontrolü elinize alın.
           </p>
 

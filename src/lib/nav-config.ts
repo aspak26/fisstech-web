@@ -9,12 +9,12 @@ import {
   Target,
   TrendingUp,
   CreditCard,
+  WalletCards,
   Users,
   BarChart3,
   MessageCircle,
   StickyNote,
   Settings,
-  Store,
   Globe,
 } from "lucide-react";
 
@@ -40,6 +40,7 @@ export const upcomingNavItems: NavItem[] = [
   { label: "Hedeflerim", href: "/goals", icon: Target, status: "active" },
   { label: "Yatırımlarım", href: "/investments", icon: TrendingUp, status: "active" },
   { label: "Abonelikler", href: "/subscriptions", icon: CreditCard, status: "active" },
+  { label: "Kartlarım", href: "/cards", icon: WalletCards, status: "active" },
   { label: "Gruplarım", href: "/groups", icon: Users, status: "active" },
   { label: "Analizler & Raporlar", href: "/analytics", icon: BarChart3, status: "active" },
   { label: "AI Sohbet", href: "/ai-chat", icon: MessageCircle, status: "active" },
@@ -49,7 +50,6 @@ export const upcomingNavItems: NavItem[] = [
 export const bottomNavItems: NavItem[] = [
   { label: "Ayarlar", href: "/settings", icon: Settings, status: "active" },
   { label: "Ana Sayfaya Dön", href: "/", icon: Globe, status: "active" },
-  { label: "Esnaf Modu", href: "/esnaf", icon: Store, status: "soon" },
 ];
 
 export const allNavItems: NavItem[] = [

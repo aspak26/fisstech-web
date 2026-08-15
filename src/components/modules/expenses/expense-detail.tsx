@@ -10,6 +10,7 @@ import { formatCurrency } from "@/lib/utils/currency";
 import { deleteExpense, type ExpenseWithItems } from "@/lib/data/expenses";
 import type { GroupRow } from "@/lib/data/groups";
 import type { CategoryOption } from "@/lib/scan/types";
+import type { CardsRow } from "@/lib/types/database";
 import { ExpenseFormDialog } from "./expense-form-dialog";
 import { InstallmentScheduleCard } from "./installment-schedule-card";
 
@@ -25,11 +26,13 @@ export function ExpenseDetail({
   categories,
   categoryNamesById,
   groups,
+  cards,
 }: {
   expense: ExpenseWithItems;
   categories: CategoryOption[];
   categoryNamesById: [string, string][];
   groups: GroupRow[];
+  cards: CardsRow[];
 }) {
   const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
@@ -141,6 +144,7 @@ export function ExpenseDetail({
         expense={expense}
         categoryNamesById={new Map(categoryNamesById)}
         groups={groups}
+        cards={cards}
       />
     </div>
   );

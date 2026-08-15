@@ -355,7 +355,7 @@ const STEPS = [
   {
     title: "Anında Finansal Raporlara Dönüşüm",
     description:
-      "Onayladığınız her fiş, Esnaf Modu kasasına veya Aile Planı ortak bütçenize otomatik işlenir. Kategorize edilmiş grafikleriniz saniyeler içinde güncellenir.",
+      "Onayladığınız her fiş, kişisel bütçenize veya Aile Planı ortak bütçenize otomatik işlenir. Kategorize edilmiş grafikleriniz saniyeler içinde güncellenir.",
     Visual: ReportVisual,
   },
 ];

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getExpenseById } from "@/lib/data/expenses";
 import { getCategoriesForScan, getCategoriesFull } from "@/lib/data/categories";
 import { getGroups } from "@/lib/data/groups";
+import { getCards } from "@/lib/data/cards";
 import { ExpenseDetail } from "@/components/modules/expenses/expense-detail";
 
 export default async function ExpenseDetailPage({
@@ -17,11 +18,12 @@ export default async function ExpenseDetailPage({
   } = await supabase.auth.getUser();
   if (!user) notFound();
 
-  const [expense, categories, categoriesFull, groups] = await Promise.all([
+  const [expense, categories, categoriesFull, groups, cards] = await Promise.all([
     getExpenseById(supabase, id, user.id),
     getCategoriesForScan(supabase),
     getCategoriesFull(supabase),
     getGroups(supabase),
+    getCards(supabase, user.id),
   ]);
 
   if (!expense) notFound();
@@ -35,6 +37,7 @@ export default async function ExpenseDetailPage({
         categories={categories}
         categoryNamesById={categoryNamesById}
         groups={groups}
+        cards={cards}
       />
     </div>
   );

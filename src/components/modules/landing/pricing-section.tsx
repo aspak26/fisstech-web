@@ -1,40 +1,20 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
-import { BACKUP_ADDON, ESNAF_TIERS, PRICING_PLANS } from "@/lib/landing/pricing-data";
+import { BACKUP_ADDON, PRICING_PLANS } from "@/lib/landing/pricing-data";
 import { Reveal } from "./reveal";
-
-/** BACKUP_ADDON.description içindeki "Esnaf Modu" alt dizisini <strong>
- * ile vurgular — data string'i düz tutulup burada bölünüyor. */
-function highlightEsnafModu(text: string): ReactNode {
-  const marker = "Esnaf Modu";
-  const idx = text.indexOf(marker);
-  if (idx === -1) return text;
-  return (
-    <>
-      {text.slice(0, idx)}
-      <strong className="font-semibold text-accent">{marker}</strong>
-      {text.slice(idx + marker.length)}
-    </>
-  );
-}
 
 const DEFAULT_PLAN_ID = PRICING_PLANS.find((p) => p.popular)?.id ?? PRICING_PLANS[0].id;
 
 export function PricingSection() {
   const [yearly, setYearly] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(DEFAULT_PLAN_ID);
-  const [esnafPersonnel, setEsnafPersonnel] = useState(ESNAF_TIERS[0].id);
-
-  const selectedTier = ESNAF_TIERS.find((t) => t.id === esnafPersonnel) ?? ESNAF_TIERS[0];
-  const esnafButtonLabel =
-    selectedTier.id === "sadece_ben" ? "Esnaf Modu'na Başla" : `Esnaf (${selectedTier.label}) ile Başla`;
 
   return (
     <section id="pricing" className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
@@ -99,14 +79,14 @@ export function PricingSection() {
                   <span className="relative inline-grid font-display text-6xl font-bold leading-none tracking-tight text-text-primary">
                     <AnimatePresence mode="popLayout" initial={false}>
                       <motion.span
-                        key={plan.id === "esnaf" ? (yearly ? selectedTier.yearly : selectedTier.monthly) : (yearly ? plan.yearly : plan.monthly)}
+                        key={yearly ? plan.yearly : plan.monthly}
                         initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -8 }}
                         transition={{ duration: 0.2, ease: "easeOut" }}
                         className="col-start-1 row-start-1"
                       >
-                        {plan.id === "esnaf" ? (yearly ? selectedTier.yearly : selectedTier.monthly) : (yearly ? plan.yearly : plan.monthly)}
+                        {yearly ? plan.yearly : plan.monthly}
                       </motion.span>
                     </AnimatePresence>
                   </span>
@@ -114,7 +94,7 @@ export function PricingSection() {
                 </div>
                 <p className="mt-2 text-xs text-text-secondary">
                   {yearly
-                    ? `Ayda sadece ₺${plan.id === "esnaf" ? selectedTier.yearlyEffective : plan.yearlyEffective}'a denk gelir · ${plan.id === "esnaf" ? selectedTier.yearlySavings : plan.yearlySavings} tasarruf`
+                    ? `Ayda sadece ₺${plan.yearlyEffective}'a denk gelir · ${plan.yearlySavings} tasarruf`
                     : "Aylık faturalandırılır · vergiler dahildir"}
                 </p>
 
@@ -127,7 +107,7 @@ export function PricingSection() {
                     cn("mt-6 w-full", !isSelected && "border-border bg-transparent text-text-secondary hover:border-accent hover:text-accent"),
                   )}
                 >
-                  {plan.id === "esnaf" ? esnafButtonLabel : "Hemen Başla"}
+                  Hemen Başla
                 </Link>
 
                 <ul className="mt-8 space-y-4">
@@ -138,37 +118,6 @@ export function PricingSection() {
                     </li>
                   ))}
                 </ul>
-
-                {plan.id === "esnaf" && (
-                  <div className="mt-6 flex-1 border-t border-border pt-6" onClick={(e) => e.stopPropagation()}>
-                    <p className="text-sm font-semibold text-text-primary">Ekstra Personel Erişimi (İsteğe Bağlı):</p>
-                    <p className="mb-3 mt-1 text-xs text-text-secondary">
-                      İşletmenizde uygulamayı kullanacak personel varsa uygun paketi seçin. Tek kişi
-                      çalışıyorsanız &quot;Sadece Ben&quot; seçeneğiyle devam edebilirsiniz.
-                    </p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {ESNAF_TIERS.map((tier) => {
-                        const tierSelected = tier.id === esnafPersonnel;
-                        return (
-                          <button
-                            key={tier.id}
-                            type="button"
-                            onClick={() => setEsnafPersonnel(tier.id)}
-                            className={cn(
-                              "rounded-control border px-2 py-2 text-center transition-colors",
-                              tierSelected
-                                ? "border-accent bg-accent-soft text-accent"
-                                : "border-border text-text-secondary hover:border-accent/50",
-                            )}
-                          >
-                            <span className="block text-xs font-semibold">{tier.label}</span>
-                            <span className="block text-[11px] opacity-80">₺{tier.monthly}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
               </div>
             </Reveal>
           );
@@ -185,7 +134,7 @@ export function PricingSection() {
               <p className="font-medium text-text-primary">
                 {BACKUP_ADDON.name} <span className="text-text-secondary">— Eklenti</span>
               </p>
-              <p className="text-sm text-text-secondary">{highlightEsnafModu(BACKUP_ADDON.description)}</p>
+              <p className="text-sm text-text-secondary">{BACKUP_ADDON.description}</p>
             </div>
           </div>
           <span className="font-display text-lg font-bold text-text-primary">

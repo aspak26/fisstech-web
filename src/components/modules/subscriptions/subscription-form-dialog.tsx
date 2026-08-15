@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { createClient } from "@/lib/supabase/client";
@@ -10,7 +10,9 @@ import { Input, Label, Select } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils/cn";
 import { formatCurrency } from "@/lib/utils/currency";
-import type { SubscriptionsRow } from "@/lib/types/database";
+import { cardDisplayLabel } from "@/lib/data/cards";
+import { CardPickerField } from "@/components/modules/cards/card-picker-field";
+import type { CardsRow, SubscriptionsRow } from "@/lib/types/database";
 
 const PAYMENT_METHODS = [
   { value: "", label: "Belirtme", emoji: "—" },
@@ -31,7 +33,6 @@ interface FormValues {
   startDate: string;
   renewalDate: string;
   endDate: string;
-  cardLabel: string;
   status: string;
 }
 
@@ -39,16 +40,21 @@ export function SubscriptionFormDialog({
   open,
   onClose,
   subscription,
+  cards,
 }: {
   open: boolean;
   onClose: () => void;
   subscription?: SubscriptionsRow;
+  cards: CardsRow[];
 }) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [frequency, setFrequency] = useState<"monthly" | "yearly">(subscription?.frequency ?? "monthly");
   const [paymentMethod, setPaymentMethod] = useState(subscription?.payment_method ?? "");
   const [isNotifyEnabled, setIsNotifyEnabled] = useState(subscription?.is_notify_enabled ?? true);
+  const [selectedCardId, setSelectedCardId] = useState(subscription?.card_id ?? "");
+  const [extraCards, setExtraCards] = useState<CardsRow[]>([]);
+  const allCards = useMemo(() => [...cards, ...extraCards], [cards, extraCards]);
 
   const { register, handleSubmit, reset, watch } = useForm<FormValues>({
     values: {
@@ -57,7 +63,6 @@ export function SubscriptionFormDialog({
       startDate: subscription?.start_date ?? "",
       renewalDate: subscription?.renewal_date ?? new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
       endDate: subscription?.end_date ?? "",
-      cardLabel: subscription?.card_label ?? "",
       status: subscription?.status ?? "active",
     },
   });
@@ -73,6 +78,8 @@ export function SubscriptionFormDialog({
       } = await supabase.auth.getUser();
       if (!user) return;
 
+      const selectedCard = showCardLabel ? allCards.find((c) => c.id === selectedCardId) : undefined;
+
       const payload = {
         name: values.name,
         amount: Number(values.amount),
@@ -81,7 +88,8 @@ export function SubscriptionFormDialog({
         renewal_date: values.renewalDate,
         end_date: values.endDate || null,
         payment_method: paymentMethod || null,
-        card_label: showCardLabel && values.cardLabel.trim() ? values.cardLabel.trim() : null,
+        card_label: selectedCard ? cardDisplayLabel(selectedCard) : null,
+        card_id: selectedCard?.id ?? null,
         status: values.status,
         is_notify_enabled: isNotifyEnabled,
       };
@@ -184,8 +192,13 @@ export function SubscriptionFormDialog({
           </div>
           {showCardLabel && (
             <div className="mt-2">
-              <Input placeholder="örn. GARANTİ1234" {...register("cardLabel")} />
-              <p className="mt-1 text-xs text-text-secondary">Limit takibinde kullanılır</p>
+              <CardPickerField
+                cards={allCards}
+                cardType={paymentMethod as "credit_card" | "debit_card"}
+                value={selectedCardId}
+                onChange={setSelectedCardId}
+                onCardCreated={(card) => setExtraCards((prev) => [...prev, card])}
+              />
             </div>
           )}
         </div>

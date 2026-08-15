@@ -10,11 +10,6 @@ export const FAQ_ITEMS: FaqItem[] = [
       "Evet. Tüm verilerin Supabase altyapısında, satır bazlı güvenlik (RLS) politikalarıyla korunur — yalnızca sen (ve paylaştığın grup üyeleri) kendi verilerine erişebilir. Fiş görselleri şifreli bağlantılarla saklanır, kimseyle paylaşılmaz.",
   },
   {
-    question: "Esnaf Modu, normal hesaptan farkı nedir?",
-    answer:
-      "Kişisel hesap; harcama, gelir, bütçe ve hedef takibi için tasarlanmıştır. Esnaf Modu ise bunun üzerine kasa defteri, stok, personel ve satış yönetimi gibi işletmene özel araçlar ekler — market, kafe, kuaför gibi 6 farklı sektöre özel panel sunar. Aynı hesaptan ikisini birlikte kullanabilirsin.",
-  },
-  {
     question: "Fiş tarama gerçekten yapay zekâ mı kullanıyor?",
     answer:
       "Evet, uygulamamızda olduğu gibi, bu sitede yer alan ücretsiz tarama alanında da fişleriniz gerçek zamanlı olarak yapay zekâ destekli OCR motorumuzla taranır; mağaza adı, tarih, ürünler ve kategoriler otomatik olarak saniyeler içinde çıkarılır.",

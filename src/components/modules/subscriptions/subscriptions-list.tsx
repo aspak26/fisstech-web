@@ -12,7 +12,7 @@ import { DeleteButton } from "@/components/ui/delete-button";
 import { formatCurrency } from "@/lib/utils/currency";
 import { subscriptionMonthlyAmount } from "@/lib/subscriptions/analytics";
 import { deleteSubscription, updateSubscriptionStatus } from "@/lib/data/subscriptions";
-import type { SubscriptionsRow } from "@/lib/types/database";
+import type { CardsRow, SubscriptionsRow } from "@/lib/types/database";
 import { SubscriptionFormDialog } from "./subscription-form-dialog";
 
 const STATUS_LABEL: Record<string, string> = {
@@ -21,7 +21,13 @@ const STATUS_LABEL: Record<string, string> = {
   cancelled: "İptal Edildi",
 };
 
-export function SubscriptionsList({ subscriptions }: { subscriptions: SubscriptionsRow[] }) {
+export function SubscriptionsList({
+  subscriptions,
+  cards,
+}: {
+  subscriptions: SubscriptionsRow[];
+  cards: CardsRow[];
+}) {
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<SubscriptionsRow | undefined>(undefined);
@@ -118,6 +124,7 @@ export function SubscriptionsList({ subscriptions }: { subscriptions: Subscripti
           setEditing(undefined);
         }}
         subscription={editing}
+        cards={cards}
       />
     </div>
   );

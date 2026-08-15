@@ -6,6 +6,7 @@ import { getSubscriptions } from "@/lib/data/subscriptions";
 import { getGroups, getMemberSpendTotals } from "@/lib/data/groups";
 import { getCategoryLimits } from "@/lib/data/limits";
 import { getCategoriesFull } from "@/lib/data/categories";
+import { getCards, getCardTotals, getCardCategoryTotals } from "@/lib/data/cards";
 import { DEFAULT_BUDGET_PERIOD } from "@/lib/utils/period";
 import { currentMonthString } from "@/lib/utils/date";
 import { PeriodSelector } from "@/components/ui/period-selector";
@@ -46,13 +47,19 @@ export default async function AnalyticsPage({
     const totals = groupId ? await getMemberSpendTotals(supabase, groupId, period) : [];
     content = <GroupAnalyticsTab groups={groups} groupId={groupId ?? ""} totals={totals} />;
   } else {
-    const [breakdowns, storeBreakdown, monthlyTrend, limits, categories] = await Promise.all([
+    const [breakdowns, storeBreakdown, monthlyTrend, limits, categories, cards, cardTotals] = await Promise.all([
       getCategoryBreakdowns(supabase, userId, period),
       getStoreBreakdown(supabase, userId, period),
       getMonthlyExpenseTrend(supabase, userId, 6),
       getCategoryLimits(supabase, userId),
       getCategoriesFull(supabase),
+      getCards(supabase, userId),
+      getCardTotals(supabase, userId, period),
     ]);
+    const cardCategoryEntries = await Promise.all(
+      cards.map(async (c) => [c.id, await getCardCategoryTotals(supabase, c.id, period)] as const),
+    );
+    const cardCategoryBreakdowns = new Map(cardCategoryEntries);
     content = (
       <ExpensesAnalyticsTab
         breakdown={breakdowns.item}
@@ -62,6 +69,9 @@ export default async function AnalyticsPage({
         limits={limits}
         categories={categories}
         currentMonth={currentMonthString()}
+        cards={cards}
+        cardTotals={cardTotals}
+        cardCategoryBreakdowns={cardCategoryBreakdowns}
       />
     );
   }

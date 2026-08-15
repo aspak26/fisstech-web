@@ -1,4 +1,4 @@
-import { CloudUpload, Gift, ScanLine, Store, Users } from "lucide-react";
+import { Bot, CloudUpload, Gift, ScanLine, Users } from "lucide-react";
 import { Reveal } from "./reveal";
 
 const FLAGSHIP = {
@@ -10,9 +10,9 @@ const FLAGSHIP = {
 
 const FEATURES = [
   {
-    icon: Store,
-    title: "Esnaf Modu",
-    description: "Kasa defteri, stok, personel ve satış takibiyle işletmeni de aynı uygulamadan yönet.",
+    icon: Bot,
+    title: "Fişştech AI",
+    description: "Harcama alışkanlıklarını analiz eden, kişiselleştirilmiş tasarruf önerileri sunan yapay zeka danışmanın.",
   },
   {
     icon: Users,
@@ -34,7 +34,7 @@ export function FeaturesSection() {
     <section id="features" className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
       <Reveal className="mx-auto max-w-xl text-center">
         <h2 className="font-display text-3xl font-bold text-text-primary">Özellikler</h2>
-        <p className="mt-3 text-text-secondary">Kişisel finansından işletmene, ihtiyacın olan her şey tek yerde.</p>
+        <p className="mt-3 text-text-secondary">Kişisel finansın için ihtiyacın olan her şey tek yerde.</p>
       </Reveal>
 
       <div className="mt-12 grid gap-5 lg:grid-cols-3">

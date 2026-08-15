@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getExpenses } from "@/lib/data/expenses";
 import { getCategoriesFull } from "@/lib/data/categories";
 import { getGroups } from "@/lib/data/groups";
+import { getCards } from "@/lib/data/cards";
 import { calculatePeriodRange, DEFAULT_EXPENSE_PERIOD } from "@/lib/utils/period";
 import { PeriodSelector } from "@/components/ui/period-selector";
 import { ExpensesList } from "@/components/modules/expenses/expenses-list";
@@ -22,10 +23,11 @@ export default async function ExpensesPage({
   } = await supabase.auth.getUser();
   const userId = user!.id;
 
-  const [expenses, categoriesFull, groups] = await Promise.all([
+  const [expenses, categoriesFull, groups, cards] = await Promise.all([
     getExpenses(supabase, userId, { start, end }),
     getCategoriesFull(supabase),
     getGroups(supabase),
+    getCards(supabase, userId),
   ]);
 
   const categories = categoriesFull.map((c) => ({
@@ -48,6 +50,7 @@ export default async function ExpensesPage({
         categories={categories}
         categoryNamesById={categoryNamesById}
         groups={groups}
+        cards={cards}
       />
     </div>
   );

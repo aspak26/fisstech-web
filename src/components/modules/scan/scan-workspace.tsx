@@ -272,6 +272,34 @@ export function ScanWorkspace({
       const imageUrls = isPremium ? await uploadReceipts(supabase, userId, files) : [];
       await saveExpense(supabase, userId, { ...edited, imageUrls });
 
+      // --- AI DİNAMİK ÖĞRENME ENTEGRASYONU ---
+      // Kullanıcı bir kategoriyi değiştirdiyse bunu öğrenme veritabanına kaydet
+      try {
+        const corrections = [];
+        for (let i = 0; i < edited.items.length; i++) {
+          const editedItem = edited.items[i];
+          const originalItem = review.result.items.find(orig => orig.name === editedItem.name) 
+                               || review.result.items[i];
+          
+          if (originalItem && originalItem.category !== editedItem.category) {
+            corrections.push({
+              user_id: userId,
+              raw_name: originalItem.name,
+              corrected_category: editedItem.category
+            });
+          }
+        }
+        
+        if (corrections.length > 0) {
+          supabase.from('ai_corrections').insert(corrections).then(({error}) => {
+            if (error) console.error("AI correction error:", error);
+          });
+        }
+      } catch (e) {
+        console.error("AI correction logic error:", e);
+      }
+      // ----------------------------------------
+
       setItems((prev) => prev.filter((i) => !review.itemIds.includes(i.id)));
       setToast("Harcama kaydedildi");
       router.refresh();

@@ -17,8 +17,10 @@ import { DropzoneUploader } from "@/components/modules/scan/dropzone-uploader";
 import { uploadReceipts } from "@/lib/scan/saveExpense";
 import type { CategoryOption } from "@/lib/scan/types";
 import type { ExpenseWithItems } from "@/lib/data/expenses";
-import type { CategoriesRow } from "@/lib/types/database";
+import type { CardsRow, CategoriesRow } from "@/lib/types/database";
 import { formatCurrency } from "@/lib/utils/currency";
+import { cardDisplayLabel } from "@/lib/data/cards";
+import { CardPickerField } from "@/components/modules/cards/card-picker-field";
 
 const PAYMENT_METHODS = [
   { value: "cash", label: "Nakit" },
@@ -31,7 +33,6 @@ interface FormValues {
   storeName: string;
   date: string;
   paymentMethod: string;
-  cardLabel: string;
   note: string;
   total: number;
   items: { name: string; category: string; price: number; quantity: number }[];
@@ -44,6 +45,7 @@ export function ExpenseFormDialog({
   expense,
   categoryNamesById,
   groups,
+  cards,
 }: {
   open: boolean;
   onClose: () => void;
@@ -51,6 +53,7 @@ export function ExpenseFormDialog({
   expense?: ExpenseWithItems;
   categoryNamesById: Map<string, string>;
   groups: GroupRow[];
+  cards: CardsRow[];
 }) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
@@ -63,7 +66,6 @@ export function ExpenseFormDialog({
       storeName: expense?.store_name ?? "",
       date: expense?.date ?? new Date().toISOString().slice(0, 10),
       paymentMethod: expense?.payment_method ?? "cash",
-      cardLabel: expense?.card_label ?? "",
       note: expense?.note ?? "",
       total: expense ? Number(expense.total) : 0,
       items: expense
@@ -113,6 +115,11 @@ export function ExpenseFormDialog({
   const paymentMethod = watch("paymentMethod");
   const showCardLabel = paymentMethod === "credit_card" || paymentMethod === "debit_card";
 
+  // ── Kart seçici (mobildeki CardPickerSheet) ────────────────────────────────
+  const [selectedCardId, setSelectedCardId] = useState(expense?.card_id ?? "");
+  const [extraCards, setExtraCards] = useState<CardsRow[]>([]);
+  const allCards = useMemo(() => [...cards, ...extraCards], [cards, extraCards]);
+
   // ── Taksitli Harcama state ────────────────────────────────────────────────
   const [isInstallment, setIsInstallment] = useState(false);
   const [installmentCount, setInstallmentCount] = useState("12");
@@ -142,6 +149,7 @@ export function ExpenseFormDialog({
     setKeptReceiptUrls(expense?.receipt_image_url ? expense.receipt_image_url.split(",").filter(Boolean) : []);
     setAttachedFiles([]);
     setAttachError(null);
+    setSelectedCardId(expense?.card_id ?? "");
 
     if (expense) {
       getExpenseGroupIds(createClient(), expense.id).then((ids) => setSelectedGroupIds(new Set(ids)));
@@ -233,7 +241,9 @@ export function ExpenseFormDialog({
       );
 
       const total = isInstallment ? installmentTotal : Number(values.total || 0);
-      const cardLabel = showCardLabel && values.cardLabel.trim() ? values.cardLabel.trim() : null;
+      const selectedCard = showCardLabel ? allCards.find((c) => c.id === selectedCardId) : undefined;
+      const cardId = selectedCard?.id ?? null;
+      const cardLabel = selectedCard ? cardDisplayLabel(selectedCard) : null;
 
       const newReceiptUrls = attachedFiles.length > 0 ? await uploadReceipts(supabase, user.id, attachedFiles) : [];
       const receiptImageUrl = [...keptReceiptUrls, ...newReceiptUrls].join(",") || null;
@@ -249,6 +259,7 @@ export function ExpenseFormDialog({
             total,
             payment_method: values.paymentMethod,
             card_label: cardLabel,
+            card_id: cardId,
             note: values.note || null,
             receipt_image_url: receiptImageUrl,
           })
@@ -264,6 +275,7 @@ export function ExpenseFormDialog({
             total,
             payment_method: values.paymentMethod,
             card_label: cardLabel,
+            card_id: cardId,
             note: values.note || null,
             receipt_image_url: receiptImageUrl,
           })
@@ -435,11 +447,13 @@ export function ExpenseFormDialog({
             </Select>
           </div>
           {showCardLabel && (
-            <div>
-              <Label htmlFor="cardLabel">Kart (isteğe bağlı)</Label>
-              <Input id="cardLabel" placeholder="örn. GARANTİ1234" {...register("cardLabel")} />
-              <p className="mt-1 text-xs text-text-secondary">Limit takibinde kullanılır</p>
-            </div>
+            <CardPickerField
+              cards={allCards}
+              cardType={paymentMethod as "credit_card" | "debit_card"}
+              value={selectedCardId}
+              onChange={setSelectedCardId}
+              onCardCreated={(card) => setExtraCards((prev) => [...prev, card])}
+            />
           )}
           <div className={showCardLabel ? "sm:col-span-2" : ""}>
             <Label htmlFor="note">Not (opsiyonel)</Label>

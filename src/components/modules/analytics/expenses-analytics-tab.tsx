@@ -6,9 +6,11 @@ import { DonutBreakdown } from "./donut-breakdown";
 import { StoreBreakdownChart } from "./store-breakdown-chart";
 import { TrendLineChart } from "./trend-line-chart";
 import { BudgetLimitsCard } from "./budget-limits-card";
+import { CardAnalyticsSection } from "./card-analytics-section";
 import type { CategoryBreakdownPoint, MonthlyTotalPoint, StoreBreakdownPoint } from "@/lib/data/analytics";
 import type { CategoryLimitData } from "@/lib/data/limits";
-import type { CategoriesRow } from "@/lib/types/database";
+import type { CardCategoryPoint } from "@/lib/data/cards";
+import type { CardsRow, CategoriesRow } from "@/lib/types/database";
 
 export function ExpensesAnalyticsTab({
   breakdown,
@@ -18,6 +20,9 @@ export function ExpensesAnalyticsTab({
   limits,
   categories,
   currentMonth,
+  cards,
+  cardTotals,
+  cardCategoryBreakdowns,
 }: {
   breakdown: CategoryBreakdownPoint[];
   parentBreakdown: CategoryBreakdownPoint[];
@@ -26,6 +31,9 @@ export function ExpensesAnalyticsTab({
   limits: CategoryLimitData[];
   categories: CategoriesRow[];
   currentMonth: string;
+  cards: CardsRow[];
+  cardTotals: Map<string, number>;
+  cardCategoryBreakdowns: Map<string, CardCategoryPoint[]>;
 }) {
   const pages = [
     breakdown.length > 0 && { title: "Kategori Dağılımı", content: <DonutBreakdown data={breakdown} /> },
@@ -54,6 +62,8 @@ export function ExpensesAnalyticsTab({
       </Card>
 
       <BudgetLimitsCard limits={limits} categories={categories} currentMonth={currentMonth} />
+
+      <CardAnalyticsSection cards={cards} cardTotals={cardTotals} cardCategoryBreakdowns={cardCategoryBreakdowns} />
     </div>
   );
 }

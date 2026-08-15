@@ -23,9 +23,6 @@ const StepSlider = dynamic(() =>
 const AiScannerShowcase = dynamic(() =>
   import("@/components/modules/landing/ai-scanner-showcase").then((m) => m.AiScannerShowcase),
 );
-const SectorSolutions = dynamic(() =>
-  import("@/components/modules/landing/sector-solutions").then((m) => m.SectorSolutions),
-);
 const FaqSection = dynamic(() =>
   import("@/components/modules/landing/faq-section").then((m) => m.FaqSection),
 );
@@ -56,7 +53,6 @@ export default async function RootPage() {
         <StepSlider />
         <AiScannerShowcase />
         <PersonalModeShowcase />
-        <SectorSolutions />
         <WhyFisstech />
         <ScanDemo />
         <FeaturesSection />

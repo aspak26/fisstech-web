@@ -11,7 +11,7 @@ interface ChatMessage {
 
 const GREETING: ChatMessage = {
   role: "assistant",
-  content: "Merhaba! Ben Fişştech asistanıyım. Fiş tarama, Esnaf Modu veya fiyatlandırma hakkında merak ettiğin bir şey var mı?",
+  content: "Merhaba! Ben Fişştech asistanıyım. Fiş tarama veya fiyatlandırma hakkında merak ettiğin bir şey var mı?",
 };
 
 export function AiWidget() {

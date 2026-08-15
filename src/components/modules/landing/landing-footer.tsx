@@ -48,7 +48,6 @@ const LINK_COLUMNS = [
     heading: "Çözümler",
     links: [
       { label: "Bireysel Kullanım", href: "/register" },
-      { label: "Esnaf Modu", href: "/esnaf" },
       { label: "Aile Planı", href: "#pricing" },
     ],
   },

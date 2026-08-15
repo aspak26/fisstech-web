@@ -78,8 +78,24 @@ export interface ExpensesRow {
   is_private: boolean;
   receipt_image_url: string | null; // comma-joined signed URLs (mobile format — not an array)
   card_label: string | null;
+  card_id: string | null; // -> cards.id
   note: string | null;
   visibility: "public" | "group_only" | "private";
+  created_at: string;
+}
+
+/** Kartlarım — fisle_app/supabase/migrations/085_cards.sql ve
+ * 086_cards_color.sql ile birebir aynı, paylaşılan Supabase şeması. Bu web
+ * repo'da ayrı bir migration YOK — tablo mobil tarafın migration'larıyla
+ * zaten oluşturulmuş kabul edilir. */
+export interface CardsRow {
+  id: string;
+  user_id: string;
+  name: string;
+  last4: string;
+  card_type: "credit_card" | "debit_card";
+  limit_amount: number | null;
+  color: number | null; // ARGB int (Flutter Color.toARGB32() ile aynı format)
   created_at: string;
 }
 
@@ -139,6 +155,7 @@ export interface SubscriptionsRow {
   is_notify_enabled: boolean;
   payment_method: string | null;
   card_label: string | null;
+  card_id: string | null; // -> cards.id
   start_date: string | null;
   end_date: string | null;
   created_at: string;

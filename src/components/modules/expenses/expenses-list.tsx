@@ -15,6 +15,7 @@ import { deleteExpense, type ExpenseWithItems } from "@/lib/data/expenses";
 import { effectivePaidCount } from "@/lib/expenses/installment";
 import type { GroupRow } from "@/lib/data/groups";
 import type { CategoryOption } from "@/lib/scan/types";
+import type { CardsRow } from "@/lib/types/database";
 import { ExpenseFormDialog } from "./expense-form-dialog";
 import { cn } from "@/lib/utils/cn";
 
@@ -37,11 +38,13 @@ export function ExpensesList({
   categories,
   categoryNamesById,
   groups,
+  cards,
 }: {
   expenses: ExpenseWithItems[];
   categories: CategoryOption[];
   categoryNamesById: [string, string][];
   groups: GroupRow[];
+  cards: CardsRow[];
 }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<ExpenseWithItems | undefined>(undefined);
@@ -142,6 +145,11 @@ export function ExpensesList({
                             {PAYMENT_LABELS[expense.payment_method] ?? expense.payment_method}
                             {expense.note ? ` · ${expense.note}` : ""}
                           </p>
+                          {expense.card_label && (
+                            <Badge tone="neutral" className="mt-1 mr-1 text-[11px]">
+                              {expense.card_label}
+                            </Badge>
+                          )}
                           {expense.group_names.length > 0 && (
                             <Badge tone="accent" className="mt-1 text-[11px]">
                               {expense.group_names[0]}
@@ -183,6 +191,7 @@ export function ExpensesList({
         expense={editing}
         categoryNamesById={categoryMap}
         groups={groups}
+        cards={cards}
       />
     </div>
   );

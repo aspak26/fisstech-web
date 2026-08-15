@@ -1,4 +1,4 @@
-import { Crown, Store, Users, type LucideIcon } from "lucide-react";
+import { Crown, Users, type LucideIcon } from "lucide-react";
 
 export interface PricingPlan {
   id: string;
@@ -43,23 +43,6 @@ export const PRICING_PLANS: PricingPlan[] = [
     ],
   },
   {
-    id: "esnaf",
-    icon: Store,
-    name: "Esnaf Modu",
-    description: "Kasa defteri, stok ve satış takibiyle işletmeni yönet.",
-    monthly: "199,99",
-    yearly: "1.999,99",
-    yearlyEffective: "166,66",
-    yearlySavings: "%17",
-    features: [
-      "Kasa takibi ve işletme panosu",
-      "6 sektöre özel işletme paneli",
-      "Müşteri & personel yönetimi",
-      "İşletme PDF/Excel raporları",
-      "Yapay Zeka ile Akıllı Gün Sonu Raporu",
-    ],
-  },
-  {
     id: "family",
     icon: Users,
     name: "Aile Planı",
@@ -72,31 +55,9 @@ export const PRICING_PLANS: PricingPlan[] = [
   },
 ];
 
-export interface EsnafTier {
-  id: string;
-  label: string;
-  monthly: string;
-  yearly: string;
-  yearlyEffective: string;
-  yearlySavings: string;
-}
-
-/** Mobil kaynaktaki (paywall_screen.dart) gerçek personel-katmanı fiyatları
- * — bu oturumda daha önce araştırılıp doğrulanmıştı (esnaf_/esnaf10_/
- * esnaf20_/esnaf40_ RevenueCat paket önekleri). */
-export const ESNAF_TIERS: EsnafTier[] = [
-  { id: "sadece_ben", label: "Sadece Ben", monthly: "199,99", yearly: "1.999,99", yearlyEffective: "166,66", yearlySavings: "%17" },
-  { id: "10", label: "10 Kişi", monthly: "349,99", yearly: "3.499,99", yearlyEffective: "291,66", yearlySavings: "%17" },
-  { id: "20", label: "20 Kişi", monthly: "549,99", yearly: "5.499,99", yearlyEffective: "458,33", yearlySavings: "%17" },
-  { id: "40", label: "40 Kişi", monthly: "899,99", yearly: "8.999,99", yearlyEffective: "749,99", yearlySavings: "%17" },
-];
-
 export const BACKUP_ADDON = {
   emoji: "☁️",
   name: "Bulut Yedekleme",
-  // "Esnaf Modu" alt metnin içinde vurgulanacak — pricing-section.tsx bu
-  // string'i tam bu yazımla arayıp <strong> ile sarıyor, değiştirirsen ikisini
-  // birlikte güncelle.
-  description: "Fiş, fatura ve evrak fotoğraflarını orijinal görsel haliyle güvenle saklamak isteyen Esnaf Modu kullanıcıları için özel ek paket.",
+  description: "Fiş, fatura ve evrak fotoğraflarını orijinal görsel haliyle güvenle saklamak isteyenler için özel ek paket.",
   monthly: "₺29,99",
 };

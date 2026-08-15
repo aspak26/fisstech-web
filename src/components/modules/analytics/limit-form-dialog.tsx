@@ -9,15 +9,16 @@ import { Button } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/input";
 import { cn } from "@/lib/utils/cn";
 import { currentMonthString, formatMonthLabel } from "@/lib/utils/date";
-import { setLimit, PAYMENT_METHOD_OPTIONS, type CategoryLimitData } from "@/lib/data/limits";
+import { setLimit, type CategoryLimitData } from "@/lib/data/limits";
 import type { CategoriesRow } from "@/lib/types/database";
 
-type LimitType = "category" | "monthly" | "payment_method";
+// "payment_method" tipi kaldırıldı — kart bazlı limitler artık Kartlarım
+// bölümünde kartın kendi limit_amount alanı üzerinden yönetiliyor.
+type LimitType = "category" | "monthly";
 
 const TYPE_OPTIONS: { value: LimitType; label: string }[] = [
   { value: "category", label: "Kategori" },
   { value: "monthly", label: "Aylık Toplam" },
-  { value: "payment_method", label: "Ödeme Yöntemi" },
 ];
 
 function nextMonths(count: number): string[] {
@@ -46,8 +47,6 @@ export function LimitFormDialog({
   const [limitType, setLimitType] = useState<LimitType>("category");
   const [month, setMonth] = useState(currentMonthString());
   const [categoryId, setCategoryId] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<string>("credit_card");
-  const [cardLabel, setCardLabel] = useState("");
   const { register, handleSubmit, reset } = useForm<{ amount: number }>({
     values: { amount: existing?.limit ?? 0 },
   });
@@ -58,8 +57,6 @@ export function LimitFormDialog({
     setLimitType("category");
     setMonth(currentMonthString());
     setCategoryId("");
-    setPaymentMethod("credit_card");
-    setCardLabel("");
     onClose();
   }
 
@@ -78,8 +75,6 @@ export function LimitFormDialog({
         limitType: existing?.limitType ?? limitType,
         amount,
         categoryId: existing ? existing.categoryId : categoryId,
-        paymentMethod: existing ? existing.paymentMethod : paymentMethod,
-        cardLabel: existing ? existing.cardLabel : cardLabel || null,
         month: existing?.month ?? month,
         existingId: existing?.id ?? null,
       });
@@ -145,28 +140,6 @@ export function LimitFormDialog({
               ))}
             </Select>
           </div>
-        ) : limitType === "payment_method" ? (
-          <>
-            <div>
-              <Label htmlFor="limit-payment">Ödeme Yöntemi</Label>
-              <Select id="limit-payment" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
-                {PAYMENT_METHOD_OPTIONS.map((p) => (
-                  <option key={p.value} value={p.value}>
-                    {p.emoji} {p.label}
-                  </option>
-                ))}
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="limit-card-label">Kart Adı / Son 4 Hane (opsiyonel)</Label>
-              <Input
-                id="limit-card-label"
-                placeholder="örn. Garanti 1234"
-                value={cardLabel}
-                onChange={(e) => setCardLabel(e.target.value)}
-              />
-            </div>
-          </>
         ) : (
           <div className="flex items-center gap-2 rounded-control border border-border p-3">
             <span className="text-lg">🗓</span>

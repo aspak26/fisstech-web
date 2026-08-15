@@ -5,7 +5,7 @@ import { Reveal } from "./reveal";
 const POINTS = [
   "Fişi yükle, AI otomatik analiz etsin",
   "Giderlerinizi otomatik kategorize edin",
-  "Esnaf Modu ile işletme kasanızı yönetin",
+  "Fişştech AI ile kişiselleştirilmiş tasarruf önerileri alın",
   "Verilerinizi PDF veya tablo olarak dışa aktarın",
 ];
 
@@ -23,7 +23,7 @@ export function WhyFisstech() {
 
           <p className="mt-6 max-w-xl text-base leading-relaxed text-text-secondary">
             Yapay zeka ile fişlerinizi saniyeler içinde dijitalleştirin, bütçe yönetiminizi akıllı hale
-            getirin. Gelişmiş AI analizi, Esnaf Modu ve detaylı raporlama tek platformda.
+            getirin. Gelişmiş AI analizi ve detaylı raporlama tek platformda.
           </p>
           <p className="mt-4 max-w-xl text-base leading-relaxed text-text-secondary">
             Her gün onlarca fişi manuel olarak girmek hem zaman alır hem de hata riskini artırır.
