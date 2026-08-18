@@ -10,8 +10,10 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { DeleteButton } from "@/components/ui/delete-button";
 import { formatCurrency } from "@/lib/utils/currency";
 import { cardColorToHex, cardDisplayLabel, deleteCard } from "@/lib/data/cards";
+import { SUPPORTED_BANKS } from "@/lib/data/banks";
 import type { CardsRow } from "@/lib/types/database";
 import { CardFormDialog } from "./card-form-dialog";
+import { BankLogo } from "./bank-logo";
 
 export function CardsList({
   cards,
@@ -60,12 +62,19 @@ export function CardsList({
                 <div className="absolute inset-y-0 left-0 w-1.5" style={{ backgroundColor: accent }} />
                 <Link href={`/cards/${c.id}`} className="block p-5 pl-6 pr-20 hover:bg-surface-hover">
                   <div className="flex items-center gap-3">
-                    <div
-                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
-                      style={{ backgroundColor: `${accent}26`, color: accent }}
-                    >
-                      {c.card_type === "debit_card" ? <Wallet className="h-5 w-5" /> : <CreditCard className="h-5 w-5" />}
-                    </div>
+                    {c.bank_domain ? (
+                      <BankLogo
+                        bank={SUPPORTED_BANKS.find((b) => b.domain === c.bank_domain) ?? { name: c.name, domain: c.bank_domain }}
+                        size={44}
+                      />
+                    ) : (
+                      <div
+                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
+                        style={{ backgroundColor: `${accent}26`, color: accent }}
+                      >
+                        {c.card_type === "debit_card" ? <Wallet className="h-5 w-5" /> : <CreditCard className="h-5 w-5" />}
+                      </div>
+                    )}
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-medium text-text-primary">{cardDisplayLabel(c)}</p>
                       <p className="text-sm text-text-secondary">{c.card_type === "debit_card" ? "Banka Kartı" : "Kredi Kartı"}</p>

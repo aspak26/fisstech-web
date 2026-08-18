@@ -2,7 +2,9 @@ import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { getCategoryBreakdowns, getMonthlyExpenseTrend, getStoreBreakdown } from "@/lib/data/analytics";
 import { getMonthlyBalanceTrend } from "@/lib/data/balance";
+import { getCashflowForecast } from "@/lib/data/forecast";
 import { getSubscriptions } from "@/lib/data/subscriptions";
+import { getInstallmentAnalytics } from "@/lib/data/installments";
 import { getGroups, getMemberSpendTotals } from "@/lib/data/groups";
 import { getCategoryLimits } from "@/lib/data/limits";
 import { getCategoriesFull } from "@/lib/data/categories";
@@ -13,10 +15,11 @@ import { PeriodSelector } from "@/components/ui/period-selector";
 import { AnalyticsTabsNav } from "@/components/modules/analytics/analytics-tabs-nav";
 import { ExpensesAnalyticsTab } from "@/components/modules/analytics/expenses-analytics-tab";
 import { IncomeExpenseAnalyticsTab } from "@/components/modules/analytics/income-expense-analytics-tab";
+import { InstallmentsAnalyticsTab } from "@/components/modules/analytics/installments-analytics-tab";
 import { SubscriptionsAnalyticsTab } from "@/components/modules/analytics/subscriptions-analytics-tab";
 import { GroupAnalyticsTab } from "@/components/modules/analytics/group-analytics-tab";
 
-type Tab = "expenses" | "income" | "subscriptions" | "group";
+type Tab = "expenses" | "income" | "installments" | "subscriptions" | "group";
 
 export default async function AnalyticsPage({
   searchParams,
@@ -36,8 +39,14 @@ export default async function AnalyticsPage({
   let content: React.ReactNode;
 
   if (tab === "income") {
-    const trend = await getMonthlyBalanceTrend(supabase, userId, 6);
-    content = <IncomeExpenseAnalyticsTab trend={trend} />;
+    const [trend, forecast] = await Promise.all([
+      getMonthlyBalanceTrend(supabase, userId, 6),
+      getCashflowForecast(supabase, userId),
+    ]);
+    content = <IncomeExpenseAnalyticsTab trend={trend} forecast={forecast} />;
+  } else if (tab === "installments") {
+    const analytics = await getInstallmentAnalytics(supabase, userId);
+    content = <InstallmentsAnalyticsTab data={analytics} />;
   } else if (tab === "subscriptions") {
     const subscriptions = await getSubscriptions(supabase, userId);
     content = <SubscriptionsAnalyticsTab subscriptions={subscriptions} />;

@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createRateLimiter } from "@/lib/utils/rate-limit";
 import { consumeAiChatCredit } from "@/lib/ai-chat/credits";
+import { currentMonthString } from "@/lib/utils/date";
 
 // Bu route kimlik doğrulamalı olsa da her çağrı gerçek Gemini API maliyeti
 // doğuruyor — önceden hiçbir rate limit/mesaj uzunluğu sınırı yoktu
@@ -121,11 +122,14 @@ export async function POST(request: NextRequest) {
     const { data: expRows, error: expError } = await query;
     if (expError) throw expError;
 
-    // Fetch limits
+    // Fetch limits — sadece bu ay (veya ileri tarihli) limitler aktif
+    // sayılır, geçmiş aylara ait limitler AI'ya karıştırılmamalı (bkz.
+    // lib/data/limits.ts'teki referans desen).
     const { data: limitRows, error: limitError } = await supabase
       .from("category_limits")
       .select("amount, categories(name)")
-      .eq("user_id", user.id);
+      .eq("user_id", user.id)
+      .gte("month", currentMonthString());
     if (limitError) throw limitError;
 
     // Aggregate data

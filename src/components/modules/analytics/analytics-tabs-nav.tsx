@@ -6,6 +6,7 @@ import { Tabs } from "@/components/ui/tabs";
 const OPTIONS = [
   { value: "expenses", label: "Harcamalar" },
   { value: "income", label: "Gelir/Gider" },
+  { value: "installments", label: "Taksitler" },
   { value: "subscriptions", label: "Abonelikler" },
   { value: "group", label: "Grup" },
 ];

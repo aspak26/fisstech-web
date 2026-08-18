@@ -1,8 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getMonthRange } from "@/lib/utils/date";
+import { paymentDate as installmentPaymentDate, effectivePaidCount } from "@/lib/expenses/installment";
 import type {
   ExpensesRow,
   FixedExpensesRow,
+  InstallmentPlansRow,
   SubscriptionsRow,
   UserNotesRow,
 } from "@/lib/types/database";
@@ -11,6 +13,10 @@ import type {
  * state instead of crashing the dashboard, matching the mobile app's
  * try/catch-per-tile resilience pattern in dashboard_screen.dart. */
 
+/** Taksitli harcamalar satın alma tarihine değil, "ödendi" olarak
+ * tiklendikleri aya sayılır — bkz. analytics.ts'teki getMonthlyExpenseTrend/
+ * getCategoryBreakdowns'daki aynı dağıtım mantığı. Bu fonksiyon o mantığı
+ * tek bir ay için uygular ki Pano'daki toplam Analiz sekmesiyle tutarlı olsun. */
 export async function getMonthlyExpenseSummary(
   supabase: SupabaseClient,
   userId: string,
@@ -18,18 +24,37 @@ export async function getMonthlyExpenseSummary(
 ): Promise<{ total: number; count: number }> {
   try {
     const { start, end } = getMonthRange(month);
-    const { data } = await supabase
-      .from("expenses")
-      .select("total")
-      .eq("user_id", userId)
-      .gte("date", start)
-      .lte("date", end);
+    const [expensesRes, installmentsRes] = await Promise.all([
+      supabase.from("expenses").select("id, total").eq("user_id", userId).gte("date", start).lte("date", end),
+      supabase.from("installment_plans").select("*").eq("user_id", userId),
+    ]);
 
-    const rows = (data ?? []) as Pick<ExpensesRow, "total">[];
-    return {
-      total: rows.reduce((sum, r) => sum + Number(r.total), 0),
-      count: rows.length,
-    };
+    const rows = (expensesRes.data ?? []) as (Pick<ExpensesRow, "total"> & { id: string })[];
+    const installments = (installmentsRes.data ?? []) as InstallmentPlansRow[];
+    const installmentIds = new Set(installments.map((i) => i.expense_id));
+
+    let total = 0;
+    let count = 0;
+
+    for (const row of rows) {
+      if (installmentIds.has(row.id)) continue;
+      total += Number(row.total);
+      count += 1;
+    }
+
+    for (const inst of installments) {
+      for (let i = 0; i < inst.total_count; i++) {
+        const date = installmentPaymentDate(inst.start_date, i);
+        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+        if (key !== month) continue;
+        const isPaid = inst.paid_states ? inst.paid_states[i] : effectivePaidCount(inst) > i;
+        if (!isPaid) continue;
+        total += inst.monthly_amount;
+        count += 1;
+      }
+    }
+
+    return { total, count };
   } catch {
     return { total: 0, count: 0 };
   }

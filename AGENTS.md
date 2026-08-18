@@ -18,7 +18,6 @@ Fişştech, fiş tarama (AI/OCR) ve kişisel + esnaf finans yönetimini birleşt
 
 **Tasarım ve özellik referansı:** `docs/Fisstech_Web_Blueprint.md` bu projenin tek doğruluk kaynağıdır.
 
-**Çalışma alanı kuralı:** `fisleapp` klasörü (mobil uygulama) SADECE read-only referans içindir. Hiçbir dosyası değiştirilmez, o dizinde terminal komutu çalıştırılmaz.
 
 ## Kesin Kurallar
 

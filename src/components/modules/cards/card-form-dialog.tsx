@@ -6,9 +6,12 @@ import { useForm } from "react-hook-form";
 import { createClient } from "@/lib/supabase/client";
 import { Dialog } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input, Label } from "@/components/ui/input";
+import { Input, Label, Select } from "@/components/ui/input";
 import { cn } from "@/lib/utils/cn";
 import { addCard, updateCard } from "@/lib/data/cards";
+import { SUPPORTED_BANKS } from "@/lib/data/banks";
+import { BankLogo } from "./bank-logo";
+import { Landmark } from "lucide-react";
 import type { CardsRow } from "@/lib/types/database";
 
 // Mobildeki kCardColorPalette (add_card_screen.dart) ile birebir aynı 10
@@ -40,7 +43,9 @@ export function CardFormDialog({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cardType, setCardType] = useState<"credit_card" | "debit_card">(card?.card_type ?? "credit_card");
+  const [bankDomain, setBankDomain] = useState<string | null>(card?.bank_domain ?? null);
   const [color, setColor] = useState<number>(card?.color ?? COLOR_PALETTE[0]);
+  const selectedBank = bankDomain ? SUPPORTED_BANKS.find((b) => b.domain === bankDomain) : undefined;
   const { register, handleSubmit, reset } = useForm<FormValues>({
     values: {
       name: card?.name ?? "",
@@ -77,9 +82,9 @@ export function CardFormDialog({
       const limitAmount = values.limitAmount.trim() ? Number(values.limitAmount.replace(",", ".")) : null;
 
       if (card) {
-        await updateCard(supabase, card.id, { name, last4, cardType, limitAmount, color });
+        await updateCard(supabase, card.id, { name, last4, cardType, bankDomain, limitAmount, color });
       } else {
-        await addCard(supabase, user.id, { name, last4, cardType, limitAmount, color });
+        await addCard(supabase, user.id, { name, last4, cardType, bankDomain, limitAmount, color });
       }
       handleClose();
       router.refresh();
@@ -116,6 +121,31 @@ export function CardFormDialog({
                 {t.label}
               </button>
             ))}
+          </div>
+        </div>
+
+        <div>
+          <Label>Banka (isteğe bağlı)</Label>
+          <div className="flex items-center gap-3">
+            {selectedBank ? (
+              <BankLogo bank={selectedBank} size={36} />
+            ) : (
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-dashed border-border text-text-secondary">
+                <Landmark className="h-4 w-4" />
+              </div>
+            )}
+            <Select
+              value={bankDomain ?? ""}
+              onChange={(e) => setBankDomain(e.target.value || null)}
+              className="flex-1"
+            >
+              <option value="">Banka seçilmedi</option>
+              {SUPPORTED_BANKS.map((b) => (
+                <option key={b.domain} value={b.domain}>
+                  {b.name}
+                </option>
+              ))}
+            </Select>
           </div>
         </div>
 

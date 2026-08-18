@@ -94,6 +94,7 @@ export interface CardsRow {
   name: string;
   last4: string;
   card_type: "credit_card" | "debit_card";
+  bank_domain: string | null; // 087_cards_bank_domain.sql — örn. akbank.com
   limit_amount: number | null;
   color: number | null; // ARGB int (Flutter Color.toARGB32() ile aynı format)
   created_at: string;

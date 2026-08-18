@@ -3,7 +3,7 @@ import type { CardsRow } from "@/lib/types/database";
 import { requireUserId } from "@/lib/utils/auth";
 import { calculatePeriodRange } from "@/lib/utils/period";
 
-const CARD_COLS = "id, user_id, name, last4, card_type, limit_amount, color, created_at";
+const CARD_COLS = "id, user_id, name, last4, card_type, bank_domain, limit_amount, color, created_at";
 
 /** ARGB int (Flutter Color.toARGB32() formatı, mobil tarafın 085/086
  * migration'larında `cards.color` kolonuna bu şekilde yazılıyor) → CSS hex.
@@ -34,7 +34,14 @@ export async function getCardById(supabase: SupabaseClient, id: string): Promise
 export async function addCard(
   supabase: SupabaseClient,
   userId: string,
-  params: { name: string; last4: string; cardType: "credit_card" | "debit_card"; limitAmount?: number | null; color?: number | null },
+  params: {
+    name: string;
+    last4: string;
+    cardType: "credit_card" | "debit_card";
+    bankDomain?: string | null;
+    limitAmount?: number | null;
+    color?: number | null;
+  },
 ): Promise<CardsRow> {
   const { data, error } = await supabase
     .from("cards")
@@ -43,6 +50,7 @@ export async function addCard(
       name: params.name.trim(),
       last4: params.last4.trim(),
       card_type: params.cardType,
+      bank_domain: params.bankDomain ?? null,
       limit_amount: params.limitAmount ?? null,
       color: params.color ?? null,
     })
@@ -55,13 +63,21 @@ export async function addCard(
 export async function updateCard(
   supabase: SupabaseClient,
   id: string,
-  params: { name?: string; last4?: string; cardType?: "credit_card" | "debit_card"; limitAmount?: number | null; color?: number | null },
+  params: {
+    name?: string;
+    last4?: string;
+    cardType?: "credit_card" | "debit_card";
+    bankDomain?: string | null;
+    limitAmount?: number | null;
+    color?: number | null;
+  },
 ): Promise<void> {
   const userId = await requireUserId(supabase);
   const updates: Record<string, unknown> = {};
   if (params.name !== undefined) updates.name = params.name.trim();
   if (params.last4 !== undefined) updates.last4 = params.last4.trim();
   if (params.cardType !== undefined) updates.card_type = params.cardType;
+  if (params.bankDomain !== undefined) updates.bank_domain = params.bankDomain;
   if (params.limitAmount !== undefined) updates.limit_amount = params.limitAmount;
   if (params.color !== undefined) updates.color = params.color;
   if (Object.keys(updates).length === 0) return;

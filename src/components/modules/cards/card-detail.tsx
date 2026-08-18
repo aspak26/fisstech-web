@@ -9,8 +9,10 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatCurrency } from "@/lib/utils/currency";
 import { cardColorToHex, cardDisplayLabel, deleteCard, type CardExpenseRow } from "@/lib/data/cards";
+import { SUPPORTED_BANKS } from "@/lib/data/banks";
 import type { CardsRow } from "@/lib/types/database";
 import { CardFormDialog } from "./card-form-dialog";
+import { BankLogo } from "./bank-logo";
 
 export function CardDetail({
   card,
@@ -67,12 +69,19 @@ export function CardDetail({
 
       <Card style={{ borderColor: `${accent}55` }}>
         <div className="flex items-center gap-4">
-          <div
-            className="flex shrink-0 items-center justify-center rounded-full"
-            style={{ backgroundColor: `${accent}26`, color: accent, width: 52, height: 52 }}
-          >
-            {card.card_type === "debit_card" ? <Wallet className="h-6 w-6" /> : <CreditCard className="h-6 w-6" />}
-          </div>
+          {card.bank_domain ? (
+            <BankLogo
+              bank={SUPPORTED_BANKS.find((b) => b.domain === card.bank_domain) ?? { name: card.name, domain: card.bank_domain }}
+              size={52}
+            />
+          ) : (
+            <div
+              className="flex shrink-0 items-center justify-center rounded-full"
+              style={{ backgroundColor: `${accent}26`, color: accent, width: 52, height: 52 }}
+            >
+              {card.card_type === "debit_card" ? <Wallet className="h-6 w-6" /> : <CreditCard className="h-6 w-6" />}
+            </div>
+          )}
           <div className="min-w-0 flex-1">
             <p className="font-display text-lg font-semibold text-text-primary">{cardDisplayLabel(card)}</p>
             <p className="text-sm text-text-secondary">{card.card_type === "debit_card" ? "Banka Kartı" : "Kredi Kartı"}</p>
