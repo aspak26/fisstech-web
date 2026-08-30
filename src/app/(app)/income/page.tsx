@@ -8,6 +8,7 @@ import {
 } from "@/lib/data/income";
 import { getExpenses } from "@/lib/data/expenses";
 import { getCategoriesFull } from "@/lib/data/categories";
+import { getPoolTransferNetForRange } from "@/lib/data/goals";
 import { calculatePeriodRange, DEFAULT_BUDGET_PERIOD } from "@/lib/utils/period";
 import { PeriodSelector } from "@/components/ui/period-selector";
 import { IncomePanel } from "@/components/modules/income/income-panel";
@@ -27,7 +28,7 @@ export default async function IncomePage({
   } = await supabase.auth.getUser();
   const userId = user!.id;
 
-  const [incomes, fixedExpenses, incomeCategories, fixedExpenseCategories, expenses, itemCategories] =
+  const [incomes, fixedExpenses, incomeCategories, fixedExpenseCategories, expenses, itemCategories, poolTransferNet] =
     await Promise.all([
       getIncomes(supabase, userId, range),
       getFixedExpensesFull(supabase, userId),
@@ -35,6 +36,7 @@ export default async function IncomePage({
       getFixedExpenseCategories(supabase),
       getExpenses(supabase, userId, range),
       getCategoriesFull(supabase),
+      getPoolTransferNetForRange(supabase, userId, range),
     ]);
 
   return (
@@ -55,6 +57,7 @@ export default async function IncomePage({
         fixedExpenseCategories={fixedExpenseCategories}
         itemCategories={itemCategories}
         periodLabel={range.label}
+        poolTransferNet={poolTransferNet}
       />
     </div>
   );

@@ -13,7 +13,7 @@ export function InstallmentsAnalyticsTab({
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-text-secondary">Bu Ayki Taksit Yükü</CardTitle>
+            <CardTitle className="text-sm font-medium text-text-secondary">Bu Ayki Taksit YÃ¼kÃ¼</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-text-primary">
@@ -35,7 +35,7 @@ export function InstallmentsAnalyticsTab({
 
       <Card>
         <CardHeader>
-          <CardTitle>Gelecek Aylarýn Taksit Yükü</CardTitle>
+          <CardTitle>Gelecek AylarÄ±n Taksit YÃ¼kÃ¼</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

@@ -75,11 +75,11 @@ export async function getInstallmentAnalytics(
     const category = expense?.expense_items?.[0]?.categories;
     
     activeInstallments.push({
-      id: inst.id,
-      storeName: expense?.store_name || "Bilinmeyen Maðaza",
-      categoryName: category?.name || "Diðer",
-      categoryIcon: category?.icon || "??",
-      totalAmount: inst.total_amount,
+      id: inst.expense_id,
+      storeName: expense?.store_name || "Bilinmeyen MaÄŸaza",
+      categoryName: category?.name || "DiÄŸer",
+      categoryIcon: category?.icon || "ðŸ“¦",
+      totalAmount: inst.monthly_amount * inst.total_count,
       monthlyAmount: inst.monthly_amount,
       paidCount,
       totalCount: inst.total_count,

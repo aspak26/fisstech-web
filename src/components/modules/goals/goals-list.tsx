@@ -14,7 +14,15 @@ import { ContributeDialog } from "./contribute-dialog";
 import { SavingsPoolCard } from "./savings-pool-card";
 import { AddToPoolDialog } from "./add-to-pool-dialog";
 
-export function GoalsList({ goals, pool }: { goals: GoalRow[]; pool: SavingsPoolRow }) {
+export function GoalsList({
+  goals,
+  pool,
+  netBalance,
+}: {
+  goals: GoalRow[];
+  pool: SavingsPoolRow;
+  netBalance: number;
+}) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [contributing, setContributing] = useState<GoalRow | null>(null);
   const [addingFunds, setAddingFunds] = useState(false);
@@ -96,7 +104,12 @@ export function GoalsList({ goals, pool }: { goals: GoalRow[]; pool: SavingsPool
         onClose={() => setContributing(null)}
         onAddFunds={() => setAddingFunds(true)}
       />
-      <AddToPoolDialog open={addingFunds} onClose={() => setAddingFunds(false)} />
+      <AddToPoolDialog
+        open={addingFunds}
+        onClose={() => setAddingFunds(false)}
+        pool={pool}
+        netBalance={netBalance}
+      />
     </div>
   );
 }

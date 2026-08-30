@@ -3,8 +3,10 @@ import { ProfileCard } from "@/components/modules/settings/profile-card";
 import { AppearanceCard } from "@/components/modules/settings/appearance-card";
 import { AccountDangerZone } from "@/components/modules/settings/account-danger-zone";
 import { TrialStatusCard } from "@/components/modules/settings/trial-status-card";
+import { FamilyPlanCard } from "@/components/modules/settings/family-plan-card";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { getUserPlanInfo } from "@/lib/utils/entitlements";
+import { getFamilyMembers, getFamilyOwnerFor } from "@/lib/data/family";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -15,6 +17,13 @@ export default async function SettingsPage() {
     supabase.from("users").select("name, email, plan_type").eq("id", user!.id).maybeSingle(),
     getUserPlanInfo(supabase, user!.id),
   ]);
+
+  let familyMembers: Awaited<ReturnType<typeof getFamilyMembers>> = [];
+  let familyOwner: Awaited<ReturnType<typeof getFamilyOwnerFor>> = null;
+  if (planInfo.planType === "family") {
+    familyOwner = await getFamilyOwnerFor(supabase, user!.id);
+    if (!familyOwner) familyMembers = await getFamilyMembers(supabase, user!.id);
+  }
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -30,6 +39,14 @@ export default async function SettingsPage() {
         canStartTrial={planInfo.canStartTrial}
         isInTrial={planInfo.isInTrial}
         trialDaysLeft={planInfo.trialDaysLeft}
+      />
+
+      <FamilyPlanCard
+        userId={user!.id}
+        planType={planInfo.planType}
+        isOwner={!familyOwner}
+        members={familyMembers}
+        ownerName={familyOwner?.ownerName ?? null}
       />
 
       <AppearanceCard />

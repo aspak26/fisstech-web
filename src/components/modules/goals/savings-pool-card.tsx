@@ -17,7 +17,7 @@ export function SavingsPoolCard({ pool, onAddFunds }: { pool: SavingsPoolRow; on
           onClick={onAddFunds}
           className="ml-auto flex items-center gap-1 rounded-control bg-white/20 px-2.5 py-1 text-xs font-semibold hover:bg-white/30"
         >
-          <Plus className="h-3.5 w-3.5" /> Para Ekle
+          <Plus className="h-3.5 w-3.5" /> Yönet
         </button>
       </div>
       <p className="mt-2 font-display text-2xl font-bold">{formatCurrency(Number(pool.balance))}</p>

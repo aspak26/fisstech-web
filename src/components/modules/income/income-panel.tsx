@@ -52,6 +52,7 @@ export function IncomePanel({
   fixedExpenseCategories,
   itemCategories,
   periodLabel,
+  poolTransferNet = 0,
 }: {
   incomes: IncomesRow[];
   fixedExpenses: FixedExpensesRow[];
@@ -60,6 +61,9 @@ export function IncomePanel({
   fixedExpenseCategories: FixedExpenseCategoriesRow[];
   itemCategories: CategoriesRow[];
   periodLabel: string;
+  /** Havuza aktarılan/çekilen net tutar (bkz. getPoolTransferNetForRange) —
+   * havuza konan para artık serbestçe harcanabilir bakiyeden sayılmaz. */
+  poolTransferNet?: number;
 }) {
   const router = useRouter();
   const [tab, setTab] = useState<"income" | "fixed" | "variable">("income");
@@ -77,7 +81,7 @@ export function IncomePanel({
   const totalIncome = incomes.reduce((s, i) => s + Number(i.amount), 0);
   const totalFixed = fixedExpenses.reduce((s, f) => s + Number(f.amount), 0);
   const totalVariable = expenses.reduce((s, e) => s + Number(e.total), 0);
-  const netBalance = totalIncome - totalFixed - totalVariable;
+  const netBalance = totalIncome - totalFixed - totalVariable - poolTransferNet;
 
   const expenseCategoryLabel = useMemo(
     () => (expense: ExpenseWithItems) => {
