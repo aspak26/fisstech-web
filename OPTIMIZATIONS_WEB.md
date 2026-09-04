@@ -4,18 +4,22 @@
 
 **Referans dosyalar:** `AGENTS.md`, `docs/AGENTS.md`, `docs/PROGRESS.md`, `next.config.ts`, `src/proxy.ts`, `src/lib/supabase/{server,middleware,client}.ts`.
 
+> **ROUND 2 — 2026-09-04.** Bu, aynı denetimin ikinci turu. Round 1'in temel alındığı commit (`790196b`) ile şu anki `HEAD` arasında **25 commit** ve **216 değişen dosya** var (`git diff 790196b..HEAD --stat`). Round 1'in 13 bulgusunun hepsi aşağıda tek tek yeniden doğrulandı (her birine "**Durum (Round 2, 2026-09-04):**" satırı eklendi) ve 25 commit'lik delta için yeni bulgular **#14'ten itibaren** eklendi. Hiçbir dosya bu denetim sırasında değiştirilmedi — sadece `OPTIMIZATIONS_WEB.md` güncellendi.
+>
+> **Kritik not — Bulgu #9 hakkında (okumadan geçmeyin):** Round 1, `sidebar.tsx`'ten `"use client"` kaldırılmasını önermişti ("marjinal etkili, risk yok" diyerek). Bu öneri **YANLIŞTI** ve eşzamanlı bir oturumda uygulanınca **production'ı kırdı** — `/dashboard` dahil TÜM kimlik doğrulamalı sayfalar "Functions cannot be passed directly to Client Components" hatasıyla çöktü, çünkü `Sidebar`'ın render ettiği `NavLink` (Client Component) `nav-config.ts`'ten `item.icon` adında bir Lucide ikon component'ini (yani bir **fonksiyon referansı**) prop olarak alıyor — ve bir fonksiyonu server→client sınırından geçirmek React Server Components modelinde geçersiz. Olay `ff51e9b` commit'iyle (`"use client"` geri eklenerek) düzeltildi. Bulgu #9 aşağıda **RETRACTED** olarak işaretlendi — bu öneri bir daha yapılmamalı. Ayrıntı için Bulgu #9'un Round 2 durum notuna bakın.
+
 ---
 
 ## 1) Optimization Summary
 
-**Genel sağlık durumu:** Kod tabanı genel olarak **iyi disiplinli** — çoğu server component `Promise.all`/`Promise.allSettled` kullanıyor, `jspdf`/`xlsx` zaten lazy-load ediliyor, landing page'in bir kısmı zaten `next/dynamic` ile bölünmüş, ve `lib/data/analytics.ts` içinde geçmişte tam olarak bu denetimde bulunacak türden bir "aynı veri iki kez çekiliyor" hatası zaten bulunup düzeltilmiş (bkz. `fetchBreakdownData` yorum satırı). Ancak bu disiplin **tutarlı uygulanmamış**: aynı anti-pattern (aynı sorgunun birden fazla kez tekrarlanması) en az 4 farklı yerde, en ağır haliyle de **Esnaf Modu'nun her sayfasında** yeniden ortaya çıkıyor.
+**Genel sağlık durumu (Round 2):** Round 1'den bu yana kod tabanı iki yönde ilerledi. Olumlu tarafta: Bulgu #1'in `cache()` önerisi birebir uygulandı (`src/lib/esnaf/active-business.ts`), Bulgu #4 (duplike `categories` sorgusu) ve Bulgu #7 (eksik `next/dynamic` bölümleri) tam olarak önerilen şekilde düzeltildi, ve Esnaf Modu'nun tamamen kilitlenmesi (`16db0b8`) Bulgu #1 ve #11'i pratikte devre dışı bıraktı. Olumsuz tarafta: **round 1'de "iyi disiplinli" olarak tanımlanan `cache()`/tek-sorgu deseni yeni özelliklere hiç taşınmamış** — 25 commit'lik delta, tam olarak round 1'in uyardığı türden en az 3 yeni/genişlemiş anti-pattern getirdi, en ciddisi de round 1'in doğrudan işaret ettiği riskin gerçekleşmesi: yeni 7 günlük deneme özelliği (`7289063`), `cache()`'siz `getUserPlanInfo()`'yu layout + her sayfa + iç yardımcı fonksiyonlarda bağımsız olarak çağırıyor. Ayrıca Esnaf Modu'nun kilitlenmesi, ~125 dosyalık bir kod alanını (route'lar dahil) artık hiçbir zaman render edilmeyen, derlemeye giren "hayalet" koda çevirdi.
 
-**En yüksek etkili 3 bulgu:**
-1. **Esnaf Modu'nda her sayfa yüklemesinde `auth.getUser()` 6-8 kez ve `get_my_businesses` RPC'si 2-3 kez tekrar çağrılıyor** (layout + page.tsx ikisi de `getActiveBusiness()`'ı bağımsız çağırıyor, o da içeride tekrar `getUserBusinesses()`'ı çağırıyor). 36 dosya bu kalıbı tekrarlıyor. — **Kritik, Bulgu #1**
-2. **Kişisel sayfalarda dahi `auth.getUser()` en az 2-3 kez tekrarlanıyor** (`proxy.ts` middleware + `layout.tsx` + her `page.tsx`), ve middleware bunu herkese açık pazarlama sayfalarında (`/`, `/gizlilik` vb.) bile, oturum durumundan bağımsız olarak, HER istekte çalıştırıyor. — **Yüksek, Bulgu #2**
-3. **Grup Analizi'nde 3 farklı grafik (kategori/üst-kategori/market dağılımı) aynı `getGroupExpenseDetails` sorgusunu birbirinden habersiz 3 kez çalıştırıyor** — aynı hata kişisel Analiz'de zaten bulunup `fetchBreakdownData` ile tek sorguya indirilmişti, grup tarafına taşınmamış. — **Orta-Yüksek, Bulgu #3**
+**En yüksek etkili 3 bulgu (Round 2, güncel kod durumu için):**
+1. **`getUserPlanInfo()` (plan/deneme bilgisi) `cache()` ile sarmalanmamış ve tek bir sayfa yüklemesinde 2-3 kez bağımsız olarak `users` tablosunu sorguluyor** — `layout.tsx` + `settings`/`scan`/`ai-chat`/`reports`/`expenses/archive` sayfalarının HER BİRİ + `getRemainingScanCredits`/`getAiChatQuotaStatus` gibi iç yardımcılar aynı sorguyu tekrar çalıştırıyor (`/scan` sayfası tek başına 3x). Tam olarak Bulgu #1'in çözdüğü sorunun bir kopyası, yeni kodda tekrarlanmış. — **Kritik, Bulgu #14 (YENİ)**
+2. **Esnaf Modu tamamen kilitlendi (`16db0b8`) ama kodu silinmedi** — `src/app/(app)/esnaf/**` (38 dosya), `src/lib/esnaf/**` (9 dosya) ve `src/components/modules/esnaf/**` (78 dosya) artık layout seviyesinde koşulsuz `EsnafLockedPage` döndüğü için (`{children}` hiç render edilmiyor) fiilen ulaşılamaz durumda ama build'e/koda dahil olmaya devam ediyor. — **Orta (bakım/build maliyeti), Bulgu #15 (YENİ)**
+3. **Grup sohbetindeki okundu-bilgisi (read receipt) yazma işlemi, grup detay sayfasının TÜM realtime-tetiklemeli veri paketini (Bulgu #3'ün 3x duplike sorgusu dahil) her mesaj okunduğunda açık olan HER görüntüleyici için yeniden çekiyor** — `markGroupAsRead` yazdığı `group_members` tablosu aynı zamanda sohbetin dinlediği realtime tablo, bu yüzden bir okundu-bilgisi güncellemesi zincirleme `router.refresh()` tetikliyor. — **Orta-Yüksek, Bulgu #17 (YENİ)**
 
-**Düzeltilmezse en büyük risk:** Esnaf Modu şu an sadece `is_admin` kullanıcılarına açık (mobil taraftaki gate ile aynı, Play Store lansmanı öncesi kasıtlı bir kısıtlama — bkz. proje hafızası) ama **kilit kalkıp gerçek kullanıcı trafiğine açıldığında**, sayfa başına 6-8 auth round-trip + 2-3 duplike RPC çağrısı hem gözle görülür yavaşlık (muhtemelen saniyeler mertebesinde TTFB) hem de Supabase Auth/Postgres üzerinde gereksiz yük/maliyet olarak katlanarak büyüyecek.
+**Düzeltilmezse en büyük risk (Round 2):** `getUserPlanInfo()` deseni (Bulgu #14) tam olarak Esnaf Modu'nda (Bulgu #1, round 1) yaşanan sorunun KİŞİSEL modülde, gerçek/canlı trafiğe açık sayfalarda (herkes kullanıyor, admin-gate yok) tekrarlanmış hali — yani round 1'deki "en büyük risk" senaryosu (gate kalkınca patlar) burada zaten şu an, canlıda, gate olmadan gerçekleşiyor. Her `/scan`, `/ai-chat`, `/reports`, `/expenses/archive`, `/settings` yüklemesi 2-3 fazla `users` sorgusu yapıyor; trafik arttıkça bu Supabase Postgres/Auth yükünde katlanarak büyüyen, ölçülebilir bir maliyet ve gecikme kaynağı.
 
 ---
 
@@ -41,6 +45,8 @@
 - **Removal Safety:** Likely Safe (davranış değişmiyor, sadece tekrar eden ağ çağrıları birleşiyor) — `cache()` eklemek mekanik ve düşük riskli; fonksiyon imzası birleştirmesi orta düzeyde test gerektirir.
 - **Reuse Scope:** Service-wide (`lib/esnaf/active-business.ts`, `lib/utils/admin.ts` + 36 çağıran dosya).
 
+**Durum (Round 2): FIXED (öneri #1 uygulandı), ama şu an MOOT.** `src/lib/esnaf/active-business.ts:3,16` — `getUserBusinesses` artık `import { cache } from "react"` ile sarmalanmış, önerilen değişiklik birebir uygulanmış. Ancak `16db0b8` commit'i Esnaf Modu'nu HERKESE (admin dahil) kapattığı için (`(app)/esnaf/(dashboard)/layout.tsx` artık koşulsuz `<EsnafLockedPage />` döndürüyor, bu fonksiyonlar hiç çağrılmıyor) bu düzeltmenin bugün ölçülebilir bir etkisi yok — modül tekrar açıldığında devreye girecek, hazır bekliyor.
+
 ---
 
 ### Bulgu #2 — `auth.getUser()` her sayfada 2-3+ kez tekrarlanıyor; middleware bunu herkese açık sayfalarda bile her istekte çalıştırıyor
@@ -61,6 +67,8 @@
 - **Removal Safety:** Needs Verification (middleware'deki cookie-refresh davranışı dikkatlice korunmalı).
 - **Reuse Scope:** Service-wide (tüm `(app)/*` sayfaları + middleware).
 
+**Durum (Round 2): STILL OPEN, ve aynı desen yeni 7 günlük deneme özelliğinde tekrarlanmış.** Middleware hâlâ public route ayrımı yapmadan her istekte `auth.getUser()` çağırıyor. Ayrıca `getUserPlanInfo()` (yeni entitlement/trial okuma fonksiyonu, `entitlements.ts`) da `cache()`'siz — bkz. aşağıdaki **Bulgu #14 (YENİ)**, bu bulgunun kişisel modüldeki genişlemiş/daha ciddi hali.
+
 ---
 
 ### Bulgu #3 — Grup Analizi: aynı sorgu 3 grafik için bağımsız olarak 3 kez çalıştırılıyor (kişisel Analiz'de zaten düzeltilmiş aynı hata)
@@ -80,6 +88,8 @@
 - **Removal Safety:** Safe.
 - **Reuse Scope:** Local module (`lib/data/groups.ts` + `group-analytics-card.tsx` çağıranı).
 
+**Durum (Round 2): STILL OPEN.** `getGroupExpenseDetails` (`src/lib/data/groups.ts:260-`) hâlâ `cache()`'siz düz bir `async function`; `getGroupCategoryBreakdown`/`getGroupParentCategoryBreakdown`/`getGroupStoreBreakdown` üçü de hâlâ bağımsız çağırıyor. Ayrıca bu turda AYNI sayfada yeni bir katman daha eklendi — bkz. **Bulgu #17 (YENİ)**, grup sohbetindeki okundu-bilgisi yazımının bu 3x sorguyu her mesaj okunduğunda tekrar tetiklemesi.
+
 ---
 
 ### Bulgu #4 — `/expenses` sayfası aynı `categories` tablosunu iki kez sorguluyor
@@ -98,6 +108,8 @@
 - **Removal Safety:** Safe.
 - **Reuse Scope:** Local file.
 
+**Durum (Round 2): FIXED.** `src/app/(app)/expenses/page.tsx:26-33` artık sadece `getCategoriesFull(supabase)`'ı çağırıp `categories`/`categoryNamesById`'yi bundan türetiyor (`.map(...)`) — önerilen çözüm birebir uygulanmış, ikinci sorgu kaldırılmış.
+
 ---
 
 ### Bulgu #5 — Esnaf "Toplu Fiş Tarama" (Evrak Arşivi) dosyaları sırayla (paralel değil) tarıyor
@@ -115,6 +127,8 @@
 - **Expected impact estimate:** N belgelik toplu taramada toplam süre yaklaşık `N × tek-tarama-süresi`'nden `⌈N / concurrency⌉ × tek-tarama-süresi`'ne düşer (concurrency=4 için ~4x hızlanma).
 - **Removal Safety:** Likely Safe (davranış aynı, sadece sıralama paralelleşiyor) — hata izolasyonunun (`try/catch` per-item) korunduğundan emin olun.
 - **Reuse Scope:** Local file (`global-batch-scan-dialog.tsx`).
+
+**Durum (Round 2): STILL OPEN, ama şu an MOOT.** `global-batch-scan-dialog.tsx:63,94` hâlâ `for (const draft of ...)` ile sıralı. Esnaf Modu'nun tamamen kilitlenmesi (bkz. Bulgu #1'in Round 2 notu) bu dosyanın da hiç render edilmediği anlamına geliyor — modül tekrar açıldığında düzeltilmesi gereken bir öğe olarak kalıyor.
 
 ---
 
@@ -137,6 +151,8 @@
 - **Removal Safety:** Needs Verification (Vercel image optimization kotası/maliyeti kontrol edilmeli; `remotePatterns` doğru path'e kısıtlanmalı).
 - **Reuse Scope:** Local module + config (`next.config.ts`, 2 component, 1 upload fonksiyonu).
 
+**Durum (Round 2): STILL OPEN.** `next.config.ts`'de hâlâ `images:` alanı yok, `business-logo-form.tsx:75` hâlâ `unoptimized` kullanıyor. Esnaf Modu kilitli olsa da bu component'in kilitten ETKİLENMEYEN bir kardeşi var: logo yükleme akışı esnaf-özel ama görüntüleme tarafı (`business-switcher.tsx`) da kilitli sayfaların İÇİNDE, yani bu da şu an fiilen çağrılmıyor — Bulgu #1/#5 ile aynı "esnaf kilidi yüzünden moot" durumu.
+
 ---
 
 ### Bulgu #7 — Landing page: `PricingSection`/`WorkflowSection` framer-motion kullanıyor ama `next/dynamic` ile bölünmemiş (sibling section'ların aksine)
@@ -154,6 +170,8 @@
 - **Expected impact estimate:** Landing page ilk JS indirmesinde küçük-orta azalma (kesin % framer-motion'ın gerçek gzip boyutuna ve diğer bölünmüş chunk'larla paylaşılan koda bağlı — ölçülmeli).
 - **Removal Safety:** Safe.
 - **Reuse Scope:** Local file (`app/page.tsx`).
+
+**Durum (Round 2): FIXED.** `src/app/page.tsx:32-36` — `WorkflowSection` ve `PricingSection` artık diğer 5 section ile aynı `next/dynamic` kalıbına taşınmış.
 
 ---
 
@@ -173,6 +191,8 @@
 - **Removal Safety:** Needs Verification (ölçülmeden kesin kazanç iddia edilemez, bu yüzden "likely").
 - **Reuse Scope:** Module-wide (`analytics/page.tsx` + 4 tab component).
 
+**Durum (Round 2): Not re-verified in detail** — bu turda `/analytics` sayfasının tab yapısı değişmemiş görünüyor (`9a34d9c` yeni bir `cashflow-forecast-card.tsx` ve `installments-analytics-tab.tsx` EKLEDİ, `analytics-tabs-nav.tsx`'e yeni bir sekme daha katarak — bu, aynı code-splitting sorununu BÜYÜTMÜŞ olabilir, tab sayısı arttıkça statik-import edilen client chart kodu da artıyor). Kesin bundle ölçümü yapılmadı, önceki "Needs Verification" durumu geçerliliğini koruyor, artık bir tab daha eklendiği için önceliği artmış olabilir.
+
 ---
 
 ### Bulgu #9 — `Sidebar` gereksiz yere `"use client"` (hook/state yok, sadece client `NavLink`'i sarıyor)
@@ -185,11 +205,19 @@
   - `src/components/modules/shell/nav-link.tsx:1,10` — asıl interaktiviteye (`usePathname` ile aktif link vurgulama) ihtiyaç duyan bileşen zaten ayrı ve doğru şekilde `"use client"`.
   - Kontrast: `src/components/modules/shell/topbar.tsx` — HİÇ `"use client"` yok, doğru şekilde client çocuklarını (`MobileNavDrawer`, `UserMenu`, `ThemeToggle`) sarıp kendisi server component kalıyor — yani proje içinde zaten doğru desen (`Topbar`) mevcut, `Sidebar`'a uygulanmamış.
 - **Why it's inefficient:** Next.js/React Server Component modelinde bir Server Component, Client Component'leri prop olarak/doğrudan render edebilir — `Sidebar`'ın kendisinin client olmasına gerek yok. Etkisi küçük (zaten `NavLink` + `nav-config` client'a gidiyor) ama `(app)` layout'unun HER sayfasında render edildiği için (her app sayfasında mevcut) toplamda gereksiz bir "bu modül client'tır" sınırı ekliyor.
-- **Recommended fix:** `sidebar.tsx`'in başındaki `"use client"` satırını kaldırın; `NavLink` zaten kendi `"use client"` sınırını taşıdığı için davranış değişmez.
-- **Tradeoffs/Risks:** Yok.
-- **Expected impact estimate:** Küçük (muhtemelen ölçülemeyecek kadar küçük, ama sıfır maliyetli bir düzeltme).
-- **Removal Safety:** Safe.
+- **Recommended fix:** ~~`sidebar.tsx`'in başındaki `"use client"` satırını kaldırın; `NavLink` zaten kendi `"use client"` sınırını taşıdığı için davranış değişmez.~~
+- **Tradeoffs/Risks:** ~~Yok.~~
+- **Expected impact estimate:** ~~Küçük (muhtemelen ölçülemeyecek kadar küçük, ama sıfır maliyetli bir düzeltme).~~
+- **Removal Safety:** ~~Safe.~~ **YANLIŞ — bkz. Round 2 durumu.**
 - **Reuse Scope:** Local file.
+
+> ## ⚠️ RETRACTED (Round 2, 2 Ağustos 2026) — bu bulgunun önerisi PRODUCTION'I KIRDI, bir daha uygulanmasın
+>
+> Bu bulgu "Tradeoffs/Risks: Yok" ve "Removal Safety: Safe" diyordu. **İkisi de yanlıştı.** Eş zamanlı bir oturum bu öneriyi aynen uyguladı (`"use client"` kaldırıldı) ve bu, `/dashboard` dahil **TÜM kimlik doğrulamalı sayfaları** çökertti — kullanıcılar "This page couldn't load / A server error occurred" hatası aldı (digest `1621801304`).
+>
+> **Neden yanlıştı:** Analiz "sadece statik markup render ediyor, hook yok" derken doğruydu, ama gözden kaçırdığı şey şuydu: `Sidebar`'ın çocuğu `NavLink` (`nav-link.tsx:1`) Client Component ve `nav-config.ts`'ten gelen `item.icon`'u — yani bir **Lucide ikon component'i (fonksiyon referansı)** — prop olarak alıyor. `Sidebar` Server Component'e dönüşünce, bu artık bir Server Component'in bir Client Component'e FONKSİYON geçirmeye çalışması demek — React Server Components modelinde bu geçersiz ve React bunu reddediyor ("Functions cannot be passed directly to Client Components unless you explicitly expose it by marking it with 'use server'"). Bu, "hook/state var mı" kontrolü kadar basit değil — bir bileşenin server'a taşınıp taşınamayacağını belirlemek için TÜM prop zincirinin serileştirilebilir olup olmadığı da kontrol edilmeli, sadece kendi içindeki hook kullanımı değil.
+>
+> Olay `ff51e9b` commit'iyle (`"use client"` geri eklenerek) düzeltildi ve o zamandan beri stabil. **Ders:** Bu tarz "gereksiz use client" bulguları için Removal Safety'yi "Safe" işaretlemeden önce, kaldırılacak bileşenin render ettiği HER client çocuğunun aldığı HER prop'un serileştirilebilir (string/number/boolean/plain object/array/JSX) olduğu, fonksiyon/Symbol/class instance içermediği doğrulanmalı — "Needs Verification" olarak işaretlenip bu kontrol yapılmadan asla "Safe" denmemeli.
 
 ---
 
@@ -207,6 +235,8 @@
 - **Expected impact estimate:** Sadece bakım/okunabilirlik.
 - **Removal Safety:** Safe.
 - **Reuse Scope:** Local file.
+
+**Durum (Round 2): FIXED (kaldırılmış).** `grep -rn "getUserProfile" src` artık `dashboard.ts`'te bile sıfır sonuç veriyor — fonksiyonun kendisi tamamen silinmiş (önerinin "sil" seçeneği uygulanmış).
 
 ---
 
@@ -227,6 +257,8 @@
 - **Removal Safety:** Likely Safe.
 - **Reuse Scope:** Module-wide (`(app)/layout.tsx`, `esnaf/(dashboard)/layout.tsx`).
 
+**Durum (Round 2): Not Applicable Anymore (esnaf kilidi yüzünden).** Esnaf Modu tamamen kapalı olduğu için `esnaf/(dashboard)/layout.tsx`'teki ikinci Realtime kanalı hiç mount olmuyor — çift kanal sorunu şu an fiilen yok. Modül tekrar açıldığında bu bulgu geri gelir, öneri hâlâ geçerli.
+
 ---
 
 ### Bulgu #12 — `select("*")` 80 yerde kullanılıyor — bazıları geniş/iç içe join'lerde gereksiz kolon taşıyor
@@ -241,6 +273,8 @@
 - **Expected impact estimate:** Genel olarak düşük (tablolar zaten kullanıcı-scope'lu ve küçük); en çok trafik alan birkaç sorguda ölçülebilir bandwidth tasarrufu.
 - **Removal Safety:** Safe ama "Needs Verification" per-query (nested join'lerde hangi kolonların gerçekten kullanıldığını component tarafında doğrulamak gerekir).
 - **Reuse Scope:** Service-wide ama düşük öncelik.
+
+**Durum (Round 2): STILL OPEN, genişlemiş.** Yeni `cards.ts`/`installments.ts`/`forecast.ts`/`banks.ts` dosyaları bu deseni tekrarlamıyor (`CARD_COLS` gibi açık kolon listeleri kullanıyorlar, bkz. Bulgu #7'nin kod incelemesi — iyi bir işaret), ama genel `select("*")` sayısı 25 commit'lik yeni kodla muhtemelen artmıştır (tam sayım bu turda yeniden yapılmadı). Düşük öncelik olarak kalıyor.
 
 ---
 
@@ -257,24 +291,82 @@
 - **Removal Safety:** Safe.
 - **Reuse Scope:** Local file (aynı zamanda `landing-chat` route'unun da aynı limiter'ı kullandığı belirtiliyor — kontrol edilmeli).
 
+**Durum (Round 2): STILL OPEN, ve aynı desen yeni `get-investment-prices` edge function'ına da kopyalanmış.** `rate-limit.ts` değişmemiş. Ayrıca `supabase/functions/get-investment-prices/index.ts:37-49`'a (bkz. `SECURITY_AUDIT_WEB.md` Bulgu #5'in Round 2 notu) TAM OLARAK aynı temizlenmeyen `Map` deseni yeni eklenmiş — artık bu limitasyon 3 yerde (`rate-limit.ts`, `scan-demo.ts`, `get-investment-prices/index.ts`) bağımsız olarak var, hiçbiri paylaşılmıyor/temizlenmiyor. Ortak bir `lib/utils/`'a çıkarılıp (edge function Deno olduğu için doğrudan import edilemez ama aynı mantık kopyalanabilir) periyodik temizlik eklenmesi artık 3 kopyayı birden düzeltir.
+
 ---
 
-## 3) Quick Wins (Do First)
+## Round 2 Findings — 25 commit'lik delta (`790196b..HEAD`)
 
-1. **Bulgu #4** — `expenses/page.tsx`'te duplike `categories` sorgusunu kaldırın (tek satırlık değişiklik, sıfır risk).
-2. **Bulgu #9** — `sidebar.tsx`'ten gereksiz `"use client"`'ı kaldırın (tek satır silme).
-3. **Bulgu #10** — Kullanılmayan `getUserProfile`'ı silin ya da `layout.tsx`'e bağlayın.
-4. **Bulgu #7** — `PricingSection`/`WorkflowSection`'ı diğer 5 section gibi `next/dynamic`'e taşıyın (kopyala-yapıştır desen, ~10 dakika).
-5. **Bulgu #1'in en ucuz parçası** — `getActiveBusiness`/`getUserBusinesses`/`isAdminUser`'ı `React.cache()` ile sarmalayın — imza değişmiyor, tüm 36+ çağıran dosya dokunulmadan otomatik fayda görür. **En yüksek ROI/efor oranı olan tek değişiklik.**
+### Bulgu #14 — `getUserPlanInfo()` (plan/deneme bilgisi) `cache()`'siz, sayfa başına 2-3 kez bağımsız sorgulanıyor
 
-## 4) Deeper Optimizations (Do Next)
+- **Category:** Database / Network (N+1, aynı sınıf Bulgu #1/#2 ile)
+- **Severity:** Critical
+- **Impact:** Latency, DB yükü — bu sefer Esnaf Modu gibi kilitli/admin-only bir modülde değil, **canlı, herkese açık, en çok trafik alan kişisel sayfalarda**
+- **Evidence:**
+  - `src/lib/utils/entitlements.ts` — `getUserPlanInfo(supabase, userId)` düz bir `export async function`, `cache()` sarmalaması YOK (`grep "= cache("` sıfır sonuç bu dosyada; kıyasla `active-business.ts` Bulgu #1'in düzeltmesiyle `cache()` kullanıyor).
+  - Çağıran sayıları: `grep -rn "getUserPlanInfo(" src` → **9 çağıran site**, en az `(app)/layout.tsx`, `/scan/page.tsx`, `/ai-chat/page.tsx`, `/reports` altındaki bir sayfa, `/settings/page.tsx`. `/scan/page.tsx` özelinde: layout'un kendi çağrısı + page'in kendi çağrısı + `getRemainingScanCredits`'in içindeki dolaylı `isPersonalPremium` kontrolü — tek sayfa yüklemesinde 2-3 bağımsız `users` sorgusu.
+  - Her çağrı `supabase.from("users").select("plan_type, esnaf_plan, esnaf_staff_limit, trial_started_at, trial_offer_dismissed").eq("id", userId).maybeSingle()` — küçük bir sorgu ama gerçek bir ağ round-trip.
+- **Why it's inefficient:** Bulgu #1'in TAM OLARAK çözdüğü sorunun bir kopyası — aynı proje içinde kanıtlanmış bir çözüm (`cache()`) var ama yeni kodun yazıldığı an unutulmuş. Fark: Bulgu #1 (Esnaf) artık modül kilidi yüzünden moot; bu bulgu ise KİLİTSİZ, gerçek kullanıcı trafiğine açık sayfalarda birebir gerçekleşiyor.
+- **Recommended fix:** `entitlements.ts`'e `import { cache } from "react"` ekleyip `getUserPlanInfo`'yu `export const getUserPlanInfo = cache(async (...) => {...})` şeklinde sarmalayın — imza değişmez, 9 çağıran dosya dokunulmadan fayda görür (Bulgu #1'in aynı deseni).
+- **Tradeoffs/Risks:** Yok — `cache()` tek bir React render/request ömrü boyunca geçerli, mutasyon sonrası (`startTrialAction` gibi) zaten `revalidatePath` ile yeni bir render tetikleniyor.
+- **Expected impact estimate:** `/scan`, `/ai-chat`, `/reports`, `/settings` sayfa yüklemelerinde 1-2 DB round-trip tasarrufu; bu sayfalar Esnaf'ın aksine GERÇEK trafik alıyor, bu yüzden toplam etkisi Bulgu #1'den daha yüksek olabilir.
+- **Removal Safety:** Safe (mekanik, `active-business.ts`'te zaten kanıtlanmış aynı değişiklik).
+- **Reuse Scope:** Service-wide (`entitlements.ts` + 9 çağıran dosya).
 
-1. **Bulgu #1 (tam çözüm)** — Esnaf layout + page.tsx'lerin `getActiveBusiness`'ı ayrı ayrı çağırma zorunluluğunu ortadan kaldıracak şekilde, business bilgisini layout'tan page'e context/prop olarak geçirmeyi değerlendirin (Next.js'te layout→page arası doğrudan prop geçişi yok, ama `cache()` + gelecekte parallel routes/slot deseni düşünülebilir).
-2. **Bulgu #2** — Middleware'i public-route kısayoluyla optimize edin; `getCurrentUser()` helper'ını `cache()` ile tüm `(app)/*` sayfalarına yayın.
-3. **Bulgu #3** — `getGroupAnalytics` birleşik fonksiyonunu yazıp grup analiz sorgularını `analytics.ts`'teki `fetchBreakdownData` desenine hizalayın.
-4. **Bulgu #8** — `/analytics` sekmelerini gerçek route segment'lerine (`/analytics/gelir-gider`, `/analytics/abonelikler` vb.) veya `next/dynamic` client-lazy chart'lara bölmeyi değerlendirin — önce bundle analyzer ile mevcut route JS boyutunu ölçün.
-5. **Bulgu #6** — `next.config.ts`'e `images.remotePatterns` ekleyip Vercel image-optimization maliyetini/kotasını değerlendirdikten sonra `unoptimized` kaldırın; logo upload'a client-side resize ekleyin.
-6. **Bulgu #11** — Kişisel/esnaf Realtime kanallarını route-group ile ayırın.
+---
+
+### Bulgu #15 — Esnaf Modu tamamen kilitlendi ama ~125 dosya hâlâ build'e/koda dahil (dead code, build maliyeti)
+
+- **Category:** Code Reuse & Dead Code / Build
+- **Severity:** Medium (bakım + build maliyeti; performans etkisi yok çünkü hiç render edilmiyor)
+- **Impact:** Bundle/build süresi, kod tabanı bakım yükü, "bu kod hâlâ çalışıyor mu" belirsizliği
+- **Evidence:**
+  - `16db0b8` commit'i `(app)/esnaf/(dashboard)/layout.tsx` ve `esnaf/page.tsx`'i koşulsuz `<EsnafLockedPage />` döndürecek şekilde değiştirdi — ama `src/app/(app)/esnaf/**` (38 route dosyası), `src/lib/esnaf/**` (9 dosya), `src/components/modules/esnaf/**` (78 component dosyası) SİLİNMEDİ, hâlâ repo'da.
+  - Bu route'lar Next.js'in build-time route taramasına dahil oluyor (her biri kendi sayfa bundle'ını üretiyor) ama hiçbir kullanıcı hiçbir zaman bu koda ulaşamıyor (layout seviyesinde erken dönüş).
+- **Why it's inefficient:** Ölü kod build süresini, `tsc`/lint taramasını ve kod tabanının zihinsel yükünü artırıyor; ayrıca bu koddaki bir bug asla fark edilmez (test/kullanım yok) — modül tekrar açıldığında sürpriz regresyon riski.
+- **Recommended fix:** Eğer Esnaf Modu'nun yakın zamanda geri açılması PLANLANMIYORSA, bu 125 dosyayı bir git branch'inde/tag'de saklayıp ana daldan kaldırmayı değerlendirin. Yakın zamanda geri açılması planlanıyorsa, mevcut durum (kod dursun, tek bir layout guard'ı ile kapalı) makul bir tradeoff — sadece net bir yorum/TODO ile "ne zaman/nasıl açılacağı" belgelenmeli (`layout.tsx`'teki mevcut yorum bunu kısmen yapıyor).
+- **Tradeoffs/Risks:** Silme kararı geri dönüşü zor (git history'de kalır ama "aktif kod" olmaktan çıkar) — ÜRÜN kararı, bir mühendislik kararı değil. Fix olarak ÖNERİLMİYOR, sadece gözlemleniyor.
+- **Expected impact estimate:** Build süresinde küçük-orta azalma (125 dosya derlenmeye devam ediyor); asıl kazanç bakım/netlik.
+- **Removal Safety:** Needs Verification (ürün kararı gerektirir, kod-safety sorunu değil).
+- **Reuse Scope:** Service-wide (125 dosya).
+
+---
+
+### Bulgu #16 — Grup sohbeti okundu-bilgisi yazımı, sayfanın TÜM verisini (3x duplike sorgu dahil) her açılışta yeniden çekiyor
+
+- **Category:** Database / Reliability (realtime-tetiklemeli aşırı refetch)
+- **Severity:** Medium-High
+- **Impact:** Bir grup sohbeti açık olan HER görüntüleyici için, herhangi bir üye mesaj okuduğunda tetiklenen gereksiz tam sayfa server-refetch
+- **Evidence:**
+  - `src/components/modules/groups/group-chat-card.tsx:49` — `useRealtimeRefresh(["group_messages", "group_members"])` — bu component `group_members` tablosundaki HERHANGİ bir değişiklikte sayfayı yeniden çeker.
+  - `:53` — `markGroupAsRead(createClient(), groupId, currentUserId)` component mount/görünür olduğunda çağrılıyor, bu da `src/lib/data/groups.ts:594-`'teki `markGroupAsRead`'in `group_members.last_read_at` kolonunu UPDATE etmesine yol açıyor.
+  - Sonuç: kullanıcı A sohbeti açar → `last_read_at` güncellenir → `group_members` realtime event'i tetiklenir → sohbeti açık tutan kullanıcı B, C, D'nin HER BİRİNDE `useRealtimeRefresh` bunu yakalayıp `router.refresh()` çağırır → grup detay sayfasının TÜM server component ağacı (Bulgu #3'ün 3x duplike `getGroupExpenseDetails` sorgusu dahil) yeniden render/fetch edilir — sadece küçük bir "okundu" tik'i göstermek için.
+- **Why it's inefficient:** Okundu-bilgisi göstermek için sayfanın harcama/analiz verisinin TAMAMEN yeniden çekilmesine gerek yok — bu, granülerlik uyuşmazlığı (bir mesajlaşma özelliği bir finans-analiz sayfasını yeniden yüklüyor).
+- **Recommended fix:** `markGroupAsRead`'i `useRealtimeRefresh`'in dinlediği tablo listesinden (`group_members`) ayırın — ya `last_read_at` güncellemesini ayrı bir tabloya/mekanizmaya taşıyın (realtime dinlenmeyen), ya da `useRealtimeRefresh`'e bir "bu tablodaki HANGİ kolon değişirse tetiklensin" filtresi ekleyin (Supabase Realtime `postgres_changes` bunu native desteklemiyor ama client tarafında payload'daki değişen kolonlara bakıp `last_read_at`-only değişiklikleri filtreleyip `router.refresh()` çağırmayı atlayabilirsiniz).
+- **Tradeoffs/Risks:** Filtreleme mantığı realtime payload'ın eski/yeni satır farkına güvenir — Supabase'in `REPLICA IDENTITY` ayarına bağlı olarak payload'da tüm kolonlar gelmeyebilir, doğrulanmalı.
+- **Expected impact estimate:** Aktif bir grup sohbetinde (birden fazla eşzamanlı görüntüleyici) gereksiz tam-sayfa refetch sayısında büyük azalma — mesaj-okuma sıklığı, mesaj-gönderme sıklığından genelde çok daha yüksektir.
+- **Removal Safety:** Needs Verification (realtime payload davranışı canlı test edilmeli).
+- **Reuse Scope:** Local module (`group-chat-card.tsx` + `groups.ts`).
+
+---
+
+## 3) Quick Wins (Do First) — Round 2, güncel durum
+
+~~Bulgu #4, #9(→RETRACTED, uygulamayın), #10, #7~~ — hepsi Round 1'den bu yana FIXED, aşağıdan çıkarıldı.
+
+1. **Bulgu #14 (YENİ) — En yüksek ROI/efor oranı olan tek değişiklik, tıpkı eski Bulgu #1 gibi.** `getUserPlanInfo`'yu `React.cache()` ile sarmalayın (`entitlements.ts`) — tek satırlık, imza değişmiyor, 9 çağıran dosya otomatik fayda görür, GERÇEK/canlı trafiğe açık sayfalarda (Esnaf'ın aksine).
+2. **Bulgu #16 (YENİ)** — `markGroupAsRead`'in `group_members` realtime kanalını tetiklemesini durdurun (filtre veya ayrı tablo) — aktif grup sohbetlerinde gereksiz tam-sayfa refetch'i keser.
+3. **Bulgu #3** — hâlâ açık, hâlâ ucuz bir düzeltme: `getGroupExpenseDetails`'i `cache()`'leyin (tam `getGroupAnalytics` birleşimini beklemeden bile, sadece cache eklemek 3x sorguyu 1x'e indirir aynı request içinde).
+
+## 4) Deeper Optimizations (Do Next) — Round 2, güncel durum
+
+~~Bulgu #1 (tam çözüm), #2, #6, #11~~ — Esnaf Modu kilitli olduğu için #1/#6/#11 şu an moot (modül açılırsa öncelik kazanır); #2 hâlâ geçerli ama Bulgu #14 ile aynı kök nedenin (auth/entitlement sorgularının cache'lenmemesi) bir parçası olarak birlikte ele alınabilir.
+
+1. **Bulgu #2 + #14 birlikte** — `getCurrentUser()`/`getUserPlanInfo` ikisini de `cache()`'leyip middleware'in public-route kısayolunu ekleyin — aynı kök neden sınıfı, tek bir "auth/entitlement caching" turu olarak ele alınabilir.
+2. **Bulgu #3 (tam çözüm)** — `getGroupAnalytics` birleşik fonksiyonunu yazın.
+3. **Bulgu #16** — realtime payload filtreleme mantığını canlı ortamda test ederek uygulayın.
+4. **Bulgu #8** — artık 5 sekmeye çıkan `/analytics`'i route segment'lerine veya `next/dynamic` chart'lara bölmeyi değerlendirin — bundle analyzer ile önce ölçün.
+5. **Bulgu #15** — Esnaf Modu'nun geri açılma zaman çizelgesine göre ~125 dosyayı tutma/kaldırma kararını ürün ekibiyle netleştirin.
 
 ## 5) Validation Plan
 
@@ -288,6 +380,8 @@
 ## 6) Optimized Code / Patch (öneriler — UYGULANMADI)
 
 Aşağıdakiler somut kod önerileridir, siz ayrıca uygulayacaksınız.
+
+**Round 2 durumu:** 6.1 (`cache()` sarmalaması) ve 6.2 (duplike `categories` sorgusu) Round 1'den bu yana UYGULANMIŞ (bkz. Bulgu #1/#4'ün Round 2 notları) — aşağıda referans için tutuluyor ama artık aksiyon gerektirmiyor. 6.3 RETRACTED (aşağıya bakın, uygulamayın). 6.4 UYGULANMIŞ (Bulgu #7). Yeni Round 2 bulguları (#14/#16) için hazır patch'ler henüz yazılmadı — bu turun kapsamı sadece raporlamaydı, kod değiştirilmedi.
 
 ### 6.1 — Bulgu #1 + #10 kısmi çözüm: `active-business.ts`'i `cache()` ile sarmalama
 
@@ -339,13 +433,9 @@ const [expenses, categoriesFull, groups] = await Promise.all([
 const categories = categoriesFull.map((c) => ({ name: c.name, group: c.parent_group ?? "", emoji: c.icon }));
 ```
 
-### 6.3 — Bulgu #9: `Sidebar`'dan `"use client"` kaldırma
+### 6.3 — ~~Bulgu #9: `Sidebar`'dan `"use client"` kaldırma~~ — KALDIRILDI, RETRACTED
 
-```diff
-- "use client";
--
-  import Link from "next/link";
-```
+**Bu patch buradan bilerek silindi.** Aynen burada yazılı olduğu gibi uygulandı ve production'ı kırdı (bkz. yukarıdaki Bulgu #9'un "⚠️ RETRACTED" notu, tam olay anlatımı orada). `Sidebar`'da `"use client"` KALMALI — kaldırmayın. Bu patch'i buradan referans alıp tekrar uygulamayın.
 
 ### 6.4 — Bulgu #7: eksik dynamic import'ları ekleme
 
