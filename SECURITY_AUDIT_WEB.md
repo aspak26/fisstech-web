@@ -169,6 +169,8 @@ $$;
 ```
 Sonra `startTrialAction()`'ın kendisini de bu triggerdan MUAF tutan bir SECURITY DEFINER RPC'ye taşımak gerekir (aynen `claim_early_gift`'in `084_fix_early_gift.sql`'de yaptığı gibi — `set_config('request.jwt.claims', '', true)` ile trigger'ı geçici olarak bypass edip geri yüklemek), yoksa YENİ trigger web'in KENDİ server action'ını da bloke eder. Bu SQL değişikliği yapılana kadar **hiçbir kod değişikliği web tarafında bu açığı kapatamaz** — RLS/trigger veritabanı seviyesinde bir düzeltme gerektiriyor, kullanıcının Supabase SQL Editor'da çalıştırması gerekecek.
 
+**Durum: DÜZELTME YAZILDI, SQL ÇALIŞTIRILMAYI BEKLİYOR.** `docs/sql/056_protect_trial_and_related_columns.sql` — yukarıda önerilen tam çözüm (trigger'a `trial_started_at`/`esnaf_staff_limit`/`has_claimed_early_gift`/`is_early_tester` eklendi + `start_trial(p_user_id)` RPC'si `claim_early_gift`'teki JWT-claims-bypass deseniyle eklendi, `canStartTrial`'ın uygunluk mantığını veritabanı tarafında tekrar doğruluyor). `src/lib/actions/trial.ts`'teki `startTrialAction()` artık doğrudan `update` yerine bu RPC'yi çağırıyor, kod deploy edildi. **Açık, kullanıcının Supabase SQL Editor'da `056_...sql`'i çalıştırmasına kadar kapanmıyor** — SQL çalıştırılana dek RLS/trigger hâlâ eski (korumasız) halde, `start_trial` RPC'si de mevcut olmadığı için web'deki "Ücretsiz Denemeyi Başlat" butonu SQL çalıştırılana kadar hata verir (kullanıcı deneyimi bozulur ama güvenlik açığı da açık kalmaz — RPC yokken eski `update` yolu da kaldırıldığı için kimse deneme başlatamaz, ama tam tersi bir istismar da mümkün değildir).
+
 ---
 
 ### 7. Kartlarım — Uygulama Katmanında Sahiplik Filtresi Eksik (Low — RLS ile telafi ediliyor)
