@@ -7,11 +7,11 @@ export const metadata = {
 
 export default function GizlilikPage() {
   return (
-    <LegalLayout title="Gizlilik Politikası" updatedAt="2 Ağustos 2026">
+    <LegalLayout title="Gizlilik Politikası" updatedAt="10 Eylül 2026">
       <section>
         <p>
           Fişştech (&quot;biz&quot;, &quot;bize&quot;, &quot;uygulama&quot;) olarak, fiş/fatura taramadan kişisel
-          bütçe ve işletme (Esnaf Modu) yönetimine kadar sunduğumuz hizmetler kapsamında topladığımız
+          bütçe yönetimine kadar sunduğumuz hizmetler kapsamında topladığımız
           kişisel verilerin gizliliğine önem veriyoruz. Bu Gizlilik Politikası; hangi verileri
           topladığımızı, bunları neden ve nasıl işlediğimizi, kimlerle paylaştığımızı ve verileriniz
           üzerindeki haklarınızı açıklar. Politika, web sitesi (fisstech.co) ve mobil uygulamanın
@@ -19,8 +19,7 @@ export default function GizlilikPage() {
         </p>
         <p className="mt-3">
           Fişştech; fiş/fatura görsellerini yapay zekâ ile okuyup finansal veri hâline getiren, gelir-gider,
-          borç, hedef, abonelik ve yatırım takibi sunan, isteğe bağlı olarak işletmeler için &quot;Esnaf
-          Modu&quot; ile kasa/stok/personel/satış yönetimi sağlayan bir kişisel finans uygulamasıdır. Bu
+          borç, hedef, abonelik ve yatırım takibi sunan bir kişisel finans uygulamasıdır. Bu
           işlevlerin doğası gereği finansal nitelikte veriler işleriz — bu politikayı dikkatlice
           okumanızı öneririz.
         </p>
@@ -51,14 +50,6 @@ export default function GizlilikPage() {
           görselleri. Bu görseller, içeriklerini (tarih, tutar, ürün kalemleri, mağaza adı vb.) otomatik
           olarak okuyup dijital veriye çevirmek amacıyla yapay zekâ servisimize (aşağıda açıklanan
           Google Gemini API) gönderilir; onay verdiğiniz görseller ayrıca bulut depolamamızda saklanır.
-        </p>
-
-        <h3 className="mt-4">Esnaf Modu (İşletme) Verileri</h3>
-        <p className="mt-1.5">
-          Esnaf Modu&apos;nu kullanan işletme sahipleri için: işletme adı/adresi/vergi bilgisi, kasa
-          hareketleri, stok kayıtları, personel bilgileri (ad, rol, maaş kaydı), müşteri kayıtları ve
-          satış/fatura verileri. Bu veriler, işletmenin kendi kullanıcı hesabına ve (davet ettiği)
-          personel hesaplarına bağlı olarak işlenir.
         </p>
 
         <h3 className="mt-4">Grup ve Aile Paylaşım Verileri</h3>
@@ -98,7 +89,7 @@ export default function GizlilikPage() {
           <li>Fiş/fatura görsellerini okuyup otomatik olarak finansal kayda dönüştürmek.</li>
           <li>Harcama, gelir, borç, hedef ve yatırımlarınızı size göstermek ve analiz etmek (raporlar, grafikler, AI Sohbet).</li>
           <li>Abonelik/plan durumunuza göre hangi özelliklerin açık olduğunu belirlemek.</li>
-          <li>Grup/Esnaf Modu gibi paylaşımlı özelliklerin çalışmasını sağlamak.</li>
+          <li>Grup gibi paylaşımlı özelliklerin çalışmasını sağlamak.</li>
           <li>Hizmeti güvende tutmak, kötüye kullanımı ve dolandırıcılığı önlemek.</li>
           <li>Yasal yükümlülüklerimizi yerine getirmek.</li>
         </ul>
@@ -166,8 +157,8 @@ export default function GizlilikPage() {
         <p>
           Verileriniz, hesabınız aktif olduğu sürece saklanır. Hesabınızı Ayarlar üzerinden silmeyi
           talep ettiğinizde kişisel finansal verileriniz kalıcı olarak silinir. Yasal saklama
-          yükümlülüğü doğuran veriler (ör. Esnaf Modu&apos;ndaki fatura kayıtları gibi mali mevzuata
-          tabi olabilecek veriler), ilgili mevzuatın öngördüğü süre boyunca saklanabilir.
+          yükümlülüğü doğuran veriler (mali mevzuata tabi olabilecek veriler), ilgili mevzuatın
+          öngördüğü süre boyunca saklanabilir.
         </p>
       </section>
 
@@ -190,7 +181,7 @@ export default function GizlilikPage() {
           edersek bu veriyi derhâl sileriz.
         </p>
         <p className="mt-3">
-          Premium, Aile Planı veya Esnaf Modu gibi <strong>ücretli abonelik gerektiren
+          Premium veya Aile Planı gibi <strong>ücretli abonelik gerektiren
           özellikler yalnızca reşit (18 yaş ve üzeri) kullanıcılar veya velisinin onayıyla hareket eden
           reşit olmayan kullanıcılar</strong> tarafından satın alınabilir; uygulama içi satın alma
           işlemleri Apple/Google&apos;ın kendi yaş ve ödeme doğrulama kurallarına tabidir.
