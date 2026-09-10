@@ -14,7 +14,7 @@ Notably: the `middleware.ts` file convention is deprecated and renamed to `proxy
 
 ## Proje Nedir
 
-Fişştech, fiş tarama (AI/OCR) ve kişisel + esnaf finans yönetimini birleştiren bir mobil uygulamadır. Bu repo, o uygulamanın **web sitesi** versiyonunu inşa etmek için var — mobil uygulamayla **aynı backend'e bağlanan, fonksiyonel paritede** bir web deneyimi.
+Fişştech, fiş tarama (AI/OCR) ve kişisel finans yönetimini birleştiren bir mobil uygulamadır. Bu repo, o uygulamanın **web sitesi** versiyonunu inşa etmek için var — mobil uygulamayla **aynı backend'e bağlanan, fonksiyonel paritede** bir web deneyimi.
 
 **Tasarım ve özellik referansı:** `docs/Fisstech_Web_Blueprint.md` bu projenin tek doğruluk kaynağıdır.
 
@@ -25,8 +25,7 @@ Fişştech, fiş tarama (AI/OCR) ve kişisel + esnaf finans yönetimini birleşt
 2. Mobildeki 4 tema (Yeşil/Karanlık/Vintage/Gül) web'e taşınmaz — sadece Açık/Koyu Mod.
 3. "Vibe coding" / jenerik AI-tasarımı hissi verilmez.
 4. Fiş tarama gerçek Supabase Edge Function (`scan-receipt` → Gemini) pipeline'ına bağlanır — mock veri yok.
-5. Esnaf modu her sektör için ayrı ekran seti gerektirir — generic şablon yok.
-6. Kod her zaman gerçek dosya olarak yazılır. Henüz yapılmayan modüller gerçek route + "yakında" (ComingSoonPage) olarak var olur.
-7. İleri fazlardaki Gemini entegrasyonları (AI Sohbet, Esnaf lokal OCR) client-side API key ile YAPILMAZ — sunucu tarafı (Edge Function / Route Handler) zorunlu.
+5. Kod her zaman gerçek dosya olarak yazılır. Henüz yapılmayan modüller gerçek route + "yakında" (ComingSoonPage) olarak var olur.
+6. İleri fazlardaki Gemini entegrasyonları (AI Sohbet) client-side API key ile YAPILMAZ — sunucu tarafı (Edge Function / Route Handler) zorunlu.
 
 Detaylı tech stack, klasör yapısı, tasarım sistemi kuralları ve komutlar için: `docs/AGENTS.md`.

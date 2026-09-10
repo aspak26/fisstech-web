@@ -4,6 +4,8 @@
 
 > **GÜNCELLEME — 21 Temmuz 2026:** Aşağıdaki §2.1 ve §5'te anlatılan "Gül" temalı (#B23A65 pembe/bordo) karar **artık geçerli değil**. Kullanıcı, pazarlama sayfası ile ürün arayüzü arasında marka/renk bütünlüğü istediği için site geneli mobilin **"Yeşil"** temasına (`accent` #1E4D2B koyu orman yeşili / koyu modda #4CAF50, `accent-soft` #D6EAD9 yumuşak mint) geçirildi — güncel, tek doğru kaynak `styles/tokens.css`'teki değerler ve oradaki yorum satırlarıdır. Bu bölüm, orijinal tasarım kararının **tarihsel gerekçesini** anlamak için hâlâ değerli (aynı yöntemle mobilden renk çıkarma süreci), ama aşağıdaki hex değerleri artık canlı sitede kullanılmıyor.
 
+> **GÜNCELLEME — 4 Eylül 2026:** Esnaf Modu **mobil uygulamadan (kod + Supabase şeması) tamamen kaldırıldı** — artık mobilde hiç yok, sadece bu web sitesinde yaşıyor. Aşağıdaki §1, §2.4, §3 ve §6'daki "hem mobilde hem webde" / "mobil-web senkron" ifadeleri bu kaldırmadan **önceki** tasarıma aittir ve artık yanlış: Esnaf Modu'nun mobil tarafı yok, dolayısıyla mobil↔web senkronizasyonu diye bir şey de yok. Web'deki Esnaf Modu (bkz. `src/app/(app)/esnaf/`) kendi başına, web'e özel bir işletme yönetimi özelliği olarak kalmaya devam ediyor — kaldırılmadı, sadece artık mobille eşleşmiyor. §2.1'deki not gibi, bu bölümler tasarımın **tarihsel türetildiği kaynağı** (o zamanki mobil ekran görüntüleri) belgelemek için korunuyor, ama "mobilde de var" varsayımıyla okunmamalı.
+
 ---
 
 ## 1. Marka Kimliği
@@ -13,7 +15,7 @@
 | Eski isim | Fişle |
 | Yeni isim | **Fişştech** |
 | Konsept | Fiş tarama + kişisel/işletme finans yönetimi süper uygulaması |
-| Ton | Sıcak, güven veren, "sıfır bilişsel yük" felsefesi, hem bireysel hem esnaf kullanıcıya hitap eden çift kimlikli ürün |
+| Ton | Sıcak, güven veren, "sıfır bilişsel yük" felsefesi; **web sitesi** hem bireysel hem esnaf kullanıcıya hitap eden çift kimlikli bir ürün (mobil uygulama 4 Eylül 2026'dan beri sadece bireysel — bkz. güncelleme notu yukarıda) |
 
 ---
 
@@ -161,8 +163,8 @@ Referans alınan `fisle.co` **profesyonel, sade, güven veren** bir SaaS/fintür
 Web sitesi uygulamayla **aynı backend/veri katmanına** bağlanmalı (aynı kullanıcı hesabı, aynı veritabanı). Pratikte:
 
 - Fiş tarama akışı web'de **dosya yükleme (drag & drop + file picker)** üzerinden çalışmalı, aynı AI analiz pipeline'ına (n8n/Gemini) istek atmalı.
-- Kullanıcının o an aktif olduğu **esnaf modülü** hem mobilde hem webde aynı seçili modül olarak senkron kalmalı.
-- Gerçek zamanlı veya kısa gecikmeli senkronizasyon (polling/websocket) tercih edilmeli ki mobilde eklenen bir harcama web'de anında görünsün.
+- **Esnaf Modu artık sadece web'de var** (mobilde 4 Eylül 2026'da tamamen kaldırıldı, bkz. güncelleme notu) — bu yüzden aktif esnaf modülü seçimi için mobil↔web senkronizasyonu diye bir gereksinim yok; bu tamamen web'e özel, web'in kendi state'i.
+- Gerçek zamanlı veya kısa gecikmeli senkronizasyon (polling/websocket) tercih edilmeli ki mobilde eklenen bir harcama (bireysel özellikler için) web'de anında görünsün.
 
 ---
 
