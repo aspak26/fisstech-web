@@ -115,7 +115,7 @@ export function FamilyPlanCard({
           </ul>
         )}
         <p className="mb-3 text-xs text-text-secondary">
-          {members.length}/{FAMILY_MAX_MEMBERS} üye
+          {members.length + 1}/{FAMILY_MAX_MEMBERS + 1} kişi (sen dahil)
         </p>
         <Button variant="secondary" className="gap-1.5" disabled={atCap} onClick={() => setInviteOpen(true)}>
           <UserPlus className="h-4 w-4" /> {atCap ? "Üye Sınırına Ulaşıldı" : "Aile Üyesi Davet Et"}

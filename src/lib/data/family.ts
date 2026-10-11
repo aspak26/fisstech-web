@@ -3,7 +3,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 /** Ported from mobile's FamilyService — aynı `family_invites`/`family_members`
  * tabloları ve `accept_family_invite`/`remove_family_member`/`leave_family`
  * RPC'leri (bkz. fisle_app supabase/migrations/067_family_members.sql). */
-export const FAMILY_MAX_MEMBERS = 4;
+// Davet edilebilecek üye sayısı: Aile Paketi sahip DAHİL 4 kişilik → sahip + 3
+// üye (sunucu sınırı: fisle_app migration 134; mobil FamilyService.maxMembers).
+export const FAMILY_MAX_MEMBERS = 3;
 
 export interface FamilyMemberRow {
   id: string;
@@ -93,7 +95,7 @@ export async function getActiveFamilyInvite(supabase: SupabaseClient, ownerId: s
 export async function createFamilyInvite(supabase: SupabaseClient, ownerId: string): Promise<FamilyInviteRow> {
   const members = await getFamilyMembers(supabase, ownerId);
   if (members.length >= FAMILY_MAX_MEMBERS) {
-    throw new Error(`Aile Paketinizde en fazla ${FAMILY_MAX_MEMBERS} üye olabilir.`);
+    throw new Error(`Aile Paketi sen dahil ${FAMILY_MAX_MEMBERS + 1} kişilik; en fazla ${FAMILY_MAX_MEMBERS} kişiyi davet edebilirsin.`);
   }
 
   await supabase.from("family_invites").update({ status: "expired" }).eq("owner_id", ownerId).eq("status", "pending");
