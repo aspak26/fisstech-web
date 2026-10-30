@@ -75,6 +75,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Çok fazla istek gönderdiniz, biraz sonra tekrar deneyin." }, { status: 429 });
     }
 
+    // Güvenlik denetimi (2026-09-18): yukarıdaki bellek-içi limiter serverless'ta
+    // instance başına izole ve soğuk başlangıçta sıfırlanıyor (etkisiz). Kalıcı,
+    // çok-instance'lı ikinci katman: DB'de atomik sayaç (migration 122). RPC
+    // henüz yoksa/hata verirse FAIL-OPEN — meşru kullanıcı sayaç altyapısı
+    // yüzünden kilitlenmesin (asıl maliyet koruması consumeAiChatCredit kotası).
+    const { data: withinLimit, error: rlError } = await supabase.rpc("user_rate_limit_hit", {
+      p_bucket: "ai-chat",
+      p_window_seconds: 600,
+      p_max: 20,
+    });
+    if (!rlError && withinLimit === false) {
+      return NextResponse.json({ error: "Çok fazla istek gönderdiniz, biraz sonra tekrar deneyin." }, { status: 429 });
+    }
+
     const body = await request.json();
     const { message, history = [], startDate, endDate, periodLabel } = body;
 
@@ -107,11 +121,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch expenses
+    // Optimizasyon/maliyet denetimi (2026-09-18): tarih aralığı istemciden
+    // geliyor ve sorgunun üst sınırı yoktu — çok geniş bir aralık + çok kayıtlı
+    // bir hesap tüm harcamaları (iç içe kalemleriyle) tek istekte çekiyordu.
+    // AI özeti için 5000 kayıt fazlasıyla yeterli.
     let query = supabase
       .from("expenses")
       .select("total, date, store_name, expense_items(name, price, quantity, categories(name))")
       .eq("user_id", user.id)
-      .gte("date", start);
+      .gte("date", start)
+      .limit(5000);
       
     if (startDate && endDate) {
       query = query.lte("date", end);

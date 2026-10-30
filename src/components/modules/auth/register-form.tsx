@@ -3,13 +3,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createClient } from "@/lib/supabase/client";
 import { registerSchema, type RegisterInput } from "@/lib/validation/auth";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 import { OAuthButtons } from "./oauth-buttons";
+import { PasswordStrengthMeter } from "./password-strength-meter";
+import { translateAuthError } from "@/lib/validation/password-strength";
 
 export function RegisterForm() {
   const router = useRouter();
@@ -18,8 +20,10 @@ export function RegisterForm() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<RegisterInput>({ resolver: zodResolver(registerSchema) });
+  const [password, email] = useWatch({ control, name: ["password", "email"] });
 
   async function onSubmit(values: RegisterInput) {
     setServerError(null);
@@ -33,7 +37,7 @@ export function RegisterForm() {
     });
 
     if (error) {
-      setServerError(error.message);
+      setServerError(translateAuthError(error.message));
       return;
     }
 
@@ -95,6 +99,7 @@ export function RegisterForm() {
           autoComplete="new-password"
           {...register("password")}
         />
+        <PasswordStrengthMeter password={password ?? ""} email={email} />
         {errors.password && (
           <p className="mt-1 text-sm text-danger">{errors.password.message}</p>
         )}

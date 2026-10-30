@@ -28,6 +28,8 @@ const CSP = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
+  // Sunucu teknolojisini ifşa eden X-Powered-By başlığını kapat (güvenlik raporu G-01).
+  poweredByHeader: false,
   async headers() {
     return [
       {
@@ -37,6 +39,10 @@ const nextConfig: NextConfig = {
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+          // Güvenlik denetimi (2026-09-18): HSTS yoktu — Vercel HTTPS'i
+          // zorluyor ama ilk HTTP isteğinde SSL-strip saldırısına açık pencere
+          // kalıyordu. 2 yıl + alt alan adları + preload uygun.
+          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
           { key: "Content-Security-Policy", value: CSP },
         ],
       },

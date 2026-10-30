@@ -63,17 +63,14 @@ export async function refundScanCredit(
 ): Promise<void> {
   if (await isPremium(supabase, userId)) return;
 
-  const { data } = await supabase
-    .from("receipt_credits")
-    .select("id, used_count")
-    .eq("user_id", userId)
-    .eq("month", currentMonth())
-    .maybeSingle();
-
-  if (!data || data.used_count <= 0) return;
-
-  await supabase
-    .from("receipt_credits")
-    .update({ used_count: data.used_count - 1 })
-    .eq("id", data.id);
+  // Güvenlik denetimi (2026-09-18): önceden receipt_credits tablosunu
+  // doğrudan UPDATE ediyordu (RLS'te "kullanıcı kendi satırını her şeyi
+  // yazabilir" politikası vardı → used_count/earned_count kurcalanarak
+  // sınırsız ücretsiz tarama hakkı elde edilebiliyordu; migration 120 o yazma
+  // yolunu kapattı). Atomik, sunucu-doğrulamalı RPC kullanılıyor — mobil
+  // uygulamanın zaten kullandığı aynı fonksiyon (refund_credit_atomic).
+  await supabase.rpc("refund_credit_atomic", {
+    p_user_id: userId,
+    p_month: currentMonth(),
+  });
 }

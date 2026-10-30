@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Geçersiz istek." }, { status: 400 });
   }
 
-  const message = body.message?.trim();
+  const message = typeof body.message === "string" ? body.message.trim() : "";
   if (!message || message.length === 0) {
     return NextResponse.json({ error: "Mesaj boş olamaz." }, { status: 400 });
   }
@@ -63,10 +63,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Mesaj çok uzun." }, { status: 400 });
   }
 
-  const history = (body.history ?? []).slice(-6).map((m) => ({
-    role: m.role === "assistant" ? "model" : "user",
-    parts: [{ text: m.content.slice(0, MAX_MESSAGE_LENGTH) }],
-  }));
+  // Güvenlik/dayanıklılık denetimi (2026-09-18): `m.content.slice(...)`
+  // içerik string değilse (ör. saldırganın {role, content: 123} göndermesi)
+  // try/catch DIŞINDA TypeError fırlatıp 500 dönüyordu — tip doğrulaması yok
+  // idi. Dizi/öğe/içerik tipleri artık doğrulanıyor.
+  const rawHistory = Array.isArray(body.history) ? body.history : [];
+  const history = rawHistory
+    .filter((m): m is { role: string; content: string } =>
+      !!m && typeof m === "object" && typeof (m as { content?: unknown }).content === "string")
+    .slice(-6)
+    .map((m) => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: m.content.slice(0, MAX_MESSAGE_LENGTH) }],
+    }));
 
   try {
     const response = await fetch(

@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createClient } from "@/lib/supabase/client";
 import { resetPasswordSchema, type ResetPasswordInput } from "@/lib/validation/auth";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
+import { PasswordStrengthMeter } from "./password-strength-meter";
+import { translateAuthError } from "@/lib/validation/password-strength";
 
 export function ResetPasswordForm() {
   const router = useRouter();
@@ -15,15 +17,17 @@ export function ResetPasswordForm() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<ResetPasswordInput>({ resolver: zodResolver(resetPasswordSchema) });
+  const password = useWatch({ control, name: "password" });
 
   async function onSubmit(values: ResetPasswordInput) {
     setServerError(null);
     const supabase = createClient();
     const { error } = await supabase.auth.updateUser({ password: values.password });
     if (error) {
-      setServerError(error.message);
+      setServerError(translateAuthError(error.message));
       return;
     }
     router.push("/dashboard");
@@ -46,6 +50,7 @@ export function ResetPasswordForm() {
           autoComplete="new-password"
           {...register("password")}
         />
+        <PasswordStrengthMeter password={password ?? ""} />
         {errors.password && (
           <p className="mt-1 text-sm text-danger">{errors.password.message}</p>
         )}

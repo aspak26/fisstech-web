@@ -116,19 +116,27 @@ export function parseFamilyInviteToken(input: string): string {
   return trimmed;
 }
 
+// Güvenlik denetimi (2026-09-18): önceden family_invites tablosunu doğrudan
+// SELECT ediyordu; bu, RLS'in "bekleyen TÜM davetler herkese okunabilir"
+// politikasına (migration 121'de daraltılacak) bağımlıydı ve başkalarının
+// davet token'larının listelenebilmesine izin veriyordu. Önizleme artık
+// yalnızca token'ı bilen kişiye dar bir sonuç dönen SECURITY DEFINER RPC ile
+// (get_family_invite_preview — migration 120).
 export async function getFamilyInvitePreview(supabase: SupabaseClient, token: string): Promise<FamilyInvitePreview | null> {
-  const { data } = await supabase
-    .from("family_invites")
-    .select("owner_id, status, expires_at, users!family_invites_owner_id_fkey(name, email)")
-    .eq("token", token)
-    .maybeSingle();
-  if (!data) return null;
-  const owner = Array.isArray(data.users) ? (data.users[0] ?? null) : data.users;
+  const { data, error } = await supabase.rpc("get_family_invite_preview", { p_token: token });
+  if (error || !Array.isArray(data) || data.length === 0) return null;
+  const row = data[0] as {
+    owner_id: string;
+    owner_name: string | null;
+    owner_email: string | null;
+    status: string;
+    expires_at: string;
+  };
   return {
-    ownerId: data.owner_id as string,
-    ownerName: owner?.name || owner?.email || "Aile sahibi",
-    status: data.status as string,
-    expiresAt: data.expires_at as string,
+    ownerId: row.owner_id,
+    ownerName: row.owner_name || row.owner_email || "Aile sahibi",
+    status: row.status,
+    expiresAt: row.expires_at,
   };
 }
 
