@@ -1,0 +1,37 @@
+# Her push / PR'da TypeScript tip kontrolü + lint. Güvenlik ağı (2026-11-13).
+# Deploy Vercel'de kalır; burası yalnızca "kod sağlam mı?" kontrolü.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  typecheck-and-lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - run: npm ci
+
+      # next-env.d.ts ve .next/types gitignore'da — tip kontrolünden önce üret.
+      - run: npx next typegen
+
+      - run: npx tsc --noEmit
+
+      # Lint'te önceden kalma 19 hata var (2026-11-13); temizlenene kadar
+      # bilgi amaçlı çalışır, CI'yi kırmızıya çevirmez.
+      - run: npm run lint
+        continue-on-error: true
