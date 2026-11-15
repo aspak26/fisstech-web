@@ -59,8 +59,8 @@ export function PersonalModeShowcase() {
   return (
     <section id="kisisel-mod" className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
       <Reveal className="mx-auto max-w-xl text-center">
-        <span className="text-xs font-bold uppercase tracking-wider text-accent">Kişisel Mod</span>
-        <h2 className="mt-2 font-display text-3xl font-bold text-text-primary sm:text-4xl">
+        <span className="stamp text-accent">Kişisel Mod</span>
+        <h2 className="mt-4 font-display text-3xl font-bold text-text-primary sm:text-4xl">
           Bireysel Bütçeni Tek Elden Yönet
         </h2>
         <p className="mt-3 text-sm text-text-secondary">
@@ -72,16 +72,11 @@ export function PersonalModeShowcase() {
       <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {PERSONAL_FEATURES.map(({ icon: Icon, title, description }, i) => (
           <Reveal key={title} delay={i * 60}>
-            <div className="group relative h-full overflow-hidden rounded-card border border-border bg-surface p-6 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-accent/40 hover:shadow-xl hover:shadow-accent/10">
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-accent/0 blur-2xl transition-colors duration-500 group-hover:bg-accent/20"
-              />
-
-              <div className="relative flex h-11 w-11 items-center justify-center rounded-control bg-accent-soft text-accent transition-transform duration-300 group-hover:scale-110">
-                <Icon className="h-5.5 w-5.5" strokeWidth={1.75} />
+            <div className="group relative h-full rounded-card border-[1.5px] border-ink/70 bg-surface p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+              <div className="spot relative flex h-11 w-11 items-center justify-center text-text-primary transition-transform duration-300 group-hover:-rotate-6">
+                <Icon className="h-6 w-6" strokeWidth={1.9} />
               </div>
-              <h3 className="relative mt-4 font-display text-base font-semibold text-text-primary">{title}</h3>
+              <h3 className="relative mt-4 font-display text-base font-bold text-text-primary">{title}</h3>
               <p className="relative mt-2 text-sm leading-relaxed text-text-secondary">{description}</p>
             </div>
           </Reveal>

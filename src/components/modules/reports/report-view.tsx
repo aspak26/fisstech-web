@@ -15,7 +15,7 @@ import { ReportBreakdownChart } from "./report-breakdown-chart";
 import { PrintButton } from "./print-button";
 import { ExcelExportButton } from "./excel-export-button";
 
-const PALETTE = ["#B23A65", "#2E7D32", "#F5A623", "#1565C0", "#6A1B9A", "#00838F", "#C0392B", "#546E7A"];
+const PALETTE = ["var(--color-chart-1)", "var(--color-chart-2)", "var(--color-chart-3)", "var(--color-chart-4)", "var(--color-chart-5)", "var(--color-chart-6)", "var(--color-chart-7)", "var(--color-chart-8)"];
 
 export function ReportView({ data }: { data: ReportData }) {
   const income = totalIncome(data);

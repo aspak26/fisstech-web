@@ -1,16 +1,23 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
+import { Bricolage_Grotesque, Caveat, Plus_Jakarta_Sans } from "next/font/google";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
 });
 
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
+});
+
+// Kâğıt görünümün el yazısı notları (mobil uygulamadaki HandNote ile aynı font).
+const caveat = Caveat({
+  variable: "--font-caveat",
+  subsets: ["latin", "latin-ext"],
+  weight: ["500", "700"],
 });
 
 export const metadata: Metadata = {
@@ -26,7 +33,7 @@ export default function RootLayout({
   return (
     <html
       lang="tr"
-      className={`${bricolage.variable} ${jakarta.variable} h-full antialiased`}
+      className={`${bricolage.variable} ${jakarta.variable} ${caveat.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-body">

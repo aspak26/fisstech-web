@@ -90,7 +90,7 @@ export function MemberList({
                 <MoreVertical className="h-4 w-4" />
               </button>
               {menuFor === m.id && (
-                <div className="absolute right-0 top-9 z-10 w-52 rounded-card border border-border bg-surface p-1 shadow-lg">
+                <div className="absolute right-0 top-9 z-10 w-52 rounded-card border-[1.5px] border-ink/70 bg-surface p-1 shadow-lg">
                   <button
                     type="button"
                     onClick={() => openAlias(m)}

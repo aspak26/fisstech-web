@@ -46,38 +46,32 @@ function FloatingCard({
 export function WorkflowSection() {
   return (
     <section id="how-it-works" className="relative overflow-hidden bg-bg py-24">
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          // text-primary token'ından türetilen çok düşük opaklıklı nokta
-          // deseni — açık modda soluk koyu, koyu modda soluk açık noktalar,
-          // sabit rgba(255,255,255,...) yerine otomatik tema uyumu sağlıyor.
-          backgroundImage: "radial-gradient(color-mix(in srgb, var(--color-text-primary) 6%, transparent) 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
-        }}
-      />
+      {/* Kâğıt: nokta deseni yerine kareli defter zemini (token'dan türer). */}
+      <div aria-hidden="true" className="grid-paper pointer-events-none absolute inset-0 opacity-70" />
 
       <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
         <div className="mx-auto max-w-xl text-center">
-          <h2 className="font-display text-3xl font-bold text-text-primary">Yükle, Analiz Et, Rapor Al</h2>
+          <h2 className="font-display text-3xl font-bold text-text-primary">
+            Yükle, <span className="ink-underline">Analiz Et</span>, Rapor Al
+          </h2>
           <p className="mt-3 text-text-secondary">Tek bir iş akışında fişten anlamlı finansal rapora.</p>
         </div>
 
         <div className="mt-16 grid items-center gap-6 lg:grid-cols-3">
           {/* Sol: Fiş Yükle */}
-          <FloatingCard delay={0} floatDuration={4.5} className="opacity-80 lg:scale-95">
-            <div className="rounded-card border border-border bg-surface p-6 shadow-sm">
+          <FloatingCard delay={0} floatDuration={4.5} className="lg:scale-95">
+            <div className="-rotate-[1.5deg] rounded-card border-[1.5px] border-ink/70 bg-surface p-6 shadow-sm">
               <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">Fiş Yükle</p>
-              <div className="mt-4 flex flex-col items-center gap-2 rounded-control border-2 border-dashed border-border px-4 py-8 text-center">
+              <div className="mt-4 flex flex-col items-center gap-2 rounded-control border-2 border-dashed border-ink/40 bg-surface-alt px-4 py-8 text-center">
                 <FileUp className="h-7 w-7 text-text-secondary" />
                 <p className="text-xs text-text-secondary">kampus_market_fisi.jpg</p>
               </div>
               <div className="mt-4 flex gap-2">
-                <span className="flex flex-1 items-center justify-center gap-1.5 rounded-control border border-border py-2 text-xs font-medium text-text-secondary">
+                <span className="flex flex-1 items-center justify-center gap-1.5 rounded-control border-[1.5px] border-ink/60 py-2 text-xs font-medium text-text-primary">
                   <Camera className="h-3.5 w-3.5" />
                   Kamera
                 </span>
-                <span className="flex flex-1 items-center justify-center rounded-control border border-border py-2 text-xs font-medium text-text-secondary">
+                <span className="flex flex-1 items-center justify-center rounded-control border-[1.5px] border-ink/60 py-2 text-xs font-medium text-text-primary">
                   Dosya Seç
                 </span>
               </div>
@@ -88,14 +82,12 @@ export function WorkflowSection() {
           <FloatingCard delay={0.15} floatDuration={5.5} className="relative z-10">
             <motion.div
               whileHover={{ scale: 1.02 }}
-              className="rounded-card border border-accent/40 bg-surface p-6"
-              style={{ boxShadow: "0 0 60px -10px color-mix(in srgb, var(--color-accent) 45%, transparent)" }}
+              className="relative rounded-card border-[1.5px] border-ink/80 bg-surface p-6 shadow-lg"
             >
+              <span aria-hidden="true" className="tape -top-3 left-1/2 -translate-x-1/2 -rotate-2" />
               <div className="flex items-center justify-between">
                 <p className="font-display text-sm font-semibold text-text-primary">Fişştech ile Analiz Et</p>
-                <span className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2.5 py-1 text-[11px] font-bold text-accent">
-                  AI Okuyor
-                </span>
+                <span className="stamp text-accent">AI Okuyor</span>
               </div>
               <ul className="mt-4 space-y-2 text-sm">
                 {[
@@ -104,21 +96,21 @@ export function WorkflowSection() {
                   ["Toplam", "₺258,40"],
                   ["KDV", "%10"],
                 ].map(([label, value]) => (
-                  <li key={label} className="flex items-center justify-between border-b border-border pb-2 last:border-0">
+                  <li key={label} className="flex items-center justify-between border-b-[1.5px] border-dashed border-ink/25 pb-2 last:border-0">
                     <span className="text-text-secondary">{label}</span>
                     <span className="font-medium text-text-primary">{value}</span>
                   </li>
                 ))}
               </ul>
-              <span className="mt-4 flex w-full items-center justify-center rounded-control bg-accent py-2.5 text-xs font-semibold text-on-accent">
+              <span className="mt-4 flex w-full items-center justify-center rounded-control border-[1.5px] border-ink/80 bg-accent py-2.5 text-xs font-semibold text-on-accent shadow-sm">
                 PDF/Excel Aktar
               </span>
             </motion.div>
           </FloatingCard>
 
           {/* Sağ: Rapor & Dışa Aktarım */}
-          <FloatingCard delay={0.3} floatDuration={5} className="opacity-80 lg:scale-95">
-            <div className="rounded-card border border-border bg-surface p-6 shadow-sm">
+          <FloatingCard delay={0.3} floatDuration={5} className="lg:scale-95">
+            <div className="rotate-[1.5deg] rounded-card border-[1.5px] border-ink/70 bg-surface p-6 shadow-sm">
               <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">Rapor &amp; Dışa Aktarım</p>
               <ul className="mt-4 space-y-2.5">
                 {REPORT_ROWS.map((row) => (
@@ -127,7 +119,7 @@ export function WorkflowSection() {
                       <span aria-hidden="true">{row.icon}</span>
                       {row.label}
                     </span>
-                    <span className="font-medium text-text-secondary">{row.amount}</span>
+                    <span className="font-medium tabular-nums text-text-primary">{row.amount}</span>
                   </li>
                 ))}
               </ul>
@@ -135,10 +127,12 @@ export function WorkflowSection() {
           </FloatingCard>
         </div>
 
-        <div className="mt-16 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 border-t border-border pt-10">
+        <div className="mt-16 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 dashed-rule pt-10">
           {SECURITY_BADGES.map(({ icon: Icon, label }) => (
             <span key={label} className="flex items-center gap-2 text-sm text-text-secondary">
-              <Icon className="h-4 w-4 text-accent" />
+              <span className="spot flex h-6 w-6 items-center justify-center">
+                <Icon className="h-4 w-4 text-text-primary" />
+              </span>
               {label}
             </span>
           ))}

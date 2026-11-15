@@ -42,7 +42,7 @@ export function ExpensesArchiveGrid({ expenses }: { expenses: ExpenseWithItems[]
             />
 
             {urls.length > 1 && (
-              <div className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-black/65 px-2 py-1 text-[10px] font-bold text-white backdrop-blur-sm">
+              <div className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-black/65 px-2 py-1 text-[10px] font-bold text-white">
                 <Copy className="h-3 w-3" />
                 <span>{urls.length}</span>
               </div>

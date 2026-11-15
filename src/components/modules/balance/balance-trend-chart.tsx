@@ -14,8 +14,8 @@ import {
 import type { MonthlyBalancePoint } from "@/lib/data/balance";
 import { formatCurrency } from "@/lib/utils/currency";
 
-const successColor = "#2E7D32";
-const dangerColor = "#C0392B";
+const successColor = "var(--color-chart-income)";
+const dangerColor = "var(--color-chart-expense)";
 const accentColor = "var(--color-accent)";
 
 export function BalanceTrendChart({ data }: { data: MonthlyBalancePoint[] }) {

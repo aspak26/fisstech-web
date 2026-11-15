@@ -8,7 +8,7 @@ import type { SavingsPoolRow } from "@/lib/data/goals";
  * the goals list, showing the pool's total balance. */
 export function SavingsPoolCard({ pool, onAddFunds }: { pool: SavingsPoolRow; onAddFunds: () => void }) {
   return (
-    <div className="rounded-card bg-gradient-to-br from-accent to-accent-hover p-5 text-on-accent shadow-lg shadow-accent/20">
+    <div className="rounded-card border-[1.5px] border-ink/80 bg-accent p-5 text-on-accent shadow-md">
       <div className="flex items-center gap-2">
         <PiggyBank className="h-4 w-4 opacity-80" />
         <span className="text-xs font-bold tracking-wide opacity-80">BİRİKİM HAVUZU</span>

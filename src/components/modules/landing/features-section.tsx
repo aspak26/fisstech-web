@@ -33,22 +33,23 @@ export function FeaturesSection() {
   return (
     <section id="features" className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
       <Reveal className="mx-auto max-w-xl text-center">
-        <h2 className="font-display text-3xl font-bold text-text-primary">Özellikler</h2>
+        <h2 className="font-display text-3xl font-bold text-text-primary">
+          <span className="ink-underline">Özellikler</span>
+        </h2>
         <p className="mt-3 text-text-secondary">Kişisel finansın için ihtiyacın olan her şey tek yerde.</p>
       </Reveal>
 
       <div className="mt-12 grid gap-5 lg:grid-cols-3">
         <Reveal className="lg:col-span-3">
-          <div className="group relative overflow-hidden rounded-card border border-accent/25 bg-gradient-to-br from-accent-soft/70 via-surface to-surface p-8 shadow-sm transition-all duration-300 hover:shadow-xl sm:flex sm:items-center sm:gap-8">
-            <div
-              className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-accent text-on-accent transition-transform duration-300 group-hover:scale-105"
-              style={{ boxShadow: "0 12px 30px -8px color-mix(in srgb, var(--color-accent) 55%, transparent)" }}
-            >
+          {/* Öne çıkan: defter çizgili kâğıt + bant + damga */}
+          <div className="notebook group relative rounded-card border-[1.5px] border-ink/75 bg-surface p-8 shadow-md transition-transform duration-300 hover:-rotate-[0.4deg] sm:flex sm:items-center sm:gap-8">
+            <span aria-hidden="true" className="tape -top-3 left-10 -rotate-2" />
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border-[1.5px] border-ink/80 bg-accent text-on-accent shadow-sm transition-transform duration-300 group-hover:-rotate-3">
               <FLAGSHIP.icon className="h-8 w-8" />
             </div>
             <div className="mt-5 sm:mt-0">
-              <span className="text-xs font-bold uppercase tracking-wider text-accent">Öne Çıkan</span>
-              <h3 className="mt-1 font-display text-xl font-semibold text-text-primary">{FLAGSHIP.title}</h3>
+              <span className="stamp text-accent">Öne Çıkan</span>
+              <h3 className="mt-3 font-display text-xl font-bold text-text-primary">{FLAGSHIP.title}</h3>
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-text-secondary">{FLAGSHIP.description}</p>
             </div>
           </div>
@@ -56,9 +57,9 @@ export function FeaturesSection() {
 
         {FEATURES.map(({ icon: Icon, title, description }, i) => (
           <Reveal key={title} delay={i * 100}>
-            <div className="group h-full rounded-card border border-border bg-surface p-6 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-accent/40 hover:shadow-xl hover:shadow-accent/10">
-              <div className="flex h-11 w-11 items-center justify-center rounded-control bg-accent-soft text-accent transition-transform duration-300 group-hover:scale-110">
-                <Icon className="h-5.5 w-5.5" />
+            <div className="group h-full rounded-card border-[1.5px] border-ink/70 bg-surface p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+              <div className="spot flex h-11 w-11 items-center justify-center text-text-primary transition-transform duration-300 group-hover:-rotate-6">
+                <Icon className="h-6 w-6" strokeWidth={1.9} />
               </div>
               <h3 className="mt-4 font-display text-base font-semibold text-text-primary">{title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-text-secondary">{description}</p>
@@ -68,7 +69,8 @@ export function FeaturesSection() {
       </div>
 
       <Reveal delay={200} className="mt-10">
-        <div className="flex flex-col items-center gap-3 rounded-card bg-gradient-to-r from-accent to-accent-hover px-6 py-6 text-center text-on-accent shadow-lg shadow-accent/20 sm:flex-row sm:justify-between sm:text-left">
+        <div className="relative flex flex-col items-center gap-3 rounded-card border-[1.5px] border-ink/80 bg-accent px-6 py-6 text-center text-on-accent shadow-md sm:flex-row sm:justify-between sm:text-left">
+          <span aria-hidden="true" className="tape -top-3 right-12 rotate-3" />
           <div className="flex items-center gap-3">
             <Gift className="h-8 w-8 shrink-0" />
             <div>

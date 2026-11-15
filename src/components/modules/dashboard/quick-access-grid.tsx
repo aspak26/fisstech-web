@@ -27,7 +27,7 @@ export function QuickAccessGrid() {
           key={item.label}
           href={item.href}
           className={cn(
-            "relative flex flex-col items-center gap-2 rounded-card border border-border bg-surface p-4 text-center transition-colors hover:border-accent",
+            "relative flex flex-col items-center gap-2 rounded-card border-[1.5px] border-ink/70 bg-surface p-4 text-center transition-colors hover:border-accent shadow-sm",
           )}
         >
           {!item.active && (

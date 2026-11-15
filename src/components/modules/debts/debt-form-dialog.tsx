@@ -92,7 +92,7 @@ export function DebtFormDialog({
             type="button"
             onClick={() => setType("borrowed")}
             className={cn(
-              "flex items-center justify-center gap-1.5 rounded-[calc(var(--radius-control)-4px)] py-2.5 text-sm font-medium transition-colors",
+              "flex items-center justify-center gap-1.5 rounded-inner py-2.5 text-sm font-medium transition-colors",
               type === "borrowed" ? "bg-danger text-white" : "text-text-secondary",
             )}
           >
@@ -102,7 +102,7 @@ export function DebtFormDialog({
             type="button"
             onClick={() => setType("lent")}
             className={cn(
-              "flex items-center justify-center gap-1.5 rounded-[calc(var(--radius-control)-4px)] py-2.5 text-sm font-medium transition-colors",
+              "flex items-center justify-center gap-1.5 rounded-inner py-2.5 text-sm font-medium transition-colors",
               type === "lent" ? "bg-success text-white" : "text-text-secondary",
             )}
           >

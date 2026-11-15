@@ -16,10 +16,15 @@ const SKELETON_LINE_WIDTHS = ["70%", "45%", "85%", "55%", "60%", "40%"];
 export function FloatingReceipt() {
   return (
     <div className="relative flex aspect-square items-center justify-center" style={{ perspective: "1200px" }}>
-      {/* Arkadaki bulanık yeşil ışık topları */}
-      <div className="absolute left-[8%] top-[12%] h-28 w-28 rounded-full bg-accent opacity-25 blur-3xl" />
-      <div className="absolute bottom-[14%] right-[10%] h-36 w-36 rounded-full bg-accent-soft opacity-40 blur-3xl" />
-      <div className="absolute left-1/2 top-1/2 h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent opacity-10 blur-3xl" />
+      {/* Kâğıt: bulanık ışık topları yerine fişin altında kareli defter
+          yaprağı ve yanında el yazısı not. */}
+      <div
+        aria-hidden="true"
+        className="grid-paper absolute inset-[12%] -rotate-[4deg] rounded-2xl border-[1.5px] border-ink/30 bg-surface-alt"
+      />
+      <p aria-hidden="true" className="absolute bottom-0 right-2 z-10 rotate-[-6deg] font-hand text-2xl font-bold text-accent sm:bottom-[8%] sm:right-[6%]">
+        bu ay ₺342 market
+      </p>
 
       <motion.div
         animate={{ y: [-10, 10, -10] }}
@@ -29,13 +34,12 @@ export function FloatingReceipt() {
           transformStyle: "preserve-3d",
         }}
       >
+        {/* clip-path gölgeyi de keser — gölge sarmalayıcıda drop-shadow ile */}
+        <div className="relative drop-shadow-[2px_3px_0_var(--shadow-ink)]">
+        <span aria-hidden="true" className="tape -top-3 left-1/2 z-10 -translate-x-1/2 rotate-3" />
         <div
           className="w-52 bg-white px-5 pb-8 pt-6 sm:w-60"
-          style={{
-            clipPath: TORN_EDGE_CLIP_PATH,
-            boxShadow:
-              "0 35px 60px -15px rgba(0,0,0,0.45), 0 0 40px -10px color-mix(in srgb, var(--color-accent) 40%, transparent)",
-          }}
+          style={{ clipPath: TORN_EDGE_CLIP_PATH }}
         >
           <p className="text-center font-display text-lg font-extrabold tracking-tight text-neutral-900">FİŞŞTECH</p>
           <p className="mt-0.5 text-center text-[10px] text-neutral-400">Kampüs Market · 21.07.2026</p>
@@ -56,6 +60,7 @@ export function FloatingReceipt() {
               <span key={i} className="bg-neutral-900" style={{ width: `${w}px`, height: "100%" }} />
             ))}
           </div>
+        </div>
         </div>
       </motion.div>
     </div>

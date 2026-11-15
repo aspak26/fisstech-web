@@ -4,8 +4,8 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import { formatCurrency } from "@/lib/utils/currency";
 import type { MonthlyBalancePoint } from "@/lib/data/balance";
 
-const successColor = "#2E7D32";
-const dangerColor = "#C0392B";
+const successColor = "var(--color-chart-income)";
+const dangerColor = "var(--color-chart-expense)";
 
 /** "Gelir — Gider Karşılaştırması" — grouped bars, one pair per month. */
 export function IncomeExpenseBarChart({ data }: { data: MonthlyBalancePoint[] }) {

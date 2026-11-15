@@ -19,7 +19,7 @@ export function NewsletterForm() {
 
   if (status === "success") {
     return (
-      <div className="flex h-10 items-center justify-center rounded-control border border-success bg-success/10 px-4">
+      <div className="flex h-10 items-center justify-center rounded-control border-[1.5px] border-success bg-success/10 px-4">
         <p className="text-sm font-medium text-success">
           Aboneliğiniz başarıyla alındı! Teşekkür ederiz.
         </p>
@@ -39,11 +39,11 @@ export function NewsletterForm() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="E-posta adresiniz"
-        className="h-10 min-w-0 flex-1 rounded-control border border-border bg-bg px-3 text-sm text-text-primary outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="h-10 min-w-0 flex-1 rounded-control border-[1.5px] border-border bg-surface px-3 text-sm text-text-primary shadow-[inset_1px_1.5px_0_var(--shadow-ink)] outline-none focus-visible:ring-2 focus-visible:ring-accent"
       />
       <button
         type="submit"
-        className="flex shrink-0 items-center gap-1.5 rounded-control bg-accent px-4 text-sm font-semibold text-on-accent transition-transform hover:scale-[1.03]"
+        className="flex shrink-0 items-center gap-1.5 rounded-control border-[1.5px] border-ink/80 bg-accent px-4 text-sm font-semibold text-on-accent shadow-sm press"
       >
         Abone Ol
         <ArrowRight className="h-3.5 w-3.5" />

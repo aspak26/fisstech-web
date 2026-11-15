@@ -18,7 +18,7 @@ const NAV_LINKS = [
 ];
 
 const NAV_LINK_CLASS =
-  "relative text-sm font-medium text-text-secondary transition-colors hover:text-accent after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:rounded-full after:bg-accent after:transition-all after:duration-300 hover:after:w-full";
+  "relative text-sm font-medium text-text-secondary transition-colors hover:text-accent after:absolute after:-bottom-1 after:left-0 after:h-[3px] after:w-0 after:rounded-full after:bg-tape after:transition-all after:duration-300 hover:after:w-full";
 
 export function LandingNavbar({ userEmail }: { userEmail?: string }) {
   const isAuthenticated = !!userEmail;
@@ -42,10 +42,20 @@ export function LandingNavbar({ userEmail }: { userEmail?: string }) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 border-b bg-surface/85 backdrop-blur-md transition-shadow duration-300",
-        scrolled ? "border-border shadow-sm" : "border-transparent",
+        // Kâğıt: buzlu cam yerine yırtık alt kenarlı kâğıt şerit. Kaydırınca
+        // bant rengine değil, kart kâğıdına geçer ve gölgesi belirginleşir.
+        // (Yırtık kenar ayrı şerit — header'a mask verilse açılır menüler kesilirdi.)
+        "sticky top-0 z-40 transition-colors duration-300",
+        scrolled ? "bg-surface" : "bg-bg",
       )}
     >
+      <div
+        aria-hidden="true"
+        className={cn(
+          "torn-strip pointer-events-none absolute inset-x-0 top-full h-[10px] transition-colors duration-300",
+          scrolled ? "bg-surface drop-shadow-[0_2px_0_var(--shadow-ink)]" : "bg-bg",
+        )}
+      />
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link href="/" aria-label="Fişştech anasayfa" className="shrink-0">
           <LogoHorizontal />
@@ -63,18 +73,18 @@ export function LandingNavbar({ userEmail }: { userEmail?: string }) {
           <ThemeToggle />
           {isAuthenticated ? (
             <div className="group relative">
-              <button className="flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg">
-                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-white">
+              <button className="flex items-center gap-2 rounded-xl border-[1.5px] border-ink/70 bg-surface px-3 py-1.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface-alt">
+                <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-accent text-on-accent">
                   <User className="h-4 w-4" />
                 </div>
                 <span className="max-w-[120px] truncate">{userEmail}</span>
               </button>
-              <div className="invisible absolute right-0 top-full mt-2 w-48 origin-top-right rounded-xl border border-border bg-surface p-2 shadow-lg opacity-0 transition-all group-hover:visible group-hover:opacity-100">
-                <Link href="/dashboard" className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-text-primary hover:bg-bg">
+              <div className="invisible absolute right-0 top-full mt-2 w-48 origin-top-right rounded-xl border-[1.5px] border-ink/75 bg-surface p-2 shadow-lg opacity-0 transition-all group-hover:visible group-hover:opacity-100">
+                <Link href="/dashboard" className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-text-primary hover:bg-surface-alt">
                   <LayoutDashboard className="h-4 w-4 text-text-secondary" />
                   Panele Git
                 </Link>
-                <button onClick={handleLogout} className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-danger hover:bg-bg">
+                <button onClick={handleLogout} className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-danger hover:bg-surface-alt">
                   <LogOut className="h-4 w-4" />
                   Çıkış Yap
                 </button>
@@ -85,7 +95,7 @@ export function LandingNavbar({ userEmail }: { userEmail?: string }) {
               <Link href="/login" className={buttonVariants("secondary", "sm")}>
                 Giriş Yap
               </Link>
-              <Link href="/register" className={buttonVariants("primary", "sm", "transition-transform hover:scale-[1.03]")}>
+              <Link href="/register" className={buttonVariants("primary", "sm")}>
                 Hemen Başla
               </Link>
             </>
@@ -104,25 +114,25 @@ export function LandingNavbar({ userEmail }: { userEmail?: string }) {
       </div>
 
       {open && (
-        <div className="border-t border-border bg-surface px-4 py-4 lg:hidden">
+        <div className="dashed-rule bg-surface px-4 py-4 lg:hidden">
           <nav className="flex flex-col gap-1" aria-label="Mobil menü">
             {NAV_LINKS.map((l) => (
               <a
                 key={l.href}
                 href={l.href}
                 onClick={() => setOpen(false)}
-                className="rounded-control px-2 py-2.5 text-sm font-medium text-text-primary hover:bg-bg"
+                className="rounded-control px-2 py-2.5 text-sm font-medium text-text-primary hover:bg-surface-alt"
               >
                 {l.label}
               </a>
             ))}
           </nav>
-          <div className="mt-3 flex items-center justify-between gap-3 border-t border-border pt-3">
+          <div className="dashed-rule mt-3 flex items-center justify-between gap-3 pt-3">
             <ThemeToggle />
             {isAuthenticated ? (
               <div className="flex flex-col gap-2 w-full">
                 <div className="flex items-center gap-2 px-2 py-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-white">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-on-accent">
                     <User className="h-5 w-5" />
                   </div>
                   <span className="text-sm font-medium text-text-primary truncate">{userEmail}</span>
@@ -132,7 +142,7 @@ export function LandingNavbar({ userEmail }: { userEmail?: string }) {
                     <LayoutDashboard className="h-4 w-4" />
                     Panele Git
                   </Link>
-                  <button onClick={handleLogout} className={buttonVariants("secondary", "sm", "flex-1 gap-2 !text-danger hover:!bg-bg border-danger/20")}>
+                  <button onClick={handleLogout} className={buttonVariants("secondary", "sm", "flex-1 gap-2 !text-danger hover:!bg-surface-alt")}>
                     <LogOut className="h-4 w-4" />
                     Çıkış Yap
                   </button>

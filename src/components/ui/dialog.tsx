@@ -72,7 +72,7 @@ export function Dialog({
       <button
         aria-label="Kapat"
         onClick={onClose}
-        className="absolute inset-0 bg-black/40"
+        className="absolute inset-0 bg-ink/35"
       />
       <div
         ref={panelRef}
@@ -81,20 +81,20 @@ export function Dialog({
         aria-labelledby={titleId}
         tabIndex={-1}
         className={cn(
-          "relative max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-card border border-border bg-surface p-6 shadow-xl",
+          "relative max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-card border-[1.5px] border-ink/80 bg-surface p-6 shadow-xl",
           "focus:outline-none",
           className,
         )}
       >
-        <div className="mb-4 flex items-center justify-between">
-          <h2 id={titleId} className="font-display text-lg font-semibold text-text-primary">
+        <div className="mb-4 flex items-center justify-between border-b-[1.5px] border-dashed border-ink/25 pb-3">
+          <h2 id={titleId} className="font-display text-lg font-bold tracking-tight text-text-primary">
             {title}
           </h2>
           <button
             type="button"
             aria-label="Kapat"
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-control text-text-secondary hover:bg-bg"
+            className="flex h-8 w-8 items-center justify-center rounded-control text-text-secondary hover:bg-surface-alt"
           >
             <X className="h-4 w-4" />
           </button>

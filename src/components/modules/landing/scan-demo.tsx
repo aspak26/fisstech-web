@@ -121,11 +121,13 @@ export function ScanDemo() {
   return (
     <section id="demo" className="mx-auto max-w-3xl px-4 py-20 sm:px-6">
       <Reveal className="text-center">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-3.5 py-1.5 text-xs font-semibold text-accent">
+        <span className="inline-flex items-center gap-1.5 rounded-lg border-[1.5px] border-accent/60 bg-accent-soft px-3.5 py-1.5 text-xs font-semibold text-accent">
           <ScanLine className="h-3.5 w-3.5" />
           Üye Olmadan Dene
         </span>
-        <h2 className="mt-4 font-display text-3xl font-bold text-text-primary">Ücretsiz Fiş Tarama Demosu</h2>
+        <h2 className="mt-4 font-display text-3xl font-bold text-text-primary">
+          Ücretsiz <span className="ink-underline">Fiş Tarama</span> Demosu
+        </h2>
         <p className="mx-auto mt-3 max-w-xl text-text-secondary">
           Bir fiş fotoğrafı yükle, Fişştech&apos;in yapay zekâsının verileri nasıl okuyup kategorize ettiğini
           gör. Üye olmadan {MAX_TRIES} kez deneyebilirsin.
@@ -136,8 +138,8 @@ export function ScanDemo() {
         <Card>
           {!mounted ? null : locked ? (
             <div className="flex flex-col items-center gap-3 py-8 text-center">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-accent-soft">
-                <Lock className="h-6 w-6 text-accent" />
+              <div className="spot flex h-14 w-14 items-center justify-center">
+                <Lock className="h-7 w-7 text-text-primary" />
               </div>
               <p className="font-medium text-text-primary">
                 Deneme hakkınız bitti, tüm özellikleri sınırsız kullanmak için ücretsiz hesap oluşturun!
@@ -150,47 +152,47 @@ export function ScanDemo() {
             <>
               <div className="mb-4 flex items-center justify-between">
                 <span className="text-sm font-medium text-text-secondary">
-                  Kalan deneme hakkı: <span className="text-accent">{remaining}</span> / {MAX_TRIES}
+                  Kalan deneme hakkı: <span className="font-hand text-xl font-bold text-accent">{remaining}</span> / {MAX_TRIES}
                 </span>
               </div>
 
               {scanning ? (
-                <div className="flex flex-col items-center justify-center gap-3 rounded-card border-2 border-dashed border-accent/40 bg-accent-soft/40 px-6 py-14 text-center">
+                <div className="flex flex-col items-center justify-center gap-3 rounded-card border-2 border-dashed border-ink/45 bg-surface-alt px-6 py-14 text-center">
                   <Loader2 className="h-10 w-10 animate-spin text-accent" />
-                  <p className="font-medium text-text-primary">Yapay zekâ fişini okuyor…</p>
+                  <p className="font-hand text-2xl font-bold text-text-primary">yapay zekâ fişini okuyor…</p>
                 </div>
               ) : result ? (
                 <div>
-                  <div className="flex items-center justify-between border-b border-border pb-3">
+                  <div className="flex items-center justify-between border-b-[1.5px] border-dashed border-ink/30 pb-3">
                     <div>
                       <p className="text-sm font-semibold text-text-primary">{result.storeName}</p>
                       <p className="text-xs text-text-secondary">{result.date}</p>
                     </div>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-1 text-xs font-medium text-success">
+                    <span className="stamp text-success">
                       <CheckCircle2 className="h-3.5 w-3.5" />
                       Okundu
                     </span>
                   </div>
-                  <ul className="mt-3 divide-y divide-border">
+                  <ul className="mt-3 divide-y-[1.5px] divide-dashed divide-ink/20">
                     {result.items.map((item) => (
                       <li key={item.name} className="flex items-center justify-between py-2 text-sm">
                         <span className="flex items-center gap-2 text-text-primary">
                           <span aria-hidden="true">{item.icon}</span>
                           {item.name}
-                          <span className="rounded-full bg-bg px-2 py-0.5 text-xs text-text-secondary">
+                          <span className="rounded-md border border-ink/25 bg-surface-alt px-2 py-0.5 text-xs text-text-secondary">
                             {item.category}
                           </span>
                           {item.vatRate ? (
-                            <span className="rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent">
+                            <span className="rounded-md border border-accent/45 bg-accent-soft px-2 py-0.5 text-xs font-semibold text-accent">
                               %{item.vatRate} KDV
                             </span>
                           ) : null}
                         </span>
-                        <span className="font-medium text-text-secondary">{item.amount}</span>
+                        <span className="font-medium tabular-nums text-text-primary">{item.amount}</span>
                       </li>
                     ))}
                   </ul>
-                  <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
+                  <div className="mt-3 flex items-center justify-between border-t-[3px] border-double border-ink/60 pt-3">
                     <span className="text-sm font-semibold text-text-primary">Toplam</span>
                     <span className="font-display text-lg font-bold text-accent">{result.total}</span>
                   </div>
@@ -218,7 +220,7 @@ export function ScanDemo() {
           )}
 
           {errorMsg === "RATE_LIMIT" ? (
-            <div className="mt-4 flex flex-col items-center gap-3 rounded-lg border-2 border-dashed border-accent/40 bg-accent-soft/40 px-6 py-6 text-center">
+            <div className="mt-4 flex flex-col items-center gap-3 rounded-lg border-2 border-dashed border-ink/45 bg-surface-alt px-6 py-6 text-center">
               <p className="font-medium text-text-primary">
                 Harika bir başlangıç! Ücretsiz deneme hakkınız doldu.
               </p>
@@ -227,7 +229,7 @@ export function ScanDemo() {
               </Link>
             </div>
           ) : errorMsg ? (
-            <div className="mt-4 rounded-lg bg-danger/10 px-4 py-2 text-center text-sm font-medium text-danger">
+            <div className="mt-4 rounded-lg border-[1.5px] border-danger/50 bg-danger/10 px-4 py-2 text-center text-sm font-medium text-danger">
               {errorMsg}
             </div>
           ) : null}

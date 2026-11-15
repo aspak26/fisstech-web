@@ -7,7 +7,7 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
       <input
         ref={ref}
         className={cn(
-          "h-11 w-full rounded-control border border-border bg-surface px-3.5 text-base text-text-primary placeholder:text-text-secondary",
+          "h-11 w-full rounded-control border-[1.5px] border-border bg-surface px-3.5 text-base text-text-primary placeholder:text-text-secondary shadow-[inset_1px_1.5px_0_var(--shadow-ink)]",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:border-accent",
           "disabled:opacity-50",
           className,
@@ -30,7 +30,7 @@ export const Select = forwardRef<
   <select
     ref={ref}
     className={cn(
-      "h-11 w-full rounded-control border border-border bg-surface px-3.5 text-base text-text-primary",
+      "h-11 w-full rounded-control border-[1.5px] border-border bg-surface px-3.5 text-base text-text-primary shadow-[inset_1px_1.5px_0_var(--shadow-ink)]",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:border-accent",
       className,
     )}

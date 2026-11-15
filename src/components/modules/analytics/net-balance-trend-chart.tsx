@@ -5,8 +5,8 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceL
 import { formatCurrency } from "@/lib/utils/currency";
 import type { MonthlyBalancePoint } from "@/lib/data/balance";
 
-const successColor = "#2E7D32";
-const dangerColor = "#C0392B";
+const successColor = "var(--color-chart-income)";
+const dangerColor = "var(--color-chart-expense)";
 const accentColor = "var(--color-accent)";
 
 /** "6 Aylık Net Bakiye Trendi" — zero-centered, sign-colored dots (yeşil

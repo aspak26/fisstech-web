@@ -1,23 +1,25 @@
 "use client";
 
 import { MessageSquarePlus, Bug } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
 import { Reveal } from "./reveal";
 
 export function FeedbackSection() {
   return (
     <section id="feedback" className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
       <Reveal>
-        <div className="relative overflow-hidden rounded-3xl border border-border bg-surface p-8 sm:p-12">
-          {/* Decorative glow */}
-          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-accent/10 blur-3xl" aria-hidden="true" />
-          <div className="absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-danger/10 blur-3xl" aria-hidden="true" />
-          
+        {/* Kâğıt: zarf/mektup kâğıdı — bulanık ışık lekeleri yerine defter
+            çizgisi, iki köşede bant. */}
+        <div className="notebook relative rounded-3xl border-[1.5px] border-ink/75 bg-surface p-8 shadow-md sm:p-12">
+          <span aria-hidden="true" className="tape -top-3 left-8 -rotate-6" />
+          <span aria-hidden="true" className="tape -top-3 right-8 rotate-6" />
+
           <div className="relative z-10 flex flex-col items-center text-center">
             <div className="mb-6 flex gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10 text-accent">
+              <div className="spot flex h-12 w-12 items-center justify-center text-text-primary">
                 <MessageSquarePlus className="h-6 w-6" />
               </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-danger/10 text-danger">
+              <div className="flex h-12 w-12 -rotate-6 items-center justify-center rounded-xl border-[1.5px] border-ink/70 bg-tape text-text-primary">
                 <Bug className="h-6 w-6" />
               </div>
             </div>
@@ -33,12 +35,12 @@ export function FeedbackSection() {
             <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row">
               <a 
                 href="mailto:fisstechapp@gmail.com?subject=Fisstech%20-%20Öneri%20veya%20Hata%20Bildirimi"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-accent px-8 font-medium text-on-accent transition-colors hover:bg-accent-hover"
+                className={buttonVariants("primary", "lg", "px-8")}
               >
                 Bize Mail Gönderin
               </a>
               <span className="text-sm font-medium text-text-secondary sm:ml-4">
-                veya doğrudan: <a href="mailto:fisstechapp@gmail.com" className="text-accent hover:underline">fisstechapp@gmail.com</a>
+                veya doğrudan: <a href="mailto:fisstechapp@gmail.com" className="font-semibold text-accent underline decoration-wavy decoration-1 underline-offset-4">fisstechapp@gmail.com</a>
               </span>
             </div>
           </div>

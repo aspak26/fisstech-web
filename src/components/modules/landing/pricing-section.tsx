@@ -19,7 +19,9 @@ export function PricingSection() {
   return (
     <section id="pricing" className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
       <Reveal className="mx-auto max-w-xl text-center">
-        <h2 className="font-display text-3xl font-bold text-text-primary">Fiyatlandırma</h2>
+        <h2 className="font-display text-3xl font-bold text-text-primary">
+          <span className="ink-underline">Fiyatlandırma</span>
+        </h2>
         <p className="mt-3 text-text-secondary">
           İhtiyacına göre seç. Satın alma işlemi mobil uygulama üzerinden yapılır.
         </p>
@@ -52,25 +54,25 @@ export function PricingSection() {
                 }}
                 aria-pressed={isSelected}
                 className={cn(
-                  "relative flex h-full cursor-pointer flex-col rounded-card border bg-surface p-8 transition-all duration-300 ease-in-out hover:-translate-y-1.5 hover:border-accent",
-                  "hover:shadow-[0_0_40px_-10px_color-mix(in_srgb,var(--color-accent)_45%,transparent)]",
-                  isSelected ? "border-2 border-accent" : "border-border shadow-sm",
-                )}
-                style={
+                  // Kâğıt: seçili plan öne alınmış, mürekkeple daha kalın
+                  // çevrelenmiş ve hafif eğik yapıştırılmış kart.
+                  "relative flex h-full cursor-pointer flex-col rounded-card bg-surface p-8 transition-all duration-300 ease-in-out hover:-translate-y-1",
                   isSelected
-                    ? { boxShadow: "0 0 70px -18px color-mix(in srgb, var(--color-accent) 55%, transparent)" }
-                    : undefined
-                }
+                    ? "-rotate-[0.5deg] border-[2.5px] border-accent shadow-lg"
+                    : "border-[1.5px] border-ink/60 shadow-sm",
+                )}
               >
                 {plan.popular && (
-                  <span className="absolute -top-4 left-1/2 inline-flex w-fit -translate-x-1/2 items-center whitespace-nowrap rounded-full bg-accent px-4 py-1.5 text-xs font-bold tracking-wide text-on-accent shadow-md">
-                    En Popüler
+                  <span className="absolute -top-4 left-1/2 inline-flex w-fit -translate-x-1/2 rotate-[-2deg] items-center whitespace-nowrap rounded-lg border-[1.5px] border-ink/75 bg-tape px-4 py-1.5 font-hand text-lg font-bold leading-none text-text-primary shadow-sm">
+                    en popüler ★
                   </span>
                 )}
 
                 <div className="flex items-center gap-2.5">
-                  <plan.icon className="h-5 w-5 text-accent" aria-hidden="true" />
-                  <h3 className="font-display text-lg font-semibold text-text-primary">{plan.name}</h3>
+                  <span className="spot flex h-8 w-8 items-center justify-center">
+                    <plan.icon className="h-5 w-5 text-text-primary" aria-hidden="true" />
+                  </span>
+                  <h3 className="font-display text-lg font-bold text-text-primary">{plan.name}</h3>
                 </div>
                 <p className="mt-2 text-sm text-text-secondary">{plan.description}</p>
 
@@ -104,16 +106,16 @@ export function PricingSection() {
                   className={buttonVariants(
                     isSelected ? "primary" : "secondary",
                     "lg",
-                    cn("mt-6 w-full", !isSelected && "border-border bg-transparent text-text-secondary hover:border-accent hover:text-accent"),
+                    "mt-6 w-full",
                   )}
                 >
                   Hemen Başla
                 </Link>
 
-                <ul className="mt-8 space-y-4">
+                <ul className="dashed-rule mt-8 space-y-4 pt-6">
                   {plan.features.map((f) => (
                     <li key={f} className="flex items-start gap-2.5 text-sm text-text-primary">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" strokeWidth={3} />
                       {f}
                     </li>
                   ))}
@@ -125,7 +127,7 @@ export function PricingSection() {
       </div>
 
       <Reveal delay={300} className="mt-6">
-        <div className="flex flex-col items-center justify-between gap-3 rounded-card border border-border bg-surface p-5 sm:flex-row">
+        <div className="flex flex-col items-center justify-between gap-3 rounded-card border-[1.5px] border-dashed border-ink/60 bg-surface-alt p-5 sm:flex-row">
           <div className="flex items-center gap-3">
             <span className="text-2xl" aria-hidden="true">
               {BACKUP_ADDON.emoji}

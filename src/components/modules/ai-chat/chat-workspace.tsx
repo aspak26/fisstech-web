@@ -100,7 +100,7 @@ export function ChatWorkspace({
 
         {loading && (
           <div className="flex justify-start">
-            <div className="flex items-center gap-2 rounded-card border border-border bg-surface px-4 py-2.5 text-sm text-text-secondary">
+            <div className="flex items-center gap-2 rounded-card border-[1.5px] border-ink/70 bg-surface px-4 py-2.5 text-sm text-text-secondary shadow-sm">
               <Loader2 className="h-4 w-4 animate-spin" /> Düşünüyor…
             </div>
           </div>
