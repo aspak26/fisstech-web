@@ -27,5 +27,6 @@ Fişştech, fiş tarama (AI/OCR) ve kişisel finans yönetimini birleştiren bir
 4. Fiş tarama gerçek Supabase Edge Function (`scan-receipt` → Gemini) pipeline'ına bağlanır — mock veri yok.
 5. Kod her zaman gerçek dosya olarak yazılır. Henüz yapılmayan modüller gerçek route + "yakında" (ComingSoonPage) olarak var olur.
 6. İleri fazlardaki Gemini entegrasyonları (AI Sohbet) client-side API key ile YAPILMAZ — sunucu tarafı (Edge Function / Route Handler) zorunlu.
+7. **Tasarım dili "Kâğıt" (2026-11-16, kullanıcı onaylı):** site, mobil uygulamayla aynı kâğıt görünümü kullanır — krem kâğıt / kara karton token'ları (`styles/tokens.css`), mürekkep kenarlı kartlar, sert kayık gölgeler, bant/fiş tırtığı/yırtık kenar/mühür/el yazısı not yardımcıları (`src/app/globals.css`), grafik stili `src/lib/utils/paper-chart.ts`. Gradyan kahraman kart, parlama gölgesi, buzlu cam eklenmez. Logo: `public/logo-kagit-seffaf.png` (menü), `public/logo-kagit.png` (kutulu), `src/app/icon.png` (sekme); eski teal logo geçersiz. Tasarım sisteminin tek kaynağı: `fisleapp/cati_agent/ui-tasarim/TASARIM_SISTEMI.md`.
 
 Detaylı tech stack, klasör yapısı, tasarım sistemi kuralları ve komutlar için: `docs/AGENTS.md`.
