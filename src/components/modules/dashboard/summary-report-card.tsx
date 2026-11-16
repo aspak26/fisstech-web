@@ -7,7 +7,7 @@ export function SummaryReportCard() {
   return (
     <Card className="flex items-center justify-between gap-4">
       <div className="flex items-center gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-[1.5px] border-ink/55 bg-accent/10">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-[1.5px] border-ink/55 bg-accent-soft">
           <FileBarChart className="h-5 w-5 text-accent" strokeWidth={1.75} />
         </div>
         <div>

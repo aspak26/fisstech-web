@@ -33,8 +33,8 @@ export function LandingHero({ isAuthenticated }: { isAuthenticated: boolean }) {
         <Reveal>
           <div className="relative mb-8 flex w-full max-w-lg items-start gap-3 rounded-xl border-[1.5px] border-ink/70 bg-surface p-4 text-sm text-text-primary shadow-sm sm:items-center">
             <span aria-hidden="true" className="tape -top-3 left-8 -rotate-3" />
-            <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border-[1.5px] border-ink/70">
-              <Image src="/logo-visor.png" alt="Fisstech Logo" fill className="object-cover" />
+            <div className="relative flex h-12 w-12 shrink-0 -rotate-3 items-center justify-center overflow-hidden rounded-xl border-[1.5px] border-ink/70 shadow-xs">
+              <Image src="/logo-kagit.png" alt="Fişştech logosu" fill sizes="48px" className="object-cover" />
             </div>
             <p className="leading-relaxed">
               <strong className="text-accent block sm:inline">Web Sürümü Yayında! 🎉</strong> Mobil uygulamamız artık <a href="https://play.google.com/store/apps/details?id=com.fisstech.app" target="_blank" rel="noopener noreferrer" className="underline decoration-wavy decoration-1 underline-offset-4 font-semibold hover:text-accent transition-colors">Play Store&apos;da!</a> Hemen şimdi <strong>ÜCRETSİZ</strong> denemeye başlayabilirsiniz.

@@ -11,7 +11,7 @@ const WORDMARK_RATIO = 1205 / 326;
 // görünür glif yüksekliklerini eşitliyoruz. Sadece LogoHorizontal'daki
 // eşleşmeyi düzeltir; LogoIcon/LogoWordmark tek başına kullanıldığında
 // (sidebar, hero vb.) etkilenmez.
-const ICON_VISUAL_SCALE = 1.28;
+const ICON_VISUAL_SCALE = 1.15;
 
 export function LogoHorizontal({ className, height = 32 }: { className?: string; height?: number }) {
   return (
@@ -22,14 +22,18 @@ export function LogoHorizontal({ className, height = 32 }: { className?: string;
   );
 }
 
+/** 2026-11-14 kâğıt dokulu logo (mobil assets/logo.png ile aynı): krem kâğıt
+ * zemin kendi içinde olduğu için tema tersine çevrilmez; mürekkep kenarlı,
+ * hafif düzensiz köşeli küçük bir karton kutucuk olarak gösterilir. */
 export function LogoIcon({ className, height = 32 }: { className?: string; height?: number }) {
+  const size = Math.round(height * ICON_RATIO);
   return (
     <Image
-      src="/logo-f-icon.png"
+      src="/logo-kagit.png"
       alt="Fişştech"
-      width={Math.round(height * ICON_RATIO)}
-      height={height}
-      className={`invert dark:invert-0 ${className ?? ""}`}
+      width={size}
+      height={size}
+      className={`shrink-0 rounded-lg border-[1.5px] border-ink/70 shadow-xs ${className ?? ""}`}
       priority
     />
   );

@@ -20,8 +20,8 @@ export function SubscriptionsSection({ subscriptions }: { subscriptions: Subscri
     <div>
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h2 className="font-display text-base font-semibold text-text-primary">Abonelikler</h2>
-          <span className="rounded-full bg-accent/10 px-2 py-0.5 text-xs font-bold text-accent">
+          <h2 className="font-display text-base font-bold text-text-primary">Abonelikler</h2>
+          <span className="rounded-lg border border-accent/50 bg-accent-soft px-2 py-0.5 text-xs font-bold text-accent">
             {formatCurrency(monthlyTotal)} / ay
           </span>
         </div>
@@ -42,7 +42,7 @@ export function SubscriptionsSection({ subscriptions }: { subscriptions: Subscri
                 isUrgent ? "border-accent/40" : "border-border",
               )}
             >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-accent/10 font-display text-lg font-bold text-accent">
+              <div className="flex h-10 w-10 shrink-0 -rotate-2 items-center justify-center rounded-xl border-[1.5px] border-ink/60 bg-accent-soft font-display text-lg font-bold text-accent">
                 {sub.name ? sub.name[0].toUpperCase() : "?"}
               </div>
               <div className="min-w-0 flex-1">
