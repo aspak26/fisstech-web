@@ -22,18 +22,18 @@ export function LogoHorizontal({ className, height = 32 }: { className?: string;
   );
 }
 
-/** 2026-11-14 kâğıt dokulu logo (mobil assets/logo.png ile aynı): krem kâğıt
- * zemin kendi içinde olduğu için tema tersine çevrilmez; mürekkep kenarlı,
- * hafif düzensiz köşeli küçük bir karton kutucuk olarak gösterilir. */
+/** 2026-11-14 kâğıt dokulu logo (mobil assets/logo.png), kâğıt zemini
+ * ayıklanmış şeffaf sürüm (public/logo-kagit-seffaf.png) — kutusuz, sayfa
+ * kâğıdının doğrudan üstünde durur; renkleri her iki temada da okunur. */
 export function LogoIcon({ className, height = 32 }: { className?: string; height?: number }) {
   const size = Math.round(height * ICON_RATIO);
   return (
     <Image
-      src="/logo-kagit.png"
+      src="/logo-kagit-seffaf.png"
       alt="Fişştech"
       width={size}
       height={size}
-      className={`shrink-0 rounded-lg border-[1.5px] border-ink/70 shadow-xs ${className ?? ""}`}
+      className={`shrink-0 ${className ?? ""}`}
       priority
     />
   );
