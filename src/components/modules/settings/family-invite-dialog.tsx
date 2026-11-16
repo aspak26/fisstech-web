@@ -42,7 +42,7 @@ export function FamilyInviteDialog({ open, onClose, ownerId }: { open: boolean; 
           <p className="text-sm text-danger">{error}</p>
         ) : invite ? (
           <>
-            <p className="break-all rounded-control border border-border bg-bg p-3 text-sm text-text-primary">{link}</p>
+            <p className="break-all rounded-control border-[1.5px] border-border bg-bg p-3 text-sm text-text-primary">{link}</p>
             <p className="text-xs text-text-secondary">7 gün geçerlidir. Yeni bir bağlantı oluşturursan bu geçersiz olur.</p>
             <Button className="w-full gap-1.5" onClick={handleCopy}>
               {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}

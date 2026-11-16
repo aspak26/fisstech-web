@@ -9,15 +9,26 @@ import Link from "next/link";
 // their new password — redirecting it away here would break that flow.
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col bg-bg">
-      <header className="flex h-16 items-center justify-between px-4 lg:px-8">
+    <div className="relative flex min-h-screen flex-col bg-bg">
+      {/* Kâğıt: kareli defter zemini üstüne bantla yapıştırılmış form kartı */}
+      <div aria-hidden="true" className="grid-paper pointer-events-none absolute inset-0" />
+      <header className="relative flex h-16 items-center justify-between px-4 lg:px-8">
         <Link href="/" aria-label="Fişştech anasayfa">
           <LogoHorizontal />
         </Link>
         <ThemeToggle />
       </header>
-      <main className="flex flex-1 items-center justify-center px-4 pb-16">
-        <div className="w-full max-w-sm">{children}</div>
+      <main className="relative flex flex-1 items-center justify-center px-4 pb-16 pt-6">
+        <div className="relative w-full max-w-md">
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 rotate-[2deg] rounded-card border-[1.5px] border-ink/30 bg-surface-alt"
+          />
+          <div className="relative rounded-card border-[1.5px] border-ink/80 bg-surface px-6 py-8 shadow-lg sm:px-10">
+            <span aria-hidden="true" className="tape -top-3 left-1/2 -translate-x-1/2 -rotate-2" />
+            {children}
+          </div>
+        </div>
       </main>
     </div>
   );

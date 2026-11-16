@@ -68,7 +68,7 @@ export function InvestmentsList({
             const price = prices[asset.key];
             if (!price) return null;
             return (
-              <div key={asset.key} className="flex shrink-0 items-center gap-2 rounded-control border border-border bg-surface px-3 py-2 text-sm">
+              <div key={asset.key} className="flex shrink-0 items-center gap-2 rounded-control border-[1.5px] border-border bg-surface px-3 py-2 text-sm">
                 <span className="text-lg leading-none">{asset.emoji}</span>
                 <span className="font-medium text-text-primary">{asset.label}</span>
                 <span className="text-text-secondary">{formatCurrency(price)}</span>
@@ -97,7 +97,7 @@ export function InvestmentsList({
         {investments.length === 0 ? (
           <EmptyState icon={TrendingUp} title="Henüz yatırım eklenmedi" description="Altın, döviz veya kripto varlığını ekle." />
         ) : (
-          <ul className="divide-y divide-border">
+          <ul className="divide-y divide-dashed divide-ink/20">
             {investments.map((inv) => {
               const cost = inv.purchase_price ? Number(inv.purchase_price) * Number(inv.amount) : null;
               const hasPrice = prices[inv.asset_type] !== undefined;

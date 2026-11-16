@@ -35,7 +35,7 @@ export function TrialStatusCard({
       </CardHeader>
       {isInTrial ? (
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-warning/20">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-[1.5px] border-ink/55 bg-warning/20">
             <Sparkles className="h-5 w-5 text-warning" />
           </div>
           <p className="text-sm text-text-secondary">
@@ -46,7 +46,7 @@ export function TrialStatusCard({
       ) : (
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-warning/20">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-[1.5px] border-ink/55 bg-warning/20">
               <Gift className="h-5 w-5 text-warning" />
             </div>
             <p className="text-sm text-text-secondary">

@@ -33,7 +33,7 @@ export function ResetPasswordForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div>
-        <h1 className="font-display text-2xl font-semibold text-text-primary">
+        <h1 className="font-display text-2xl font-bold tracking-tight text-text-primary">
           Yeni şifre belirle
         </h1>
       </div>

@@ -30,7 +30,7 @@ function CardComparisonChart({ cards, totals }: { cards: CardsRow[]; totals: Map
               <span className="truncate text-text-primary">{cardDisplayLabel(card)}</span>
               <span className="font-medium text-text-primary">{formatCurrency(total)}</span>
             </div>
-            <div className="h-2 w-full overflow-hidden rounded-full bg-bg">
+            <div className="h-2.5 w-full overflow-hidden rounded-full border border-ink/45 bg-surface-alt">
               <div
                 className="h-full rounded-full"
                 style={{ width: `${max > 0 ? (total / max) * 100 : 0}%`, backgroundColor: accent }}

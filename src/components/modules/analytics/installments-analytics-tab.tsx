@@ -63,7 +63,7 @@ export function InstallmentsAnalyticsTab({
               <p className="text-center text-sm text-text-secondary py-4">Aktif taksitiniz bulunmuyor.</p>
             ) : (
               data.activeInstallments.map((inst) => (
-                <div key={inst.id} className="flex items-center justify-between border-b border-border pb-4 last:border-0 last:pb-0">
+                <div key={inst.id} className="flex items-center justify-between border-b-[1.5px] border-dashed border-ink/25 pb-4 last:border-0 last:pb-0">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface text-xl">
                       {inst.categoryIcon}

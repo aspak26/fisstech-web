@@ -5,6 +5,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis
 import { formatCurrency } from "@/lib/utils/currency";
 import { CHART_COLORS, type StoreBreakdownPoint } from "@/lib/data/analytics";
 
+import { PAPER_AXIS_LINE, PAPER_SHAPE_STROKE, PAPER_TOOLTIP_CURSOR, PAPER_TOOLTIP_STYLE } from "@/lib/utils/paper-chart";
 /** "Market Analizi" — mağaza harcama donut'u + "Alışveriş Sıklığı" bar
  * chart, mobildeki `_StoreChart` ile aynı. */
 export function StoreBreakdownChart({ stores }: { stores: StoreBreakdownPoint[] }) {
@@ -18,17 +19,12 @@ export function StoreBreakdownChart({ stores }: { stores: StoreBreakdownPoint[] 
           <PieChart>
             <Pie data={top} dataKey="total" nameKey="name" innerRadius="50%" outerRadius="85%" label={(e) => `%${(e.percent! * 100).toFixed(1)}`}>
               {top.map((entry, i) => (
-                <Cell key={entry.name} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                <Cell key={entry.name} fill={CHART_COLORS[i % CHART_COLORS.length]} stroke="var(--color-surface)" strokeWidth={2} />
               ))}
             </Pie>
-            <Tooltip
+            <Tooltip cursor={PAPER_TOOLTIP_CURSOR}
               formatter={(value) => formatCurrency(Number(value))}
-              contentStyle={{
-                background: "var(--color-surface)",
-                border: "1px solid var(--color-border)",
-                borderRadius: 12,
-                color: "var(--color-text-primary)",
-              }}
+              contentStyle={PAPER_TOOLTIP_STYLE}
             />
           </PieChart>
         </ResponsiveContainer>
@@ -55,25 +51,20 @@ export function StoreBreakdownChart({ stores }: { stores: StoreBreakdownPoint[] 
             <XAxis
               dataKey="name"
               tick={{ fill: "var(--color-text-secondary)", fontSize: 11 }}
-              axisLine={{ stroke: "var(--color-border)" }}
+              axisLine={PAPER_AXIS_LINE}
               tickLine={false}
               tickFormatter={(v: string) => (v.length > 7 ? `${v.slice(0, 7)}…` : v)}
             />
             <YAxis hide domain={[0, "dataMax"]} />
-            <Tooltip
+            <Tooltip cursor={PAPER_TOOLTIP_CURSOR}
               formatter={(value) => [`${value} ziyaret`, ""]}
-              contentStyle={{
-                background: "var(--color-surface)",
-                border: "1px solid var(--color-border)",
-                borderRadius: 12,
-                color: "var(--color-text-primary)",
-              }}
+              contentStyle={PAPER_TOOLTIP_STYLE}
             />
             <Bar
               dataKey="count"
               name="Ziyaret"
               fill="var(--color-accent)"
-              radius={[4, 4, 0, 0]}
+              radius={[6, 6, 0, 0]} {...PAPER_SHAPE_STROKE}
               barSize={28}
               label={{
                 position: "top",

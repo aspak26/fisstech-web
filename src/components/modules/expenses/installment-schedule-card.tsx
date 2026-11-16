@@ -96,14 +96,14 @@ export function InstallmentScheduleCard({
           <span className="font-medium text-success"> · Tamamlandı ✓</span>
         )}
       </p>
-      <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-bg">
+      <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full border border-ink/45 bg-surface-alt">
         <div
           className="h-full rounded-full bg-accent transition-all"
           style={{ width: `${total > 0 ? (paidCount / total) * 100 : 0}%` }}
         />
       </div>
 
-      <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-sm">
+      <div className="mt-4 flex items-center justify-between border-t-[1.5px] border-dashed border-ink/25 pt-3 text-sm">
         <span className="text-text-secondary">Başlangıç Tarihi</span>
         {editingStart ? (
           <Input
@@ -131,7 +131,7 @@ export function InstallmentScheduleCard({
         </span>
       </div>
 
-      <ul className="mt-2 divide-y divide-border border-t border-border">
+      <ul className="mt-2 divide-y divide-dashed divide-ink/20 border-t-[1.5px] border-dashed border-ink/25">
         {Array.from({ length: total }, (_, i) => {
           const isPaid = paidStates[i];
           const date = paymentDate(startDate, i);
@@ -149,7 +149,7 @@ export function InstallmentScheduleCard({
                     isPaid ? "border-success bg-success" : "border-border bg-transparent",
                   )}
                 >
-                  {isPaid && <Check className="h-3.5 w-3.5 text-white" />}
+                  {isPaid && <Check className="h-3.5 w-3.5 text-on-accent" strokeWidth={3} />}
                 </span>
                 <span className={cn("flex-1 capitalize", isPaid ? "text-text-secondary" : "text-text-primary")}>
                   {monthLabelFmt.format(date)}

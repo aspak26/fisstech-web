@@ -16,7 +16,7 @@ export function MemberSpendChart({ totals }: { totals: MemberSpendPoint[] }) {
             </span>
             <span className="font-medium text-text-primary">{formatCurrency(m.total)}</span>
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-bg">
+          <div className="h-2.5 w-full overflow-hidden rounded-full border border-ink/45 bg-surface-alt">
             <div
               className="h-full rounded-full bg-accent"
               style={{ width: `${max > 0 ? (m.total / max) * 100 : 0}%` }}

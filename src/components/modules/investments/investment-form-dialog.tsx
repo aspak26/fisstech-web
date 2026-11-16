@@ -197,7 +197,7 @@ export function InvestmentFormDialog({ open, onClose }: { open: boolean; onClose
             id="i-note"
             rows={2}
             placeholder="Örn: Ziraat bankasından aldım"
-            className="w-full rounded-control border border-border bg-surface px-3.5 py-2.5 text-base text-text-primary placeholder:text-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="w-full rounded-control border-[1.5px] border-border bg-surface px-3.5 py-2.5 text-base text-text-primary placeholder:text-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             {...register("note")}
           />
         </div>

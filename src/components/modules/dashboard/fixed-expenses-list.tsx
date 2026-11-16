@@ -14,7 +14,7 @@ export function FixedExpensesList({ items }: { items: FixedExpensesRow[] }) {
       {items.length === 0 ? (
         <EmptyState icon={Repeat} title="Sabit gider eklenmedi" />
       ) : (
-        <ul className="divide-y divide-border">
+        <ul className="divide-y divide-dashed divide-ink/20">
           {items.map((item) => (
             <li key={item.id} className="flex items-center justify-between py-3">
               <div>

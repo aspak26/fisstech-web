@@ -107,7 +107,7 @@ export function ReportView({ data }: { data: ReportData }) {
           <CardHeader>
             <CardTitle className="print:text-accent">Borçlar & Alacaklar</CardTitle>
           </CardHeader>
-          <ul className="divide-y divide-border">
+          <ul className="divide-y divide-dashed divide-ink/20">
             {data.debts.map((debt) => (
               <li key={debt.id} className="flex items-center justify-between py-2.5">
                 <div className="flex items-center gap-2">
@@ -149,7 +149,7 @@ export function ReportView({ data }: { data: ReportData }) {
                           <span className="text-text-secondary"> / {formatCurrency(target)}</span>
                         </span>
                       </div>
-                      <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-bg">
+                      <div className="mt-1.5 h-2.5 overflow-hidden rounded-full border border-ink/45 bg-surface-alt">
                         <div className="h-full rounded-full bg-accent" style={{ width: `${pct}%` }} />
                       </div>
                     </li>
@@ -193,7 +193,7 @@ export function ReportView({ data }: { data: ReportData }) {
                 <CardTitle className="print:text-accent">Aktif Abonelikler</CardTitle>
               </CardHeader>
 
-              <ul className="divide-y divide-border print:hidden">
+              <ul className="divide-y divide-dashed divide-ink/20 print:hidden">
                 {data.subscriptions.map((sub) => (
                   <li key={sub.id} className="flex items-center justify-between py-2.5">
                     <span className="text-text-primary">{sub.name}</span>
@@ -240,7 +240,7 @@ export function ReportView({ data }: { data: ReportData }) {
               {groupByDate(items).map(([date, group]) => (
                 <div key={date}>
                   <p className="mb-2 font-display text-sm font-semibold text-accent">{date}</p>
-                  <div className="divide-y divide-border rounded-control border border-border">
+                  <div className="divide-y divide-dashed divide-ink/20 rounded-control border-[1.5px] border-border">
                     {group.map((item, i) => (
                       <div key={i} className="flex items-center justify-between gap-3 p-3">
                         <div className="min-w-0">

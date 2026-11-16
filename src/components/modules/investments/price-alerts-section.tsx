@@ -59,7 +59,7 @@ export function PriceAlertsSection({
             description="Bir varlık hedef fiyata ulaşınca bildirim al."
           />
         ) : (
-          <ul className="divide-y divide-border">
+          <ul className="divide-y divide-dashed divide-ink/20">
             {alerts.map((alert) => {
               const currentPrice = prices[alert.asset_type];
               const triggered = alert.is_triggered || (currentPrice !== undefined && isAlertTriggeredBy(alert, currentPrice));

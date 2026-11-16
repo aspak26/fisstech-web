@@ -91,7 +91,7 @@ export function ExpenseDetail({
         {expense.note && <p className="mt-2 text-sm italic text-text-secondary">{expense.note}</p>}
 
         {expense.expense_items.length > 0 && (
-          <ul className="mt-4 divide-y divide-border border-t border-border">
+          <ul className="mt-4 divide-y divide-dashed divide-ink/20 border-t-[1.5px] border-dashed border-ink/25">
             {expense.expense_items.map((item) => {
               const qty = Number(item.quantity);
               const unit = item.unit || "adet";

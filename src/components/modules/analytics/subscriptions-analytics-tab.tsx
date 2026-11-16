@@ -70,7 +70,7 @@ export function SubscriptionsAnalyticsTab({ subscriptions }: { subscriptions: Su
 
       <Link
         href="/subscriptions"
-        className="flex items-center justify-center gap-2 rounded-control border border-border py-3 text-sm font-medium text-text-primary hover:border-accent hover:text-accent"
+        className="flex items-center justify-center gap-2 rounded-control border-[1.5px] border-border py-3 text-sm font-medium text-text-primary hover:border-accent hover:text-accent"
       >
         <ExternalLink className="h-4 w-4" /> Tüm Abonelikleri Yönet
       </Link>

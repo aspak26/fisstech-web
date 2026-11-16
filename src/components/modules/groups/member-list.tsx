@@ -71,7 +71,7 @@ export function MemberList({
           </Button>
         )}
       </div>
-      <ul className="divide-y divide-border">
+      <ul className="divide-y divide-dashed divide-ink/20">
         {members.map((m) => (
           <li key={m.id} className="flex items-center gap-3 py-2.5">
             <Avatar name={m.name} />

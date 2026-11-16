@@ -3,6 +3,7 @@
 import { AreaChart, Area, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { formatCurrency } from "@/lib/utils/currency";
 
+import { PAPER_AREA_OPACITY, PAPER_AXIS_LINE, PAPER_LINE_WIDTH, PAPER_TOOLTIP_CURSOR, PAPER_TOOLTIP_STYLE, paperActiveDot, paperDot } from "@/lib/utils/paper-chart";
 interface TrendPoint {
   label: string;
   total: number;
@@ -19,35 +20,30 @@ export function TrendLineChart({ data, color = "var(--color-accent)" }: { data: 
         <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={color} stopOpacity={0.22} />
-              <stop offset="100%" stopColor={color} stopOpacity={0} />
+              <stop offset="0%" stopColor={color} stopOpacity={PAPER_AREA_OPACITY} />
+              <stop offset="100%" stopColor={color} stopOpacity={PAPER_AREA_OPACITY} />
             </linearGradient>
           </defs>
           <XAxis
             dataKey="label"
             tick={{ fill: "var(--color-text-secondary)", fontSize: 12 }}
-            axisLine={{ stroke: "var(--color-border)" }}
+            axisLine={PAPER_AXIS_LINE}
             tickLine={false}
             padding={{ left: 12, right: 12 }}
           />
           <YAxis hide domain={[0, (max: number) => (max === 0 ? 100 : max * 1.2)]} />
-          <Tooltip
+          <Tooltip cursor={PAPER_TOOLTIP_CURSOR}
             formatter={(value) => formatCurrency(Number(value))}
-            contentStyle={{
-              background: "var(--color-surface)",
-              border: "1px solid var(--color-border)",
-              borderRadius: 12,
-              color: "var(--color-text-primary)",
-            }}
+            contentStyle={PAPER_TOOLTIP_STYLE}
           />
           <Area type="monotone" dataKey="total" stroke="none" fill="url(#trendFill)" isAnimationActive={false} />
           <Line
             type="monotone"
             dataKey="total"
             stroke={color}
-            strokeWidth={2.5}
-            dot={{ r: 3, fill: color, strokeWidth: 0 }}
-            activeDot={{ r: 5 }}
+            strokeWidth={PAPER_LINE_WIDTH}
+            dot={paperDot(color)}
+            activeDot={paperActiveDot(color)}
             isAnimationActive={false}
           />
         </AreaChart>

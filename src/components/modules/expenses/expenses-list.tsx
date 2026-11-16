@@ -94,7 +94,7 @@ export function ExpensesList({
           <button
             type="button"
             onClick={() => router.push("/expenses/archive")}
-            className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-3.5 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:border-accent hover:text-accent"
+            className="flex items-center gap-1.5 rounded-full border-[1.5px] border-ink/60 bg-surface px-3.5 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:border-accent hover:text-accent"
           >
             <ImageIcon className="h-4 w-4" />
             Fiş Arşivi
@@ -114,13 +114,13 @@ export function ExpensesList({
             description="Manuel ekleyebilir veya Fiş Tara'yı kullanabilirsin."
           />
         ) : (
-          <div className="divide-y divide-border">
+          <div className="divide-y divide-dashed divide-ink/20">
             {groupedByDate.map(([date, dayExpenses]) => (
               <div key={date} className="py-2">
                 <p className="px-1 py-2 text-xs font-semibold uppercase tracking-wide text-text-secondary">
                   {dateGroupLabel(date)}
                 </p>
-                <ul className="divide-y divide-border">
+                <ul className="divide-y divide-dashed divide-ink/20">
                   {dayExpenses.map((expense) => {
                     const Icon = PAYMENT_ICONS[expense.payment_method] ?? HelpCircle;
                     const inst = expense.installment;
@@ -133,7 +133,7 @@ export function ExpensesList({
                           else openEdit(expense);
                         }}
                       >
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-[1.5px] border-ink/55 bg-accent/10 text-accent">
                           <Icon className="h-5 w-5" />
                         </div>
                         <div className="min-w-0 flex-1 text-left">

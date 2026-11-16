@@ -50,14 +50,14 @@ export function RegisterForm() {
   if (confirmationSent) {
     return (
       <div className="space-y-3 text-center">
-        <h1 className="font-display text-2xl font-semibold text-text-primary">
+        <h1 className="font-display text-2xl font-bold tracking-tight text-text-primary">
           E-postanı kontrol et
         </h1>
         <p className="text-sm text-text-secondary">
           Hesabını doğrulamak için sana bir bağlantı gönderdik. Doğruladıktan sonra giriş
           yapabilirsin.
         </p>
-        <Link href="/login" className="inline-block text-sm text-accent hover:underline">
+        <Link href="/login" className="inline-block text-sm font-semibold text-accent underline decoration-wavy decoration-1 underline-offset-4">
           Girişe dön
         </Link>
       </div>
@@ -67,7 +67,7 @@ export function RegisterForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div>
-        <h1 className="font-display text-2xl font-semibold text-text-primary">Kayıt ol</h1>
+        <h1 className="font-display text-2xl font-bold tracking-tight text-text-primary">Kayıt ol</h1>
         <p className="mt-1 text-sm text-text-secondary">
           Fişştech Web hesabını oluştur — mobil uygulamanla aynı hesap.
         </p>
@@ -108,7 +108,7 @@ export function RegisterForm() {
 
       <p className="text-center text-sm text-text-secondary">
         Zaten hesabın var mı?{" "}
-        <Link href="/login" className="text-accent hover:underline">
+        <Link href="/login" className="font-semibold text-accent underline decoration-wavy decoration-1 underline-offset-4">
           Giriş yap
         </Link>
       </p>

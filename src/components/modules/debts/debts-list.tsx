@@ -109,7 +109,7 @@ export function DebtsList({ debts }: { debts: UserDebtRow[] }) {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Card className="border-success/30 bg-success/5">
           <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-success/15">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border-[1.5px] border-ink/55 bg-success/15">
               <ArrowUp className="h-4 w-4 text-success" />
             </div>
             <div>
@@ -121,7 +121,7 @@ export function DebtsList({ debts }: { debts: UserDebtRow[] }) {
         </Card>
         <Card className="border-danger/30 bg-danger/5">
           <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-danger/15">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border-[1.5px] border-ink/55 bg-danger/15">
               <ArrowDown className="h-4 w-4 text-danger" />
             </div>
             <div>
@@ -163,7 +163,7 @@ export function DebtsList({ debts }: { debts: UserDebtRow[] }) {
               type="button"
               title="Borç Geçmişi"
               onClick={() => setShowArchive(true)}
-              className="flex h-9 w-9 items-center justify-center rounded-control border border-border text-text-secondary hover:border-accent hover:text-accent"
+              className="flex h-9 w-9 items-center justify-center rounded-control border-[1.5px] border-border text-text-secondary hover:border-accent hover:text-accent"
             >
               <History className="h-4 w-4" />
             </button>
@@ -173,7 +173,7 @@ export function DebtsList({ debts }: { debts: UserDebtRow[] }) {
             {visibleMain.length === 0 ? (
               <EmptyState icon={HandCoins} title="Açık borç/alacak kaydı yok" />
             ) : (
-              <ul className="divide-y divide-border">
+              <ul className="divide-y divide-dashed divide-ink/20">
                 {visibleMain.map((debt) => (
                   <DebtCard key={debt.id} debt={debt} onEdit={() => openEdit(debt)} />
                 ))}
@@ -217,7 +217,7 @@ export function DebtsList({ debts }: { debts: UserDebtRow[] }) {
             {visibleArchive.length === 0 ? (
               <EmptyState icon={HandCoins} title="Bu dönemde kapanmış kayıt yok" />
             ) : (
-              <ul className="divide-y divide-border">
+              <ul className="divide-y divide-dashed divide-ink/20">
                 {visibleArchive.map((debt) => (
                   <DebtCard key={debt.id} debt={debt} onEdit={() => openEdit(debt)} />
                 ))}

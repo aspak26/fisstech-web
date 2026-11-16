@@ -105,7 +105,7 @@ export function BudgetLimitsCard({
                     <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-bg">
+                <div className="h-2.5 w-full overflow-hidden rounded-full border border-ink/45 bg-surface-alt">
                   <div className={cn("h-full rounded-full", barColor)} style={{ width: `${limit.progress * 100}%` }} />
                 </div>
                 <div className="mt-1 flex items-center justify-between text-xs">

@@ -124,7 +124,7 @@ export function LimitFormDialog({
         )}
 
         {existing ? (
-          <div className="flex items-center gap-2 rounded-control border border-border p-3">
+          <div className="flex items-center gap-2 rounded-control border-[1.5px] border-border p-3">
             <span className="text-lg">{existing.icon}</span>
             <span className="font-medium text-text-primary">{existing.name}</span>
           </div>
@@ -141,7 +141,7 @@ export function LimitFormDialog({
             </Select>
           </div>
         ) : (
-          <div className="flex items-center gap-2 rounded-control border border-border p-3">
+          <div className="flex items-center gap-2 rounded-control border-[1.5px] border-border p-3">
             <span className="text-lg">🗓</span>
             <span className="font-medium text-text-primary">{formatMonthLabel(month)}</span>
           </div>

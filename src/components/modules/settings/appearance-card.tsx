@@ -33,7 +33,7 @@ export function AppearanceCard() {
             type="button"
             onClick={() => setTheme(opt.value)}
             className={cn(
-              "flex flex-col items-center gap-2 rounded-control border border-border bg-bg p-4 text-sm font-medium text-text-secondary transition-colors hover:border-accent",
+              "flex flex-col items-center gap-2 rounded-control border-[1.5px] border-border bg-bg p-4 text-sm font-medium text-text-secondary transition-colors hover:border-accent",
               mounted && theme === opt.value && "border-accent bg-accent/5 text-accent",
             )}
           >

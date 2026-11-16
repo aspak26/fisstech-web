@@ -39,7 +39,7 @@ export function GroupsList({ groups, userId }: { groups: GroupRow[]; userId: str
             <Link key={group.id} href={`/groups/${group.id}`}>
               <Card className="transition-colors hover:border-accent">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-[1.5px] border-ink/55 bg-accent/10">
                     <Users className="h-5 w-5 text-accent" />
                   </div>
                   <div>

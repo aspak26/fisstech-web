@@ -203,7 +203,7 @@ export function SubscriptionFormDialog({
           )}
         </div>
 
-        <div className="rounded-control border border-border p-3">
+        <div className="rounded-control border-[1.5px] border-border p-3">
           <Switch
             checked={isNotifyEnabled}
             onChange={setIsNotifyEnabled}

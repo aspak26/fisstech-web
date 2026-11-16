@@ -111,7 +111,7 @@ export function CardDetail({
                 Düzenle
               </button>
             </div>
-            <div className="h-2 w-full overflow-hidden rounded-full bg-bg">
+            <div className="h-2.5 w-full overflow-hidden rounded-full border border-ink/45 bg-surface-alt">
               <div
                 className={isExceeded ? "h-full rounded-full bg-danger" : isWarning ? "h-full rounded-full bg-warning" : "h-full rounded-full bg-success"}
                 style={{ width: `${progress * 100}%` }}
@@ -133,7 +133,7 @@ export function CardDetail({
             <EmptyState title="Bu ay bu kartla henüz harcama yok" />
           </Card>
         ) : (
-          <Card className="divide-y divide-border p-0">
+          <Card className="divide-y divide-dashed divide-ink/20 p-0">
             {expenses.map((e) => (
               <button
                 key={e.id}

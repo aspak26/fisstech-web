@@ -87,13 +87,13 @@ export function DebtFormDialog({
   return (
     <Dialog open={open} onClose={onClose} title={debt ? "Borç Kaydını Düzenle" : "Yeni Borç Kaydı"}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-2 gap-2 rounded-control border border-border p-1">
+        <div className="grid grid-cols-2 gap-2 rounded-control border-[1.5px] border-border p-1">
           <button
             type="button"
             onClick={() => setType("borrowed")}
             className={cn(
               "flex items-center justify-center gap-1.5 rounded-inner py-2.5 text-sm font-medium transition-colors",
-              type === "borrowed" ? "bg-danger text-white" : "text-text-secondary",
+              type === "borrowed" ? "bg-danger text-on-accent" : "text-text-secondary",
             )}
           >
             <ArrowDown className="h-4 w-4" /> Borç Aldım
@@ -103,7 +103,7 @@ export function DebtFormDialog({
             onClick={() => setType("lent")}
             className={cn(
               "flex items-center justify-center gap-1.5 rounded-inner py-2.5 text-sm font-medium transition-colors",
-              type === "lent" ? "bg-success text-white" : "text-text-secondary",
+              type === "lent" ? "bg-success text-on-accent" : "text-text-secondary",
             )}
           >
             <ArrowUp className="h-4 w-4" /> Borç Verdim
@@ -127,7 +127,7 @@ export function DebtFormDialog({
           <Input id="d-note" placeholder="Örn: Aliye olan döner borcum" {...register("note")} />
         </div>
 
-        <div className="rounded-control border border-border p-3">
+        <div className="rounded-control border-[1.5px] border-border p-3">
           <Switch checked={reminderActive} onChange={setReminderActive} label="Hatırlatıcı" />
           {reminderActive && (
             <div className="mt-3">

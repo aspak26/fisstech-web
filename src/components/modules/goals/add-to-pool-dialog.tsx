@@ -74,7 +74,7 @@ export function AddToPoolDialog({
 
   return (
     <Dialog open={open} onClose={handleClose} title="Birikim Havuzu">
-      <div className="mb-4 space-y-2 rounded-control border border-border bg-bg p-3 text-sm">
+      <div className="mb-4 space-y-2 rounded-control border-[1.5px] border-border bg-bg p-3 text-sm">
         <div className="flex items-center justify-between">
           <span className="text-text-secondary">Mevcut Net Bakiye</span>
           <span className={cn("font-semibold", netBalance >= 0 ? "text-success" : "text-danger")}>

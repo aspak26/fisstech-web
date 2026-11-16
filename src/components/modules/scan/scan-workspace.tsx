@@ -383,14 +383,14 @@ export function ScanWorkspace({
 
       {review ? (
         <Card>
-          <div className="flex items-center justify-between mb-4 border-b border-border pb-3">
+          <div className="flex items-center justify-between mb-4 border-b-[1.5px] border-dashed border-ink/25 pb-3">
             <h3 className="font-semibold text-text-primary">
               {mode === "batch" && reviewQueue.length >= 0 
                 ? `Fiş İnceleniyor (Kalan: ${reviewQueue.length})` 
                 : "Fiş İnceleme"}
             </h3>
             {mode === "batch" && (
-               <span className="text-sm text-text-secondary bg-surface px-2 py-1 rounded-control border border-border">
+               <span className="text-sm text-text-secondary bg-surface px-2 py-1 rounded-control border-[1.5px] border-border">
                   Sıradaki: {reviewQueue.length}
                </span>
             )}

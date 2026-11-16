@@ -58,7 +58,7 @@ export function CategoryAddInline({
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-2 rounded-control border border-border p-3">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-2 rounded-control border-[1.5px] border-border p-3">
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
         <div>
           <Label htmlFor="cat-name" className="text-xs">

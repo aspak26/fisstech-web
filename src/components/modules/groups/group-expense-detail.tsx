@@ -141,7 +141,7 @@ export function GroupExpenseDetail({
             </Button>
           </div>
         ) : (
-          <ul className="divide-y divide-border">
+          <ul className="divide-y divide-dashed divide-ink/20">
             {splits[0].members.map((m) => (
               <li key={m.id} className="flex items-center justify-between py-2.5">
                 <span className="text-text-primary">{m.userName}</span>

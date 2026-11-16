@@ -23,7 +23,7 @@ export function MonthSelector({ month }: { month: string }) {
         type="button"
         aria-label="Önceki ay"
         onClick={() => go(-1)}
-        className="flex h-9 w-9 items-center justify-center rounded-control border border-border bg-surface text-text-primary hover:border-accent"
+        className="flex h-9 w-9 items-center justify-center rounded-control border-[1.5px] border-border bg-surface text-text-primary hover:border-accent"
       >
         <ChevronLeft className="h-4 w-4" />
       </button>
@@ -36,7 +36,7 @@ export function MonthSelector({ month }: { month: string }) {
         onClick={() => go(1)}
         disabled={isCurrent}
         className={cn(
-          "flex h-9 w-9 items-center justify-center rounded-control border border-border bg-surface text-text-primary hover:border-accent",
+          "flex h-9 w-9 items-center justify-center rounded-control border-[1.5px] border-border bg-surface text-text-primary hover:border-accent",
           isCurrent && "opacity-40 hover:border-border",
         )}
       >

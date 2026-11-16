@@ -105,7 +105,7 @@ export function CropModal({
               />
            </ReactCrop>
         </div>
-        <div className="p-6 border-t border-border bg-surface flex justify-end gap-3 mt-4">
+        <div className="p-6 border-t-[1.5px] border-dashed border-ink/25 bg-surface flex justify-end gap-3 mt-4">
           <Button variant="secondary" onClick={onClose}>İptal</Button>
           <Button onClick={handleSave}>Kırp ve Kaydet</Button>
         </div>

@@ -45,9 +45,9 @@ export function SubscriptionTimeline({ subscriptions }: { subscriptions: Subscri
           return (
             <li key={s.id}>
               <p className="mb-1 truncate text-sm text-text-primary">{s.name}</p>
-              <div className="relative h-6 w-full rounded-full bg-bg">
+              <div className="relative h-6 w-full rounded-full border-[1.5px] border-ink/30 bg-surface-alt">
                 <div
-                  className="absolute top-0 flex h-6 items-center justify-center rounded-full text-[10px] font-medium text-white"
+                  className="absolute -top-px flex h-6 items-center justify-center rounded-full border-[1.5px] border-ink/60 text-[10px] font-semibold text-text-primary"
                   style={{
                     left: `${leftFrac * 100}%`,
                     width: `${barFrac * 100}%`,
