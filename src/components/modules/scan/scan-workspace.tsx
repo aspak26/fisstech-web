@@ -334,7 +334,7 @@ export function ScanWorkspace({
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       {!isPremium && (
-        <div className="rounded-control border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-text-primary flex items-center justify-between">
+        <div className="rounded-control border-[1.5px] border-dashed border-accent/50 bg-accent-soft px-4 py-3 text-sm text-text-primary flex items-center justify-between">
           <p>
             💡 Fiş hakkınız bittiyse veya artırmak isterseniz, <strong>Fişştech Mobil Uygulamasını</strong> indirip reklam izleyerek ücretsiz fiş hakkı kazanabilirsiniz!
           </p>
@@ -361,7 +361,7 @@ export function ScanWorkspace({
         <CreditBadge remaining={remainingCredits} isPremium={isPremium} />
       </div>
 
-      <div className="flex items-center gap-2 mb-2 p-3 bg-surface border border-border rounded-control">
+      <div className="flex items-center gap-2 mb-2 p-3 bg-surface border-[1.5px] border-border rounded-control">
         <Switch 
           checked={autoSave} 
           onChange={setAutoSave} 
@@ -459,7 +459,7 @@ export function ScanWorkspace({
         title="Premium Özellik"
       >
         <div className="space-y-4 mt-2">
-          <div className="rounded-control border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-text-primary">
+          <div className="rounded-control border-[1.5px] border-dashed border-accent/50 bg-accent-soft px-4 py-3 text-sm text-text-primary">
             <p>
               Toplu fiş tarama Premium üyelere özel bir özelliktir.
               Ücretsiz olarak kullanmak için <strong>Fişştech Mobil Uygulamasını</strong> açıp

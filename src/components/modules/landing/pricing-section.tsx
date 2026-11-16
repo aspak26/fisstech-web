@@ -37,7 +37,7 @@ export function PricingSection() {
         </span>
       </Reveal>
 
-      <div className="mt-14 grid gap-8 md:grid-cols-3 md:items-start">
+      <div className="mx-auto mt-14 grid max-w-3xl gap-8 md:grid-cols-2 md:items-start">
         {PRICING_PLANS.map((plan, i) => {
           const isSelected = plan.id === selectedPlan;
           return (
@@ -126,7 +126,7 @@ export function PricingSection() {
         })}
       </div>
 
-      <Reveal delay={300} className="mt-6">
+      <Reveal delay={300} className="mx-auto mt-6 max-w-3xl">
         <div className="flex flex-col items-center justify-between gap-3 rounded-card border-[1.5px] border-dashed border-ink/60 bg-surface-alt p-5 sm:flex-row">
           <div className="flex items-center gap-3">
             <span className="text-2xl" aria-hidden="true">

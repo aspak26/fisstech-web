@@ -114,7 +114,7 @@ export function CardFormDialog({
                 className={cn(
                   "rounded-control border px-3 py-1.5 text-sm font-medium",
                   cardType === t.value
-                    ? "border-accent bg-accent/10 text-accent"
+                    ? "border-[1.5px] border-ink/75 bg-accent-soft text-accent shadow-xs"
                     : "border-border text-text-secondary hover:border-accent",
                 )}
               >

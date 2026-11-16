@@ -21,7 +21,7 @@
   --on-accent: #ffffff;
   --text-primary: #1c2b21;  /* kartta 14.07:1 */
   --text-secondary: #5e6358;/* kartta 5.86:1, zeminde 5.36:1 */
-  --border: #8f9388;        /* kurşun kalem çizgisi (ayırıcı, input) */
+  --border: #868a7f;        /* kurşun kalem çizgisi (ayırıcı, input) — kartta 3.3:1 (WCAG 1.4.11) */
   --edge: #ded8c7;          /* çok ince kâğıt kenarı / kesik çizgi */
   --spot: #b7d5a4;          /* ikon lekesi */
   --tape: #ead796;          /* bant */
@@ -59,7 +59,7 @@
   --on-accent: #0b1f0e;
   --text-primary: #ece8dc;  /* kartta 12.34:1 */
   --text-secondary: #a9a79c;/* kartta 6.26:1 */
-  --border: #6c6f68;
+  --border: #767a72;        /* kartta 3.4:1 */
   --edge: #3a3e38;
   --spot: #416d4a;
   --tape: #6b6037;

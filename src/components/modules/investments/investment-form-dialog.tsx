@@ -151,7 +151,7 @@ export function InvestmentFormDialog({ open, onClose }: { open: boolean; onClose
               onClick={() => toggleMode(false)}
               className={cn(
                 "rounded-control border py-2.5 text-sm font-medium transition-colors",
-                !totalMode ? "border-2 border-accent bg-accent/10 text-accent" : "border-border text-text-primary hover:border-accent/40",
+                !totalMode ? "border-[1.5px] border-ink/75 bg-accent-soft text-accent shadow-xs" : "border-border text-text-primary hover:border-accent/40",
               )}
             >
               Birim Fiyatı
@@ -161,7 +161,7 @@ export function InvestmentFormDialog({ open, onClose }: { open: boolean; onClose
               onClick={() => toggleMode(true)}
               className={cn(
                 "rounded-control border py-2.5 text-sm font-medium transition-colors",
-                totalMode ? "border-2 border-accent bg-accent/10 text-accent" : "border-border text-text-primary hover:border-accent/40",
+                totalMode ? "border-[1.5px] border-ink/75 bg-accent-soft text-accent shadow-xs" : "border-border text-text-primary hover:border-accent/40",
               )}
             >
               Toplam Tutar

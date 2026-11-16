@@ -135,7 +135,7 @@ export function LandingHero({ isAuthenticated }: { isAuthenticated: boolean }) {
             {/* El yazısı not — mobildeki "iyi gidiyor!" notunun eşi */}
             <p
               aria-hidden="true"
-              className="absolute -top-12 right-0 rotate-[6deg] font-hand text-2xl font-bold text-accent sm:-right-8"
+              className="absolute -top-12 right-0 rotate-[6deg] font-hand text-2xl font-bold text-accent lg:-right-8"
             >
               hepsi kategorize!
             </p>
@@ -146,7 +146,7 @@ export function LandingHero({ isAuthenticated }: { isAuthenticated: boolean }) {
               </span>
               <div>
                 <p className="text-xs font-semibold text-text-primary">4.3 saniyede okundu</p>
-                <p className="text-[11px] text-text-primary/75">Yapay zekâ ile</p>
+                <p className="text-[11px] font-medium text-text-primary">Yapay zekâ ile</p>
               </div>
             </div>
           </div>

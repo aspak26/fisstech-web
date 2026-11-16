@@ -62,7 +62,7 @@ export function ChatWorkspace({
       <div className="flex-1 space-y-4 overflow-y-auto pb-4">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center gap-4 py-10 text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-xl border-[1.5px] border-ink/55 bg-accent/10">
+            <div className="flex h-14 w-14 items-center justify-center rounded-xl border-[1.5px] border-ink/55 bg-accent-soft">
               <Sparkles className="h-7 w-7 text-accent" />
             </div>
             <p className="text-text-secondary">
@@ -90,7 +90,7 @@ export function ChatWorkspace({
                 "max-w-[85%] whitespace-pre-wrap rounded-card px-4 py-2.5 text-sm",
                 m.role === "user"
                   ? "bg-accent text-on-accent"
-                  : "border border-border bg-surface text-text-primary",
+                  : "-rotate-[0.4deg] border-[1.5px] border-ink/35 bg-surface-alt text-text-primary",
               )}
             >
               {m.content}

@@ -345,7 +345,7 @@ export function ExpenseFormDialog({
   return (
     <Dialog open={open} onClose={onClose} title={expense ? "Harcamayı Düzenle" : "Manuel Harcama Ekle"} className="max-w-2xl">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div className="rounded-control border border-accent/30 bg-accent/5 p-3">
+        <div className="rounded-control border-[1.5px] border-dashed border-accent/50 bg-accent-soft/60 p-3">
           <Switch
             checked={isInstallment}
             onChange={toggleInstallment}

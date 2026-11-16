@@ -81,9 +81,9 @@ const SOCIAL_ICONS = [
 export function LandingFooter() {
   return (
     <footer className="torn-top relative mt-8 bg-accent-soft pt-[9px]">
-      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <div className="grid gap-12 lg:grid-cols-[1.3fr_repeat(4,1fr)] lg:gap-8">
-          <div>
+      <div className="mx-auto max-w-6xl px-4 pb-28 pt-16 sm:px-6 lg:pb-16">
+        <div className="grid gap-12 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-[1.3fr_repeat(4,1fr)] lg:gap-8">
+          <div className="sm:col-span-2 md:col-span-4 lg:col-span-1">
             <Link href="/" aria-label="Fişştech anasayfa">
               <LogoHorizontal />
             </Link>
@@ -92,7 +92,7 @@ export function LandingFooter() {
               verileriniz güvende.
             </p>
 
-            <div className="mt-8 space-y-3">
+            <div className="mt-8 max-w-md space-y-3">
               <p className="font-hand text-2xl font-bold text-text-primary">Bülten</p>
               <p className="text-sm leading-relaxed text-text-secondary">
                 Akıllı bütçe ipuçları, yeni Fişştech özellikleri ve özel kampanyalardan anında

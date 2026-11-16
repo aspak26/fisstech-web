@@ -31,7 +31,7 @@ export function ExpensesArchiveGrid({ expenses }: { expenses: ExpenseWithItems[]
           <Link
             key={expense.id}
             href={`/expenses/${expense.id}`}
-            className="group relative flex aspect-[3/4] overflow-hidden rounded-2xl border border-border bg-surface transition-all hover:ring-2 hover:ring-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="group relative flex aspect-[3/4] overflow-hidden rounded-2xl border-[1.5px] border-ink/70 bg-surface shadow-sm transition-all hover:ring-2 hover:ring-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img

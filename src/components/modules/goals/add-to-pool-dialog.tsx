@@ -87,7 +87,7 @@ export function AddToPoolDialog({
         </div>
       </div>
 
-      <div className="mb-4 flex rounded-control bg-accent/10 p-1">
+      <div className="mb-4 flex rounded-control border-[1.5px] border-ink/40 bg-surface-alt p-1">
         <button
           type="button"
           onClick={() => {

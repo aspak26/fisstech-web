@@ -22,7 +22,7 @@ export function LegalLayout({
         </Link>
       </header>
 
-      <main className="notebook mx-auto my-10 max-w-3xl rounded-card border-[1.5px] border-ink/70 bg-surface px-6 py-12 shadow-md sm:px-10">
+      <main className="mx-4 my-8 max-w-3xl rounded-card border-[1.5px] border-ink/70 bg-surface px-5 py-10 shadow-md sm:mx-auto sm:my-10 sm:px-10 sm:py-12">
         <h1 className="font-display text-3xl font-bold text-text-primary">{title}</h1>
         <p className="mt-2 text-sm text-text-secondary">Son güncelleme: {updatedAt}</p>
 

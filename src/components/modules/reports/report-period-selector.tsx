@@ -30,7 +30,7 @@ export function ReportPeriodSelector() {
   return (
     <Card className="mx-auto max-w-md text-center">
       <div className="mb-4 flex justify-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl border-[1.5px] border-ink/55 bg-accent/10">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl border-[1.5px] border-ink/55 bg-accent-soft">
           <BarChart3 className="h-6 w-6 text-accent" />
         </div>
       </div>

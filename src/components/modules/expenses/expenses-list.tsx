@@ -133,7 +133,7 @@ export function ExpensesList({
                           else openEdit(expense);
                         }}
                       >
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-[1.5px] border-ink/55 bg-accent/10 text-accent">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-[1.5px] border-ink/55 bg-accent-soft text-accent">
                           <Icon className="h-5 w-5" />
                         </div>
                         <div className="min-w-0 flex-1 text-left">

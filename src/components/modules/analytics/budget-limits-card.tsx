@@ -75,7 +75,7 @@ export function BudgetLimitsCard({
                     {isFuture && <p className="text-xs text-text-secondary">{formatMonthLabel(limit.month)}</p>}
                   </div>
                   {isFuture ? (
-                    <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold text-accent">
+                    <span className="rounded-md border border-accent/50 bg-accent-soft px-2 py-0.5 text-[10px] font-semibold text-accent">
                       Planlandı
                     </span>
                   ) : (
