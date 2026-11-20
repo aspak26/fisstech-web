@@ -37,7 +37,7 @@ export function LandingHero({ isAuthenticated }: { isAuthenticated: boolean }) {
               <Image src="/logo-kagit.png" alt="Fişştech logosu" fill sizes="48px" className="object-cover" />
             </div>
             <p className="leading-relaxed">
-              <strong className="text-accent block sm:inline">Web Sürümü Yayında! 🎉</strong> Mobil uygulamamız artık <a href="https://play.google.com/store/apps/details?id=com.fisstech.app" target="_blank" rel="noopener noreferrer" className="underline decoration-wavy decoration-1 underline-offset-4 font-semibold hover:text-accent transition-colors">Play Store&apos;da!</a> Hemen şimdi <strong>ÜCRETSİZ</strong> denemeye başlayabilirsiniz.
+              <strong className="text-accent block sm:inline">Web Sürümü Yayında! 🎉</strong> Mobil uygulamamız artık <a href="/indir" className="underline decoration-wavy decoration-1 underline-offset-4 font-semibold hover:text-accent transition-colors">Play Store ve App Store&apos;da!</a> Hemen şimdi <strong>ÜCRETSİZ</strong> denemeye başlayabilirsiniz.
             </p>
           </div>
 
