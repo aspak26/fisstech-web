@@ -21,8 +21,10 @@ const caveat = Caveat({
 });
 
 export const metadata: Metadata = {
-  title: "Fişştech",
-  description: "Kişisel finans yönetimi — web paneli",
+  title: "Fişştech — Fişini Tara, Bütçeni Yönet",
+  description:
+    "Fişini tara, yapay zekâ harcamalarını bütçene işlesin. Borç, hedef, abonelik ve aile bütçesi tek yerde. Fişştech ücretsiz — Android, iPhone ve web.",
+  metadataBase: new URL("https://fisstech.co"),
 };
 
 export default function RootLayout({
