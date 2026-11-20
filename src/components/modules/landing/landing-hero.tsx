@@ -18,43 +18,36 @@ const TRUST_CHIPS = [
 export function LandingHero({ isAuthenticated }: { isAuthenticated: boolean }) {
   return (
     <section className="relative overflow-hidden">
+      {/* Kâğıt: radyal ışık lekeleri yerine silik kareli defter zemini,
+          aşağı doğru sönerek sayfa kâğıdına karışıyor. */}
       <div
-        className="pointer-events-none absolute inset-0 -z-20"
+        aria-hidden="true"
+        className="grid-paper pointer-events-none absolute inset-0 -z-10"
         style={{
-          backgroundImage: "radial-gradient(var(--color-border) 1px, transparent 1px)",
-          backgroundSize: "28px 28px",
-          maskImage: "radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%)",
-          WebkitMaskImage: "radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%)",
-          opacity: 0.6,
-        }}
-      />
-      <div
-        className="pointer-events-none absolute inset-0 -z-10"
-        style={{
-          background:
-            "radial-gradient(60% 50% at 85% 10%, var(--color-accent-soft) 0%, transparent 70%), radial-gradient(45% 40% at 10% 90%, var(--color-accent-soft) 0%, transparent 70%)",
-          opacity: 0.5,
+          maskImage: "linear-gradient(to bottom, black 30%, transparent 95%)",
+          WebkitMaskImage: "linear-gradient(to bottom, black 30%, transparent 95%)",
         }}
       />
 
-      <div className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 md:grid-cols-2 md:items-center md:py-28">
+      <div className="mx-auto grid max-w-6xl gap-16 px-4 py-20 sm:px-6 md:grid-cols-2 md:items-center md:gap-12 md:py-28">
         <Reveal>
-          <div className="mb-6 flex w-full max-w-lg items-start gap-3 rounded-xl border border-accent/20 bg-accent/10 p-4 text-sm text-text-primary shadow-sm sm:items-center">
-            <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl shadow-[0_0_20px_rgba(74,222,128,0.4)]">
-              <Image src="/logo-visor.png" alt="Fisstech Logo" fill className="object-cover" />
+          <div className="relative mb-8 flex w-full max-w-lg items-start gap-3 rounded-xl border-[1.5px] border-ink/70 bg-surface p-4 text-sm text-text-primary shadow-sm sm:items-center">
+            <span aria-hidden="true" className="tape -top-3 left-8 -rotate-3" />
+            <div className="relative flex h-12 w-12 shrink-0 -rotate-3 items-center justify-center overflow-hidden rounded-xl border-[1.5px] border-ink/70 shadow-xs">
+              <Image src="/logo-kagit.png" alt="Fişştech logosu" fill sizes="48px" className="object-cover" />
             </div>
             <p className="leading-relaxed">
-              <strong className="text-accent block sm:inline">Web Sürümü Yayında! 🎉</strong> Mobil uygulamamız artık <a href="https://play.google.com/store/apps/details?id=com.fisstech.app" target="_blank" rel="noopener noreferrer" className="underline font-semibold hover:text-accent transition-colors">Play Store&apos;da!</a> Hemen şimdi <strong>ÜCRETSİZ</strong> denemeye başlayabilirsiniz.
+              <strong className="text-accent block sm:inline">Web Sürümü Yayında! 🎉</strong> Mobil uygulamamız artık <a href="https://play.google.com/store/apps/details?id=com.fisstech.app" target="_blank" rel="noopener noreferrer" className="underline decoration-wavy decoration-1 underline-offset-4 font-semibold hover:text-accent transition-colors">Play Store&apos;da!</a> Hemen şimdi <strong>ÜCRETSİZ</strong> denemeye başlayabilirsiniz.
             </p>
           </div>
 
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent-soft px-3.5 py-1.5 text-xs font-semibold text-accent">
+          <span className="inline-flex items-center gap-1.5 rounded-lg border-[1.5px] border-accent/60 bg-accent-soft px-3.5 py-1.5 text-xs font-semibold text-accent">
             <Sparkles className="h-3.5 w-3.5" />
             Yapay Zekâ Destekli Finans Asistanı
           </span>
 
           <h1 className="mt-5 font-display text-4xl font-bold leading-[1.1] tracking-tight text-text-primary sm:text-hero">
-            Fişini Tara, <span className="text-accent">Bütçeni Yapay Zekâ Yönetsin</span>
+            Fişini Tara, <span className="ink-underline text-accent">Bütçeni Yapay Zekâ Yönetsin</span>
           </h1>
 
           <p className="mt-5 max-w-lg text-lg leading-relaxed text-text-secondary">
@@ -63,10 +56,7 @@ export function LandingHero({ isAuthenticated }: { isAuthenticated: boolean }) {
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <a
-              href="#demo"
-              className={buttonVariants("primary", "lg", "gap-2 transition-transform hover:scale-[1.03] active:scale-[0.98]")}
-            >
+            <a href="#demo" className={buttonVariants("primary", "lg", "gap-2")}>
               Ücretsiz Dene
               <ArrowRight className="h-4 w-4" />
             </a>
@@ -76,15 +66,17 @@ export function LandingHero({ isAuthenticated }: { isAuthenticated: boolean }) {
           </div>
 
           {!isAuthenticated && (
-            <p className="mt-4 text-sm text-text-secondary">
+            <p className="mt-4 font-hand text-xl text-text-secondary">
               Kredi kartı gerekmez · İlk 1 hafta tüm özellikler ücretsiz
             </p>
           )}
 
-          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-border pt-6">
+          <div className="dashed-rule mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 pt-6">
             {TRUST_CHIPS.map(({ icon: Icon, label }) => (
-              <span key={label} className="flex items-center gap-1.5 text-sm text-text-secondary">
-                <Icon className="h-4 w-4 text-accent" />
+              <span key={label} className="flex items-center gap-2 text-sm text-text-secondary">
+                <span className="spot flex h-6 w-6 items-center justify-center">
+                  <Icon className="h-4 w-4 text-text-primary" />
+                </span>
                 {label}
               </span>
             ))}
@@ -93,56 +85,68 @@ export function LandingHero({ isAuthenticated }: { isAuthenticated: boolean }) {
 
         <Reveal delay={150}>
           <div className="relative mx-auto max-w-sm">
-            <div className="pointer-events-none absolute -inset-3 rounded-card border-2 border-accent/25">
-              <span className="absolute -left-0.5 -top-0.5 h-6 w-6 rounded-tl-lg border-l-2 border-t-2 border-accent" />
-              <span className="absolute -right-0.5 -top-0.5 h-6 w-6 rounded-tr-lg border-r-2 border-t-2 border-accent" />
-              <span className="absolute -bottom-0.5 -left-0.5 h-6 w-6 rounded-bl-lg border-b-2 border-l-2 border-accent" />
-              <span className="absolute -bottom-0.5 -right-0.5 h-6 w-6 rounded-br-lg border-b-2 border-r-2 border-accent" />
-            </div>
-
+            {/* Arkadaki ikinci fiş — üst üste yığılmış kâğıt hissi */}
             <div
-              className="relative rounded-card border border-border bg-surface p-5"
-              style={{ boxShadow: "0 25px 50px -12px color-mix(in srgb, var(--color-accent) 25%, transparent)" }}
-            >
-              <div className="flex items-center justify-between border-b border-border pb-3">
-                <div>
-                  <p className="text-sm font-semibold text-text-primary">Kampüs Market</p>
-                  <p className="text-xs text-text-secondary">21 Temmuz 2026 · 14:32</p>
+              aria-hidden="true"
+              className="absolute inset-x-5 -top-2 bottom-10 rotate-[3.5deg] rounded-t-md border-[1.5px] border-ink/35 bg-surface-alt"
+            />
+
+            {/* Fiş: tırtıklı alt kenar (mask), gölge mask'a takılmasın diye
+                dış sarmalayıcıda drop-shadow. */}
+            <div className="relative -rotate-[1.2deg] drop-shadow-[3px_4px_0_var(--shadow-ink)]">
+              <span aria-hidden="true" className="tape -top-3 left-1/2 z-10 -translate-x-1/2 rotate-2" />
+              <div className="receipt-edge relative bg-surface px-5 pb-9 pt-6">
+                <p className="text-center font-display text-xs font-bold uppercase tracking-[0.2em] text-text-secondary">
+                  — Fiş —
+                </p>
+                <div className="dashed-rule mt-3 flex items-center justify-between py-3">
+                  <div>
+                    <p className="text-sm font-semibold text-text-primary">Kampüs Market</p>
+                    <p className="text-xs text-text-secondary">21 Temmuz 2026 · 14:32</p>
+                  </div>
+                  <span className="stamp text-success">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    Okundu
+                  </span>
                 </div>
-                <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-1 text-xs font-medium text-success">
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                  Okundu
-                </span>
-              </div>
-              <ul className="mt-3 space-y-2.5">
-                {PREVIEW_ITEMS.map((item) => (
-                  <li key={item.name} className="flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-2 text-text-primary">
-                      <span
-                        aria-hidden="true"
-                        className="flex h-6 w-6 items-center justify-center rounded-full bg-accent-soft text-xs"
-                      >
-                        {item.icon}
+                <ul className="dashed-rule space-y-2.5 pt-3">
+                  {PREVIEW_ITEMS.map((item) => (
+                    <li key={item.name} className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2 text-text-primary">
+                        <span
+                          aria-hidden="true"
+                          className="flex h-6 w-6 items-center justify-center rounded-lg border border-ink/30 bg-accent-soft text-xs"
+                        >
+                          {item.icon}
+                        </span>
+                        {item.name}
                       </span>
-                      {item.name}
-                    </span>
-                    <span className="font-medium text-text-secondary">{item.amount}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
-                <span className="text-sm font-semibold text-text-primary">Toplam</span>
-                <span className="font-display text-lg font-bold text-accent">₺275,40</span>
+                      <span className="font-medium tabular-nums text-text-primary">{item.amount}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-4 flex items-center justify-between border-t-[3px] border-double border-ink/60 pt-3">
+                  <span className="text-sm font-bold uppercase tracking-wide text-text-primary">Toplam</span>
+                  <span className="font-display text-xl font-extrabold tabular-nums text-accent">₺275,40</span>
+                </div>
               </div>
             </div>
 
-            <div className="absolute -bottom-5 -left-5 hidden items-center gap-2 rounded-control border border-border bg-surface px-3.5 py-2.5 shadow-lg sm:flex">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent text-on-accent">
+            {/* El yazısı not — mobildeki "iyi gidiyor!" notunun eşi */}
+            <p
+              aria-hidden="true"
+              className="absolute -top-12 right-0 rotate-[6deg] font-hand text-2xl font-bold text-accent lg:-right-8"
+            >
+              hepsi kategorize!
+            </p>
+
+            <div className="absolute -bottom-6 -left-4 hidden rotate-[-3deg] items-center gap-2 rounded-xl border-[1.5px] border-ink/75 bg-tape px-3.5 py-2.5 shadow-md sm:flex">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg border-[1.5px] border-ink/75 bg-accent text-on-accent">
                 <Zap className="h-3.5 w-3.5" />
               </span>
               <div>
                 <p className="text-xs font-semibold text-text-primary">4.3 saniyede okundu</p>
-                <p className="text-[11px] text-text-secondary">Yapay zekâ ile</p>
+                <p className="text-[11px] font-medium text-text-primary">Yapay zekâ ile</p>
               </div>
             </div>
           </div>

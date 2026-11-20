@@ -345,7 +345,7 @@ export function ExpenseFormDialog({
   return (
     <Dialog open={open} onClose={onClose} title={expense ? "Harcamayı Düzenle" : "Manuel Harcama Ekle"} className="max-w-2xl">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div className="rounded-control border border-accent/30 bg-accent/5 p-3">
+        <div className="rounded-control border-[1.5px] border-dashed border-accent/50 bg-accent-soft/60 p-3">
           <Switch
             checked={isInstallment}
             onChange={toggleInstallment}
@@ -355,7 +355,7 @@ export function ExpenseFormDialog({
         </div>
 
         {isInstallment && (
-          <div className="space-y-3 rounded-control border border-border bg-bg p-3">
+          <div className="space-y-3 rounded-control border-[1.5px] border-border bg-bg p-3">
             <div className="flex items-center gap-2 text-sm font-medium text-text-primary">
               <BadgeCheck className="h-4 w-4 text-accent" /> Taksit Planı
             </div>
@@ -543,7 +543,7 @@ export function ExpenseFormDialog({
           )}
         </div>
 
-        <div className="rounded-control border border-border p-3">
+        <div className="rounded-control border-[1.5px] border-border p-3">
           <div className="mb-2 flex items-center gap-2 text-sm font-medium text-text-primary">
             <Paperclip className="h-4 w-4" /> Fiş/Belge <span className="font-normal text-text-secondary">(isteğe bağlı)</span>
           </div>

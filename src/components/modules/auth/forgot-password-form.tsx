@@ -34,13 +34,13 @@ export function ForgotPasswordForm() {
   if (sent) {
     return (
       <div className="space-y-3 text-center">
-        <h1 className="font-display text-2xl font-semibold text-text-primary">
+        <h1 className="font-display text-2xl font-bold tracking-tight text-text-primary">
           Bağlantı gönderildi
         </h1>
         <p className="text-sm text-text-secondary">
           E-postana şifre sıfırlama bağlantısı gönderdik.
         </p>
-        <Link href="/login" className="inline-block text-sm text-accent hover:underline">
+        <Link href="/login" className="inline-block text-sm font-semibold text-accent underline decoration-wavy decoration-1 underline-offset-4">
           Girişe dön
         </Link>
       </div>
@@ -50,7 +50,7 @@ export function ForgotPasswordForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div>
-        <h1 className="font-display text-2xl font-semibold text-text-primary">
+        <h1 className="font-display text-2xl font-bold tracking-tight text-text-primary">
           Şifremi unuttum
         </h1>
         <p className="mt-1 text-sm text-text-secondary">
@@ -71,7 +71,7 @@ export function ForgotPasswordForm() {
       </Button>
 
       <p className="text-center text-sm text-text-secondary">
-        <Link href="/login" className="text-accent hover:underline">
+        <Link href="/login" className="font-semibold text-accent underline decoration-wavy decoration-1 underline-offset-4">
           Girişe dön
         </Link>
       </p>

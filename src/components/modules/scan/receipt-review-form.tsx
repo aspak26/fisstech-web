@@ -91,7 +91,7 @@ export function ReceiptReviewForm({
   return (
     <form onSubmit={handleSubmit(submit)} className="space-y-5">
       {result.isInstallment && result.installmentOptions.length > 0 && (
-        <div className="rounded-control border border-border bg-bg p-3">
+        <div className="rounded-control border-[1.5px] border-border bg-bg p-3">
           <p className="mb-2 text-sm font-medium text-text-primary">Taksit Seçenekleri</p>
           <div className="flex flex-wrap gap-2">
             {result.installmentOptions.map((opt) => (

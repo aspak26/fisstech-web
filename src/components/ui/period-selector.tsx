@@ -98,7 +98,7 @@ export function PeriodSelector({ period, paramName = "period" }: { period: strin
           </div>
 
           {showCustom ? (
-            <div className="space-y-3 rounded-control border border-border bg-bg p-3">
+            <div className="space-y-3 rounded-control border-[1.5px] border-dashed border-ink/35 bg-surface-alt p-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label htmlFor="period-start">Başlangıç</Label>

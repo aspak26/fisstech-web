@@ -54,7 +54,7 @@ export function UserMenu({
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-64 rounded-card border border-border bg-surface p-2 shadow-lg">
+        <div className="absolute right-0 top-full mt-2 w-64 rounded-card border-[1.5px] border-ink/70 bg-surface p-2 shadow-lg">
           <div className="px-3 py-2">
             <p className="truncate font-medium text-text-primary">{name || "Kullanıcı"}</p>
             <p className="truncate text-sm text-text-secondary">{email}</p>
@@ -62,7 +62,7 @@ export function UserMenu({
               {PLAN_LABELS[planType] ?? planType}
             </Badge>
           </div>
-          <div className="my-1 border-t border-border" />
+          <div className="my-1 border-t-[1.5px] border-dashed border-ink/25" />
           <Link
             href="/settings"
             onClick={() => setOpen(false)}
@@ -79,7 +79,7 @@ export function UserMenu({
             <Globe className="h-4 w-4" />
             Tanıtım Sitesine Dön
           </Link>
-          <div className="my-1 border-t border-border" />
+          <div className="my-1 border-t-[1.5px] border-dashed border-ink/25" />
           <button
             type="button"
             onClick={handleSignOut}

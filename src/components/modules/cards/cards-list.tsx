@@ -86,7 +86,7 @@ export function CardsList({
                   </div>
                   {hasLimit && (
                     <div className="mt-3">
-                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-bg">
+                      <div className="h-2.5 w-full overflow-hidden rounded-full border border-ink/45 bg-surface-alt">
                         <div className={`h-full rounded-full ${barColor}`} style={{ width: `${progress * 100}%` }} />
                       </div>
                       <p className="mt-1 text-xs text-text-secondary">

@@ -5,7 +5,7 @@ export function Avatar({ name, className }: { name: string; className?: string }
   return (
     <div
       className={cn(
-        "flex h-9 w-9 items-center justify-center rounded-full bg-accent text-sm font-semibold text-on-accent",
+        "flex h-9 w-9 items-center justify-center rounded-xl border-[1.5px] border-ink/70 bg-accent text-sm font-semibold text-on-accent",
         className,
       )}
     >

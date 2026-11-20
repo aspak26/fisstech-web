@@ -71,7 +71,7 @@ export function MemberList({
           </Button>
         )}
       </div>
-      <ul className="divide-y divide-border">
+      <ul className="divide-y divide-dashed divide-ink/20">
         {members.map((m) => (
           <li key={m.id} className="flex items-center gap-3 py-2.5">
             <Avatar name={m.name} />
@@ -90,7 +90,7 @@ export function MemberList({
                 <MoreVertical className="h-4 w-4" />
               </button>
               {menuFor === m.id && (
-                <div className="absolute right-0 top-9 z-10 w-52 rounded-card border border-border bg-surface p-1 shadow-lg">
+                <div className="absolute right-0 top-9 z-10 w-52 rounded-card border-[1.5px] border-ink/70 bg-surface p-1 shadow-lg">
                   <button
                     type="button"
                     onClick={() => openAlias(m)}

@@ -21,18 +21,20 @@ export function SummaryTriple({ income, expense }: { income: number; expense: nu
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
       {items.map((item) => (
         <Card key={item.label} className="flex items-center gap-3">
-          <item.icon
-            className={cn(
-              "h-8 w-8 shrink-0",
-              item.tone === "success" && "text-success",
-              item.tone === "danger" && "text-danger",
-              item.tone === "neutral" && "text-text-secondary",
-            )}
-            strokeWidth={1.5}
-          />
+          <span className="spot flex h-11 w-11 shrink-0 items-center justify-center">
+            <item.icon
+              className={cn(
+                "h-7 w-7",
+                item.tone === "success" && "text-success",
+                item.tone === "danger" && "text-danger",
+                item.tone === "neutral" && "text-text-primary",
+              )}
+              strokeWidth={1.9}
+            />
+          </span>
           <div>
             <p className="text-sm text-text-secondary">{item.label}</p>
-            <p className="font-display text-xl font-semibold text-text-primary">
+            <p className="font-display text-xl font-bold tabular-nums text-text-primary">
               {formatCurrency(item.amount)}
             </p>
           </div>

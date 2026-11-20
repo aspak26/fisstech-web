@@ -49,7 +49,7 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div>
-        <h1 className="font-display text-2xl font-semibold text-text-primary">Giriş yap</h1>
+        <h1 className="font-display text-2xl font-bold tracking-tight text-text-primary">Giriş yap</h1>
         <p className="mt-1 text-sm text-text-secondary">Fişştech hesabına giriş yap.</p>
       </div>
 
@@ -62,7 +62,7 @@ export function LoginForm() {
       <div>
         <div className="flex items-center justify-between">
           <Label htmlFor="password">Şifre</Label>
-          <Link href="/forgot-password" className="text-sm text-accent hover:underline">
+          <Link href="/forgot-password" className="text-sm font-semibold text-accent underline decoration-wavy decoration-1 underline-offset-4">
             Şifremi unuttum
           </Link>
         </div>
@@ -85,7 +85,7 @@ export function LoginForm() {
 
       <p className="text-center text-sm text-text-secondary">
         Hesabın yok mu?{" "}
-        <Link href="/register" className="text-accent hover:underline">
+        <Link href="/register" className="font-semibold text-accent underline decoration-wavy decoration-1 underline-offset-4">
           Kayıt ol
         </Link>
       </p>

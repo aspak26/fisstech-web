@@ -16,13 +16,13 @@ export function LegalLayout({
 }) {
   return (
     <div className="min-h-full bg-bg">
-      <header className="border-b border-border px-4 py-4 sm:px-6">
+      <header className="border-b-[1.5px] border-dashed border-ink/30 px-4 py-4 sm:px-6">
         <Link href="/" aria-label="Fişştech anasayfa">
           <LogoHorizontal />
         </Link>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+      <main className="mx-4 my-8 max-w-3xl rounded-card border-[1.5px] border-ink/70 bg-surface px-5 py-10 shadow-md sm:mx-auto sm:my-10 sm:px-10 sm:py-12">
         <h1 className="font-display text-3xl font-bold text-text-primary">{title}</h1>
         <p className="mt-2 text-sm text-text-secondary">Son güncelleme: {updatedAt}</p>
 
@@ -30,7 +30,7 @@ export function LegalLayout({
           {children}
         </div>
 
-        <Link href="/" className="mt-12 inline-block text-sm font-medium text-accent hover:underline">
+        <Link href="/" className="mt-12 inline-block text-sm font-semibold text-accent underline decoration-wavy decoration-1 underline-offset-4">
           ← Anasayfaya dön
         </Link>
       </main>

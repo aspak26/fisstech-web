@@ -63,7 +63,7 @@ export function DropzoneUploader({
       }}
       className={cn(
         "flex cursor-pointer flex-col items-center justify-center gap-4 rounded-card border-2 border-dashed border-border bg-surface px-6 py-14 text-center transition-colors",
-        isDragging && "border-accent bg-accent/5",
+        isDragging && "border-ink/75 bg-accent-soft",
         disabled && "cursor-not-allowed opacity-50",
       )}
     >
@@ -76,7 +76,7 @@ export function DropzoneUploader({
           strokeWidth={1.25}
         />
         <Receipt className="relative h-14 w-14 text-accent" strokeWidth={1.25} />
-        <ImagePlus className="absolute -bottom-1 -right-2 h-6 w-6 rounded-full bg-accent p-1 text-on-accent" />
+        <ImagePlus className="absolute -bottom-1 -right-2 h-6 w-6 rounded-lg border-[1.5px] border-ink/70 bg-accent p-1 text-on-accent" />
       </div>
       <div>
         <p className="font-medium text-text-primary">{title}</p>

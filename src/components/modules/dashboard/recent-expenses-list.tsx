@@ -31,7 +31,7 @@ export function RecentExpensesList({ expenses }: { expenses: RecentExpense[] }) 
           }
         />
       ) : (
-        <ul className="divide-y divide-border">
+        <ul className="divide-y divide-dashed divide-ink/20">
           {expenses.map((expense) => (
             <li key={expense.id} className="flex items-center justify-between py-3">
               <div>

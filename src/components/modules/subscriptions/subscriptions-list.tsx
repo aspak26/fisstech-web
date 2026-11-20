@@ -65,7 +65,7 @@ export function SubscriptionsList({
         {subscriptions.length === 0 ? (
           <EmptyState icon={CreditCard} title="Henüz abonelik eklenmedi" />
         ) : (
-          <ul className="divide-y divide-border">
+          <ul className="divide-y divide-dashed divide-ink/20">
             {subscriptions.map((sub) => (
               <li key={sub.id} className="flex items-center justify-between gap-3 py-3">
                 <button type="button" onClick={() => openEdit(sub)} className="min-w-0 flex-1 text-left">

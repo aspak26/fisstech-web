@@ -19,7 +19,7 @@ export function Tabs({ options, value, onChange, className }: TabsProps) {
     <div className={cn("w-full overflow-x-auto no-scrollbar", className)}>
       <div
         role="tablist"
-        className="inline-flex w-max rounded-full border border-border bg-bg p-1"
+        className="inline-flex w-max rounded-xl border-[1.5px] border-ink/70 bg-surface-alt p-1"
       >
         {options.map((opt) => (
           <button
@@ -29,10 +29,10 @@ export function Tabs({ options, value, onChange, className }: TabsProps) {
             aria-selected={opt.value === value}
             onClick={() => onChange(opt.value)}
             className={cn(
-              "rounded-full px-5 py-2 text-sm font-semibold transition-colors whitespace-nowrap",
+              "rounded-lg px-5 py-2 text-sm font-semibold transition-colors whitespace-nowrap",
               opt.value === value
-                ? "bg-primary/10 text-primary shadow-sm"
-                : "text-text-secondary hover:text-text-primary",
+                ? "bg-surface text-accent border-[1.5px] border-ink/70 shadow-xs"
+                : "border-[1.5px] border-transparent text-text-secondary hover:text-text-primary",
             )}
           >
             {opt.label}

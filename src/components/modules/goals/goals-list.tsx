@@ -72,7 +72,7 @@ export function GoalsList({
                     onDelete={() => handleDelete(goal)}
                   />
                 </div>
-                <div className="mb-2 h-2 w-full overflow-hidden rounded-full bg-bg">
+                <div className="mb-2 h-2.5 w-full overflow-hidden rounded-full border border-ink/45 bg-surface-alt">
                   <div
                     className={`h-full rounded-full ${completed ? "bg-success" : "bg-accent"}`}
                     style={{ width: `${progress}%` }}

@@ -23,17 +23,19 @@ export interface MonthlyTotalPoint {
   total: number;
 }
 
+// Kâğıt görünüm: mobildeki baskı mürekkebi paleti (AppColors.chartPalette)
+// — tema token'larından gelir (styles/tokens.css --chart-N).
 export const CHART_COLORS = [
-  "#B23A65",
-  "#2E7D32",
-  "#1E88E5",
-  "#F5A623",
-  "#8E44AD",
-  "#16A085",
-  "#D35400",
-  "#546E7A",
-  "#C0392B",
-  "#00897B",
+  "var(--color-chart-1)",
+  "var(--color-chart-2)",
+  "var(--color-chart-3)",
+  "var(--color-chart-4)",
+  "var(--color-chart-5)",
+  "var(--color-chart-6)",
+  "var(--color-chart-7)",
+  "var(--color-chart-8)",
+  "var(--color-chart-9)",
+  "var(--color-chart-10)",
 ];
 
 const PARENT_GROUP_ICON: Record<string, string> = {

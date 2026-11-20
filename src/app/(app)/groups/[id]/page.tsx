@@ -75,7 +75,7 @@ export default async function GroupDetailPage({
           <EmptyState icon={Receipt} title="Bu grupta henüz paylaşılan harcama yok" />
         ) : (
           <>
-            <ul className="mb-3 divide-y divide-border">
+            <ul className="mb-3 divide-y divide-dashed divide-ink/20">
               {expenses.map((e) => (
                 <li key={e.id}>
                   <Link
@@ -91,7 +91,7 @@ export default async function GroupDetailPage({
                 </li>
               ))}
             </ul>
-            <div className="border-t border-border pt-3 text-right">
+            <div className="border-t-[1.5px] border-dashed border-ink/25 pt-3 text-right">
               <span className="text-sm text-text-secondary">Toplam: </span>
               <span className="font-semibold text-text-primary">{formatCurrency(total)}</span>
             </div>

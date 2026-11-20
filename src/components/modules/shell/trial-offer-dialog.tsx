@@ -33,7 +33,7 @@ export function TrialOfferDialog() {
 
   return (
     <Dialog open={open} onClose={handleDismiss} title="" className="text-center">
-      <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-warning/20">
+      <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-xl border-[1.5px] border-ink/55 bg-warning/20">
         <Gift className="h-7 w-7 text-warning" />
       </div>
       <h2 className="mb-2 font-display text-lg font-semibold text-text-primary">

@@ -98,7 +98,7 @@ export function FamilyPlanCard({
         {members.length === 0 ? (
           <p className="mb-3 text-sm text-text-secondary">Henüz üye eklemediniz.</p>
         ) : (
-          <ul className="mb-3 divide-y divide-border">
+          <ul className="mb-3 divide-y divide-dashed divide-ink/20">
             {members.map((m) => (
               <li key={m.id} className="flex items-center gap-3 py-2.5">
                 <Avatar name={m.name} />

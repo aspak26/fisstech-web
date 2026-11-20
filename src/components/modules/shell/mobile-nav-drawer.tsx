@@ -27,7 +27,7 @@ export function MobileNavDrawer() {
         type="button"
         aria-label="Menüyü aç"
         onClick={() => setOpen(true)}
-        className="flex h-9 w-9 items-center justify-center rounded-control border border-border bg-surface text-text-primary md:hidden"
+        className="flex h-9 w-9 items-center justify-center rounded-control border-[1.5px] border-ink/70 bg-surface text-text-primary shadow-xs md:hidden"
       >
         <Menu className="h-5 w-5" />
       </button>
@@ -36,14 +36,14 @@ export function MobileNavDrawer() {
         <div className="fixed inset-0 z-50 md:hidden">
           <button
             aria-label="Menüyü kapat"
-            className="absolute inset-0 bg-black/40"
+            className="absolute inset-0 bg-ink/35"
             onClick={() => setOpen(false)}
           />
           <div
             role="dialog"
             aria-modal="true"
             aria-label="Ana menü"
-            className="absolute inset-y-0 left-0 flex w-72 flex-col bg-surface p-3 shadow-xl"
+            className="absolute inset-y-0 left-0 flex w-72 flex-col border-r-[1.5px] border-ink/75 bg-surface-alt p-3 shadow-xl"
           >
             <div className="flex h-12 items-center justify-between px-2">
               <Link
@@ -57,7 +57,7 @@ export function MobileNavDrawer() {
                 type="button"
                 aria-label="Menüyü kapat"
                 onClick={() => setOpen(false)}
-                className="flex h-9 w-9 items-center justify-center rounded-control text-text-secondary hover:bg-bg"
+                className="flex h-9 w-9 items-center justify-center rounded-control text-text-secondary hover:bg-surface"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -71,11 +71,11 @@ export function MobileNavDrawer() {
               {primaryNavItems.map((item) => (
                 <NavLink key={item.href} item={item} />
               ))}
-              <div className="my-2 border-t border-border" />
+              <div className="my-2 border-t-[1.5px] border-dashed border-ink/25" />
               {upcomingNavItems.map((item) => (
                 <NavLink key={item.href} item={item} />
               ))}
-              <div className="my-2 border-t border-border" />
+              <div className="my-2 border-t-[1.5px] border-dashed border-ink/25" />
               {bottomNavItems.map((item) => (
                 <NavLink key={item.href} item={item} />
               ))}

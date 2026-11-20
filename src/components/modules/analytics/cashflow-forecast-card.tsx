@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils/currency";
 import type { CashFlowForecastDay } from "@/lib/data/forecast";
 
+import { PAPER_AREA_OPACITY, PAPER_AXIS_LINE, PAPER_LINE_WIDTH, PAPER_TOOLTIP_CURSOR, PAPER_TOOLTIP_STYLE } from "@/lib/utils/paper-chart";
 const dayMonthFormatter = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short" });
 
 /** "30 Günlük Nakit Akışı" — mobildeki ForecastChartCard'ın web karşılığı.
@@ -60,35 +61,30 @@ export function CashflowForecastCard({ forecast }: { forecast: CashFlowForecastD
           <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="forecastGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={chartColor} stopOpacity={0.3} />
-                <stop offset="100%" stopColor={chartColor} stopOpacity={0} />
+                <stop offset="0%" stopColor={chartColor} stopOpacity={PAPER_AREA_OPACITY} />
+                <stop offset="100%" stopColor={chartColor} stopOpacity={PAPER_AREA_OPACITY} />
               </linearGradient>
             </defs>
             <XAxis
               dataKey="label"
               tick={{ fill: "var(--color-text-secondary)", fontSize: 11 }}
-              axisLine={{ stroke: "var(--color-border)" }}
+              axisLine={PAPER_AXIS_LINE}
               tickLine={false}
               interval={Math.max(0, Math.floor(data.length / 3) - 1)}
               padding={{ left: 12, right: 12 }}
             />
             <YAxis hide domain={["auto", "auto"]} />
-            <Tooltip
+            <Tooltip cursor={PAPER_TOOLTIP_CURSOR}
               formatter={(value) => formatCurrency(Number(value))}
               labelFormatter={(label) => label as string}
-              contentStyle={{
-                background: "var(--color-surface)",
-                border: "1px solid var(--color-border)",
-                borderRadius: 12,
-                color: "var(--color-text-primary)",
-              }}
+              contentStyle={PAPER_TOOLTIP_STYLE}
             />
             <Area
               type="monotone"
               dataKey="projectedBalance"
               name="Tahmini Bakiye"
               stroke={chartColor}
-              strokeWidth={2.5}
+              strokeWidth={PAPER_LINE_WIDTH}
               fill="url(#forecastGradient)"
               isAnimationActive={false}
             />

@@ -4,6 +4,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { formatCurrency } from "@/lib/utils/currency";
 import type { CategoryBreakdownPoint } from "@/lib/data/analytics";
 
+import { PAPER_TOOLTIP_CURSOR, PAPER_TOOLTIP_STYLE } from "@/lib/utils/paper-chart";
 /** Donut with a centered total + a ranked list below — mirrors mobile's
  * `_DonutChart` (used for Kategori Dağılımı / Genel Kategoriler / Market
  * Analizi's own donut). */
@@ -18,17 +19,12 @@ export function DonutBreakdown({ data }: { data: CategoryBreakdownPoint[] }) {
           <PieChart>
             <Pie data={data} dataKey="total" nameKey="name" innerRadius="62%" outerRadius="85%" paddingAngle={2} label={(e) => `%${(e.percent! * 100).toFixed(1)}`}>
               {data.map((entry, i) => (
-                <Cell key={`${entry.name}-${i}`} fill={entry.color} />
+                <Cell key={`${entry.name}-${i}`} fill={entry.color} stroke="var(--color-surface)" strokeWidth={2} />
               ))}
             </Pie>
-            <Tooltip
+            <Tooltip cursor={PAPER_TOOLTIP_CURSOR}
               formatter={(value) => formatCurrency(Number(value))}
-              contentStyle={{
-                background: "var(--color-surface)",
-                border: "1px solid var(--color-border)",
-                borderRadius: 12,
-                color: "var(--color-text-primary)",
-              }}
+              contentStyle={PAPER_TOOLTIP_STYLE}
             />
           </PieChart>
         </ResponsiveContainer>
@@ -38,7 +34,7 @@ export function DonutBreakdown({ data }: { data: CategoryBreakdownPoint[] }) {
         </div>
       </div>
 
-      <ul className="mt-3 divide-y divide-border">
+      <ul className="mt-3 divide-y divide-dashed divide-ink/20">
         {top.map((entry) => (
           <li key={entry.name} className="flex items-center justify-between py-2 text-sm">
             <div className="flex min-w-0 items-center gap-2">

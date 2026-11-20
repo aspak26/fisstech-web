@@ -13,9 +13,9 @@ import { Reveal } from "./reveal";
 // bağlı kalmak okunabilirliği düşürür, sabit canlı tonlar daha net ayrışır.
 const DONUT_SEGMENTS = [
   { name: "Market", pct: 0.4, amount: 980, color: "var(--color-accent)" },
-  { name: "Akaryakıt", pct: 0.3, amount: 735, color: "#3B82F6" },
-  { name: "Yemek", pct: 0.15, amount: 367, color: "#A855F7" },
-  { name: "Diğer", pct: 0.15, amount: 368, color: "#F97316" },
+  { name: "Akaryakıt", pct: 0.3, amount: 735, color: "var(--color-chart-4)" },
+  { name: "Yemek", pct: 0.15, amount: 367, color: "var(--color-chart-6)" },
+  { name: "Diğer", pct: 0.15, amount: 368, color: "var(--color-chart-1)" },
 ];
 
 // Statik veri, bileşen dışında bir kez hesaplanıyor — render sırasında
@@ -66,7 +66,7 @@ const RECEIPT_CLIP_PATH =
 // hemen ardından kısa süreliğine bir onay rozeti beliriyor ("kaydedildi").
 function PhoneCaptureVisual() {
   return (
-    <div className="relative flex h-44 w-24 flex-col items-center justify-between rounded-2xl border-2 border-border bg-bg px-2 pb-3 pt-5">
+    <div className="relative flex h-44 w-24 flex-col items-center justify-between rounded-2xl border-[2.5px] border-ink/80 bg-surface-alt px-2 pb-3 pt-5 shadow-md">
       <div className="absolute top-2.5 h-1 w-5 rounded-full bg-border" />
 
       <div className="relative mt-1 flex h-28 w-full items-center justify-center overflow-hidden rounded-lg bg-text-primary/5">
@@ -104,8 +104,7 @@ function PhoneCaptureVisual() {
         <motion.span
           animate={{ opacity: [0, 0, 0, 1, 1, 0, 0], scale: [0.4, 0.4, 0.4, 1, 1, 0.7, 0.4] }}
           transition={{ duration: 2.8, repeat: Infinity, times: [0, 0.56, 0.6, 0.64, 0.82, 0.9, 1], ease: "easeOut" }}
-          className="pointer-events-none absolute flex h-7 w-7 items-center justify-center rounded-full bg-accent text-on-accent"
-          style={{ boxShadow: "0 0 14px 2px color-mix(in srgb, var(--color-accent) 60%, transparent)" }}
+          className="pointer-events-none absolute flex h-7 w-7 items-center justify-center rounded-lg border-[1.5px] border-ink/80 bg-accent text-on-accent"
         >
           <Check className="h-4 w-4" />
         </motion.span>
@@ -114,8 +113,7 @@ function PhoneCaptureVisual() {
       <motion.span
         animate={{ scale: [1, 1, 0.82, 1, 1] }}
         transition={{ duration: 2.8, repeat: Infinity, times: [0, 0.5, 0.55, 0.6, 1], ease: "easeInOut" }}
-        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent"
-        style={{ boxShadow: "0 0 12px 1px color-mix(in srgb, var(--color-accent) 55%, transparent)" }}
+        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border-[1.5px] border-ink/80 bg-accent text-on-accent"
       >
         <Camera className="h-3 w-3" />
       </motion.span>
@@ -125,10 +123,10 @@ function PhoneCaptureVisual() {
 
 function UploadVisual() {
   return (
-    <div className="flex h-64 items-center justify-center gap-6 rounded-2xl border border-border bg-surface">
+    <div className="flex h-64 items-center justify-center gap-6 rounded-2xl border-[1.5px] border-ink/75 bg-surface shadow-md">
       <PhoneCaptureVisual />
 
-      <div className="relative flex h-32 w-32 items-center justify-center rounded-2xl border-2 border-dashed border-border">
+      <div className="relative flex h-32 w-32 items-center justify-center rounded-2xl border-2 border-dashed border-ink/45 bg-surface-alt">
         <motion.span
           animate={{ y: [-20, 14, 14], opacity: [0, 1, 0] }}
           transition={{ duration: 1.6, repeat: Infinity, ease: "easeIn", times: [0, 0.7, 1] }}
@@ -136,7 +134,7 @@ function UploadVisual() {
         >
           <FileUp className="h-8 w-8 text-accent" />
         </motion.span>
-        <span className="text-xs font-medium text-text-secondary/50">Sürükle-Bırak</span>
+        <span className="text-xs font-medium text-text-secondary">Sürükle-Bırak</span>
       </div>
     </div>
   );
@@ -149,8 +147,8 @@ function ScanVisual() {
     { label: "KDV", value: "%10" },
   ];
   return (
-    <div className="flex h-64 flex-col items-center justify-center gap-4 rounded-2xl border border-border bg-surface">
-      <div className="relative h-40 w-28 overflow-hidden rounded-lg border border-border bg-bg">
+    <div className="flex h-64 flex-col items-center justify-center gap-4 rounded-2xl border-[1.5px] border-ink/75 bg-surface shadow-md">
+      <div className="relative h-40 w-28 overflow-hidden rounded-sm border-[1.5px] border-ink/50 bg-surface-alt">
         <div className="absolute inset-x-2 top-3 h-1.5 rounded-full bg-border" />
         <div className="absolute inset-x-2 top-6 h-1.5 w-2/3 rounded-full bg-border" />
         <div className="absolute inset-x-2 top-9 h-1.5 w-1/2 rounded-full bg-border" />
@@ -158,8 +156,7 @@ function ScanVisual() {
         <motion.div
           animate={{ top: ["4%", "94%", "4%"] }}
           transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute left-0 right-0 h-0.5 bg-accent"
-          style={{ boxShadow: "0 0 16px 3px color-mix(in srgb, var(--color-accent) 85%, transparent)" }}
+          className="absolute left-0 right-0 h-1 bg-tape"
         />
       </div>
       <div className="flex gap-2">
@@ -168,7 +165,7 @@ function ScanVisual() {
             key={f.label}
             animate={{ opacity: [0.2, 1, 0.2] }}
             transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut", delay: i * 0.35 }}
-            className="rounded-full bg-accent-soft px-2.5 py-1 text-xs font-medium text-accent"
+            className="rounded-lg border border-accent/50 bg-accent-soft px-2.5 py-1 text-xs font-semibold text-accent"
           >
             {f.label}: {f.value}
           </motion.span>
@@ -182,31 +179,31 @@ const AUTO_SAVE_TIMES = [0, 0.22, 0.34, 0.7, 0.92, 1];
 
 function AutoSaveVisual() {
   return (
-    <div className="flex h-64 items-center justify-center rounded-2xl border border-border bg-surface">
-      <div className="w-full max-w-[15rem] rounded-xl border border-border bg-bg p-4">
+    <div className="flex h-64 items-center justify-center rounded-2xl border-[1.5px] border-ink/75 bg-surface shadow-md">
+      <div className="w-full max-w-[15rem] rounded-xl border-[1.5px] border-ink/60 bg-surface-alt p-4">
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-2 text-xs font-medium text-text-primary">
             <Settings className="h-3.5 w-3.5 text-text-secondary" />
             Otomatik Fiş Kaydı
           </span>
 
-          <div className="relative h-5 w-9 shrink-0 rounded-full">
+          <div className="relative h-5 w-9 shrink-0 overflow-hidden rounded-full border-[1.5px] border-ink/75">
             <motion.div
               className="absolute inset-0 rounded-full"
               animate={{
                 backgroundColor: [
-                  "var(--color-border)",
-                  "var(--color-border)",
+                  "var(--color-surface-alt)",
+                  "var(--color-surface-alt)",
                   "var(--color-accent)",
                   "var(--color-accent)",
-                  "var(--color-border)",
-                  "var(--color-border)",
+                  "var(--color-surface-alt)",
+                  "var(--color-surface-alt)",
                 ],
               }}
               transition={{ duration: 3.4, repeat: Infinity, times: AUTO_SAVE_TIMES, ease: "easeInOut" }}
             />
             <motion.span
-              className="absolute top-0.5 h-4 w-4 rounded-full bg-white shadow"
+              className="absolute top-0.5 h-4 w-4 rounded-full border-[1.5px] border-ink/75 bg-surface"
               animate={{ left: ["2px", "2px", "18px", "18px", "2px", "2px"] }}
               transition={{ duration: 3.4, repeat: Infinity, times: AUTO_SAVE_TIMES, ease: "easeInOut" }}
             />
@@ -229,11 +226,11 @@ function AutoSaveVisual() {
           <motion.div
             animate={{ opacity: [0, 0, 1, 1, 0, 0], x: [0, 0, 0, 130, 130, 130], scale: [1, 1, 1, 0.7, 0.7, 0.7] }}
             transition={{ duration: 3.4, repeat: Infinity, times: [0, 0.34, 0.4, 0.55, 0.6, 1], ease: "easeInOut" }}
-            className="absolute left-0 top-0 flex h-9 w-9 items-center justify-center rounded-full bg-accent-soft text-accent"
+            className="absolute left-0 top-0 flex h-9 w-9 items-center justify-center rounded-lg border-[1.5px] border-ink/60 bg-accent-soft text-text-primary"
           >
             <Receipt className="h-4 w-4" />
           </motion.div>
-          <div className="absolute right-0 top-0 flex h-9 w-9 items-center justify-center rounded-full border border-border text-text-secondary">
+          <div className="absolute right-0 top-0 flex h-9 w-9 items-center justify-center rounded-lg border-[1.5px] border-dashed border-ink/50 text-text-secondary">
             <FolderCheck className="h-4 w-4" />
           </div>
           <motion.p
@@ -251,7 +248,7 @@ function AutoSaveVisual() {
 
 function ReportVisual() {
   return (
-    <div className="relative flex h-72 flex-col items-center justify-center gap-6 rounded-2xl border border-border bg-surface p-6 sm:flex-row sm:gap-8">
+    <div className="relative flex h-72 flex-col items-center justify-center gap-6 rounded-2xl border-[1.5px] border-ink/75 bg-surface shadow-md p-6 sm:flex-row sm:gap-8">
       {[0, 1, 2].map((i) => (
         <motion.span
           key={i}
@@ -263,7 +260,7 @@ function ReportVisual() {
             scale: [1, 0.4],
           }}
           transition={{ duration: 1.8, repeat: Infinity, delay: i * 0.6, ease: "easeIn" }}
-          className="pointer-events-none absolute left-1/4 top-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-accent-soft text-accent sm:left-[22%]"
+          className="pointer-events-none absolute left-1/4 top-1/2 flex h-8 w-8 items-center justify-center rounded-lg border-[1.5px] border-ink/60 bg-accent-soft text-text-primary sm:left-[22%]"
         >
           <Receipt className="h-4 w-4" />
         </motion.span>
@@ -280,7 +277,7 @@ function ReportVisual() {
             animasyonu ise SADECE strokeDashoffset'in (dilim uzunluğu → 0)
             animasyonuyla sağlanıyor. */}
         <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
-          <circle cx="50" cy="50" r={DONUT_RADIUS} fill="none" stroke="var(--color-border)" strokeWidth="12" />
+          <circle cx="50" cy="50" r={DONUT_RADIUS} fill="none" stroke="var(--color-edge)" strokeWidth="12" />
           {DONUT_SEGMENTS_WITH_OFFSET.map((seg, i) => {
             const strokeLength = seg.pct * DONUT_CIRCUMFERENCE;
             return (
@@ -366,7 +363,7 @@ export function AiScannerShowcase() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal className="mx-auto max-w-xl text-center">
           <h2 className="font-display text-3xl font-bold text-text-primary sm:text-4xl">
-            Fişştech AI İş Başında
+            Fişştech AI <span className="ink-underline">İş Başında</span>
           </h2>
           <p className="mt-4 text-sm text-text-secondary">
             Geleneksel veri girişini unutun. Fişlerinizin saniyeler içinde nasıl akıllı verilere
@@ -379,7 +376,7 @@ export function AiScannerShowcase() {
             <Reveal key={step.title} delay={i * 60}>
               <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16">
                 <div className={cn(i % 2 === 1 && "lg:order-2")}>
-                  <span className="font-display text-sm font-bold text-accent">0{i + 1}</span>
+                  <span className="font-hand text-4xl font-bold leading-none text-accent">0{i + 1}</span>
                   <h3 className="mt-2 font-display text-2xl font-bold text-text-primary sm:text-3xl">{step.title}</h3>
                   <p className="mt-4 text-base leading-relaxed text-text-secondary">{step.description}</p>
                 </div>

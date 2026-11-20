@@ -1,56 +1,84 @@
 /* Fişştech Web — design tokens. Single source of truth for color/type/spacing/radius.
    Never hardcode hex values in components — always reference the Tailwind utilities
-   generated from these tokens (bg-surface, text-text-primary, border-border, ...). */
+   generated from these tokens (bg-surface, text-text-primary, border-border, ...).
+
+   2026-11-16 — KÂĞIT GÖRÜNÜM (mobil uygulamayla aynı tasarım dili, bkz.
+   fisle_app/lib/core/theme/paper_style.dart): krem kâğıt zemin + orman yeşili
+   mürekkep (açık mod), kara karton + tebeşir (koyu mod). Kenarlar mürekkep/kurşun
+   kalem tonunda, köşeler hafif düzensiz (el çizimi), gölgeler bulanık değil
+   kesilip yapıştırılmış kâğıt gibi kaydırılmış. Metin/zemin çiftlerinin hepsi
+   WCAG AA (≥4.5:1). Mobildeki 4 tema web'e taşınmaz — yalnız açık/koyu mod. */
 
 :root {
-  /* Light mode (default) */
-  --bg: #f8f5f2;
-  --surface: #ffffff;
-  /* 21 Temmuz 2026 rebrand: mobil "Gül" temasından mobil "Yeşil" temasına geçildi
-     (kullanıcı karar: site geneli marka/renk bütünlüğü). accent = mobilin Yeşil
-     primary'si #1E4D2B (koyu orman yeşili) — beyaz on-accent üstünde 9.76:1 kontrast,
-     bg üzerinde metin/link rengi olarak da 8.98:1 — ikisi de AAA sınırının üstünde.
-     accent-soft = mobilin Yeşil accent tonu #D6EAD9 (yumuşak mint) — SADECE arkaplan
-     dolgusu/rozet zemini için, üzerine on-accent/beyaz metin KONULMAZ (çok açık ton,
-     kontrast yetersiz kalır) — text-primary veya accent renkli metinle kullanılır. */
-  --accent: #1e4d2b;
-  --accent-hover: #183e22;
-  --accent-soft: #d6ead9;
+  /* Light mode (default) — krem kâğıt */
+  --bg: #f2efe4;            /* sayfa kâğıdı */
+  --surface: #fbf9f2;       /* kart kâğıdı */
+  --surface-alt: #f4f1e6;   /* kutucuk / ikincil yüzey */
+  --ink: #1c2b21;           /* mürekkep: kart kenarı, ikon çizgisi, gölge */
+  --accent: #1e4d2b;        /* orman yeşili — beyaz üstünde 9.76:1, kâğıtta 9.26:1 */
+  --accent-hover: #173d22;
+  --accent-soft: #dce6d6;   /* yalnız zemin dolgusu, üstüne beyaz yazı konmaz */
   --on-accent: #ffffff;
-  --text-primary: #241a1e;
-  --text-secondary: #6b5a60;
-  --border: #e7dfdb;
-  --success: #2e7d32;
-  --danger: #c0392b;
-  --warning: #f5a623;
+  --text-primary: #1c2b21;  /* kartta 14.07:1 */
+  --text-secondary: #5e6358;/* kartta 5.86:1, zeminde 5.36:1 */
+  --border: #868a7f;        /* kurşun kalem çizgisi (ayırıcı, input) — kartta 3.3:1 (WCAG 1.4.11) */
+  --edge: #ded8c7;          /* çok ince kâğıt kenarı / kesik çizgi */
+  --spot: #b7d5a4;          /* ikon lekesi */
+  --tape: #ead796;          /* bant */
+  --success: #1f7a6e;       /* kartta 4.90:1 */
+  --danger: #b3433f;        /* kartta 5.26:1 */
+  --warning: #9f6123;       /* kartta 4.74:1 */
+  --shadow-ink: rgb(28 43 33 / 0.18);
+  --shadow-ink-strong: rgb(28 43 33 / 0.28);
+  --grain-opacity: 0.55;
+  /* Grafik baskı mürekkepleri — mobil AppColors.chartPalette ile aynı sıra */
+  --chart-1: #e0735e; /* mercan */
+  --chart-2: #4fa08b; /* turkuaz */
+  --chart-3: #e5ae45; /* hardal */
+  --chart-4: #5c88c6; /* mavi */
+  --chart-5: #d9824e; /* mandalina */
+  --chart-6: #9479c4; /* lavanta */
+  --chart-7: #d7759c; /* pembe */
+  --chart-8: #8daa52; /* fıstık yeşili */
+  --chart-9: #4a9db5; /* gök mavisi */
+  --chart-10: #7f8a9c; /* arduvaz */
+  --chart-income: #2f8f68; /* AppColors.profit */
+  --chart-expense: #d65a48; /* AppColors.loss */
 }
 
 .dark {
-  /* Dark mode — warm antrasit taban aynı kaldı, accent mobilin Karanlık temasındaki
-     Material yeşili #4CAF50'ye çekildi (koyu bg #1B1417 üzerinde 6.52:1 kontrast —
-     AA'yı rahatça geçiyor). Gül'de olduğu gibi burada da on-accent KOYU tutuluyor
-     (bg-dark ile aynı, beyaz değil) çünkü accent zaten parlak — aynı desen korunuyor.
-     accent-soft koyu modda çok açık mint okunaksız kalacağından, yerine surface'e
-     yakın ama hafif yeşile çekilmiş koyu bir ton kullanılıyor (sadece dekoratif
-     arkaplan/rozet zemini, metin taşımaz). */
-  --bg: #1b1417;
-  --surface: #241b1f;
-  --accent: #4caf50;
-  --accent-hover: #43a047;
-  --accent-soft: #26362b;
-  --on-accent: #1b1417;
-  --text-primary: #f5edef;
-  --text-secondary: #b8a8ae;
-  --border: #3a2e33;
-  --success: #4c9a52;
-  --danger: #e05252;
-  --warning: #f5a623;
+  /* Dark mode — kara karton + tebeşir. accent açık yeşil, on-accent koyu
+     (koyu zeminde açık accent, üstünde koyu yazı — 8.31:1). */
+  --bg: #191b19;
+  --surface: #242723;
+  --surface-alt: #2b2e2a;
+  --ink: #ece8dc;
+  --accent: #7cc489;        /* kartta 7.28:1 */
+  --accent-hover: #8fd09b;
+  --accent-soft: #2f3b30;
+  --on-accent: #0b1f0e;
+  --text-primary: #ece8dc;  /* kartta 12.34:1 */
+  --text-secondary: #a9a79c;/* kartta 6.26:1 */
+  --border: #767a72;        /* kartta 3.4:1 */
+  --edge: #3a3e38;
+  --spot: #416d4a;
+  --tape: #6b6037;
+  --success: #5fc2b6;
+  --danger: #e8857f;
+  --warning: #ffb74d;
+  --shadow-ink: rgb(0 0 0 / 0.45);
+  --shadow-ink-strong: rgb(0 0 0 / 0.6);
+  --grain-opacity: 0.35;
+  --chart-income: #5fbf94;
+  --chart-expense: #ec8576;
 }
 
 @theme inline {
   /* Colors — exposed as bg-*, text-*, border-* Tailwind utilities */
   --color-bg: var(--bg);
   --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-ink: var(--ink);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-soft: var(--accent-soft);
@@ -58,17 +86,58 @@
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-border: var(--border);
+  --color-edge: var(--edge);
+  --color-spot: var(--spot);
+  --color-tape: var(--tape);
   --color-success: var(--success);
   --color-danger: var(--danger);
   --color-warning: var(--warning);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+  --color-chart-7: var(--chart-7);
+  --color-chart-8: var(--chart-8);
+  --color-chart-9: var(--chart-9);
+  --color-chart-10: var(--chart-10);
+  --color-chart-income: var(--chart-income);
+  --color-chart-expense: var(--chart-expense);
 
   /* Fonts */
   --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
   --font-body: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  /* Kısa el yazısı notlar (mobil uygulamadaki "iyi gidiyor!" gibi) */
+  --font-hand: var(--font-caveat), "Segoe Print", "Comic Sans MS", cursive;
 
-  /* Radius */
-  --radius-card: 20px;
-  --radius-control: 12px;
+  /* Radius — hafif düzensiz köşeler: kartlar elle kesilmiş kâğıt gibi.
+     (Düzensizlik bilinçli olarak küçük: kullanıcı geri bildirimi, mobilde
+     "yamukluğu azalt" — düz ama hâlâ kâğıt hissi.) */
+  --radius-card: 18px 21px 17px 22px / 21px 17px 22px 18px;
+  --radius-control: 12px 14px 11px 15px / 14px 11px 15px 12px;
+  /* İç içe kontroller (segment düğmeleri vb.) için küçük düzensiz köşe */
+  --radius-inner: 8px 10px 7px 10px / 10px 7px 10px 8px;
+  /* Tailwind'in genel ölçeği de el kesimi olsun — rounded-lg/xl/2xl/3xl
+     kullanan her kutu otomatik kâğıt köşesi alır. (sm/md küçük ögelerde
+     düz kalır; tek köşe utility'leri — rounded-tl-* — bu değerlerle
+     kullanılmamalı, 4 değerli kısaltma tek köşe özelliğinde geçersizdir.) */
+  --radius-lg: 9px 11px 8px 11px / 11px 8px 11px 9px;
+  --radius-xl: 12px 14px 11px 15px / 14px 11px 15px 12px;
+  --radius-2xl: 16px 19px 15px 20px / 19px 15px 20px 16px;
+  --radius-3xl: 22px 26px 21px 27px / 26px 21px 27px 22px;
+
+  /* Gölgeler — bulanık değil, kesilip yapıştırılmış kâğıt gibi kaydırılmış.
+     Tailwind'in shadow-* utility'leri bunlara bağlanır, böylece sitedeki
+     her gölge otomatik kâğıt gölgesi olur. */
+  --shadow-2xs: 1px 1px 0 var(--shadow-ink);
+  --shadow-xs: 1px 1.5px 0 var(--shadow-ink);
+  --shadow-sm: 1.5px 2px 0 var(--shadow-ink);
+  --shadow: 2px 3px 0 var(--shadow-ink);
+  --shadow-md: 2px 3px 0 var(--shadow-ink);
+  --shadow-lg: 3px 4px 0 var(--shadow-ink-strong);
+  --shadow-xl: 4px 5px 0 var(--shadow-ink-strong);
+  --shadow-2xl: 5px 7px 0 var(--shadow-ink-strong);
 
   /* Type scale — one definition, reused everywhere (8pt-aligned line heights) */
   --text-xs: 0.75rem;

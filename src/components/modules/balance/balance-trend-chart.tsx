@@ -14,8 +14,9 @@ import {
 import type { MonthlyBalancePoint } from "@/lib/data/balance";
 import { formatCurrency } from "@/lib/utils/currency";
 
-const successColor = "#2E7D32";
-const dangerColor = "#C0392B";
+import { PAPER_AXIS_LINE, PAPER_GRID, PAPER_LINE_WIDTH, PAPER_SHAPE_STROKE, PAPER_TOOLTIP_CURSOR, PAPER_TOOLTIP_STYLE } from "@/lib/utils/paper-chart";
+const successColor = "var(--color-chart-income)";
+const dangerColor = "var(--color-chart-expense)";
 const accentColor = "var(--color-accent)";
 
 export function BalanceTrendChart({ data }: { data: MonthlyBalancePoint[] }) {
@@ -23,11 +24,11 @@ export function BalanceTrendChart({ data }: { data: MonthlyBalancePoint[] }) {
     <div className="h-72 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={data} margin={{ top: 8, right: 8, left: 8, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+          <CartesianGrid {...PAPER_GRID} />
           <XAxis
             dataKey="label"
             tick={{ fill: "var(--color-text-secondary)", fontSize: 12 }}
-            axisLine={{ stroke: "var(--color-border)" }}
+            axisLine={PAPER_AXIS_LINE}
             tickLine={false}
           />
           <YAxis
@@ -37,23 +38,18 @@ export function BalanceTrendChart({ data }: { data: MonthlyBalancePoint[] }) {
             width={0}
           />
           <ReferenceLine y={0} stroke="var(--color-border)" strokeWidth={1.5} strokeOpacity={0.9} />
-          <Tooltip
+          <Tooltip cursor={PAPER_TOOLTIP_CURSOR}
             formatter={(value) => formatCurrency(Number(value))}
-            contentStyle={{
-              background: "var(--color-surface)",
-              border: "1px solid var(--color-border)",
-              borderRadius: 12,
-              color: "var(--color-text-primary)",
-            }}
+            contentStyle={PAPER_TOOLTIP_STYLE}
           />
-          <Bar dataKey="income" name="Gelir" fill={successColor} radius={[4, 4, 0, 0]} barSize={18} />
-          <Bar dataKey="expense" name="Gider" fill={dangerColor} radius={[4, 4, 0, 0]} barSize={18} />
+          <Bar dataKey="income" name="Gelir" fill={successColor} radius={[6, 6, 0, 0]} {...PAPER_SHAPE_STROKE} barSize={18} />
+          <Bar dataKey="expense" name="Gider" fill={dangerColor} radius={[6, 6, 0, 0]} {...PAPER_SHAPE_STROKE} barSize={18} />
           <Line
             type="monotone"
             dataKey="net"
             name="Net"
             stroke={accentColor}
-            strokeWidth={2.5}
+            strokeWidth={PAPER_LINE_WIDTH}
             dot={{ r: 3 }}
           />
         </ComposedChart>

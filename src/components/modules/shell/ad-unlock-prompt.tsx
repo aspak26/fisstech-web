@@ -30,7 +30,7 @@ export function AdUnlockPrompt({
   return (
     <div className="flex min-h-[50vh] w-full items-center justify-center px-4 py-10">
       <Card className="max-w-md text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-accent/10">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl border-[1.5px] border-ink/55 bg-accent-soft">
           <Smartphone className="h-7 w-7 text-accent" />
         </div>
         <h2 className="font-display text-xl font-semibold text-text-primary">{title}</h2>

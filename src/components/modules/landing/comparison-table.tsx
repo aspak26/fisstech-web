@@ -5,8 +5,8 @@ import { Reveal } from "./reveal";
 function Cell({ value }: { value: ComparisonValue }) {
   if (value === true) {
     return (
-      <span className="mx-auto flex h-6 w-6 items-center justify-center rounded-full bg-accent-soft text-accent">
-        <Check className="h-3.5 w-3.5" />
+      <span className="mx-auto flex h-6 w-6 items-center justify-center text-accent">
+        <Check className="h-5 w-5" strokeWidth={3} />
       </span>
     );
   }
@@ -20,14 +20,17 @@ export function ComparisonTable() {
   return (
     <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
       <Reveal className="mx-auto max-w-xl text-center">
-        <h2 className="font-display text-3xl font-bold text-text-primary">Planları Karşılaştırın</h2>
+        <h2 className="font-display text-3xl font-bold text-text-primary">
+          Planları <span className="ink-underline">Karşılaştırın</span>
+        </h2>
         <p className="mt-3 text-sm text-text-secondary">Tüm planların sunduğu özellikleri detaylı karşılaştırın</p>
       </Reveal>
 
-      <Reveal delay={100} className="mt-10 overflow-x-auto rounded-2xl border border-border bg-surface">
+      {/* Kâğıt: tablo bir fiş/defter yaprağı gibi — kesik satır çizgileri */}
+      <Reveal delay={100} className="mt-10 overflow-x-auto rounded-2xl border-[1.5px] border-ink/75 bg-surface shadow-md">
         <table className="w-full min-w-[640px] border-collapse text-sm">
           <thead>
-            <tr className="border-b border-border">
+            <tr className="border-b-2 border-ink/60 bg-surface-alt">
               <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-text-secondary">
                 Özellik
               </th>
@@ -41,7 +44,7 @@ export function ComparisonTable() {
           </thead>
           <tbody>
             {COMPARISON_ROWS.map((row) => (
-              <tr key={row.feature} className="border-b border-border transition-colors last:border-0 hover:bg-bg">
+              <tr key={row.feature} className="border-b-[1.5px] border-dashed border-ink/20 transition-colors last:border-0 hover:bg-tape/30">
                 <td className="px-6 py-3.5 text-text-primary">{row.feature}</td>
                 <td className="px-4 py-3.5 text-center">
                   <Cell value={row.premium} />

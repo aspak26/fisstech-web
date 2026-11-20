@@ -38,7 +38,7 @@ export function FilePreviewGrid({
       {items.map((item) => (
         <div
           key={item.id}
-          className="group relative aspect-[3/4] overflow-hidden rounded-control border border-border bg-bg"
+          className="group relative aspect-[3/4] overflow-hidden rounded-control border-[1.5px] border-border bg-bg"
         >
           <Image
             src={item.previewUrl}

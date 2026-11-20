@@ -12,7 +12,8 @@ export function Topbar({
   planType: string;
 }) {
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-surface px-4 lg:px-6">
+    <header className="relative z-10 flex h-16 shrink-0 items-center justify-between bg-surface px-4 lg:px-6">
+      <div aria-hidden="true" className="torn-strip pointer-events-none absolute inset-x-0 top-full h-[10px] bg-surface" />
       <div className="flex items-center gap-3">
         <MobileNavDrawer />
       </div>

@@ -31,7 +31,7 @@ export function ExpensesArchiveGrid({ expenses }: { expenses: ExpenseWithItems[]
           <Link
             key={expense.id}
             href={`/expenses/${expense.id}`}
-            className="group relative flex aspect-[3/4] overflow-hidden rounded-2xl border border-border bg-surface transition-all hover:ring-2 hover:ring-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="group relative flex aspect-[3/4] overflow-hidden rounded-2xl border-[1.5px] border-ink/70 bg-surface shadow-sm transition-all hover:ring-2 hover:ring-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -42,7 +42,7 @@ export function ExpensesArchiveGrid({ expenses }: { expenses: ExpenseWithItems[]
             />
 
             {urls.length > 1 && (
-              <div className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-black/65 px-2 py-1 text-[10px] font-bold text-white backdrop-blur-sm">
+              <div className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-black/65 px-2 py-1 text-[10px] font-bold text-white">
                 <Copy className="h-3 w-3" />
                 <span>{urls.length}</span>
               </div>

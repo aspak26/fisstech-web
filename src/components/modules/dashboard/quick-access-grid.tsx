@@ -27,7 +27,7 @@ export function QuickAccessGrid() {
           key={item.label}
           href={item.href}
           className={cn(
-            "relative flex flex-col items-center gap-2 rounded-card border border-border bg-surface p-4 text-center transition-colors hover:border-accent",
+            "relative flex flex-col items-center gap-2 rounded-card border-[1.5px] border-ink/70 bg-surface p-4 text-center shadow-sm transition-transform hover:-translate-y-0.5 hover:-rotate-[0.6deg] press",
           )}
         >
           {!item.active && (
@@ -35,11 +35,13 @@ export function QuickAccessGrid() {
               Yakında
             </Badge>
           )}
-          <item.icon
-            className={cn("h-6 w-6", item.active ? "text-accent" : "text-text-secondary")}
-            strokeWidth={1.75}
-          />
-          <span className="text-sm font-medium text-text-primary">{item.label}</span>
+          <span className="spot flex h-10 w-10 items-center justify-center">
+            <item.icon
+              className={cn("h-6 w-6", item.active ? "text-text-primary" : "text-text-secondary")}
+              strokeWidth={1.9}
+            />
+          </span>
+          <span className="text-sm font-semibold text-text-primary">{item.label}</span>
         </Link>
       ))}
     </div>

@@ -16,10 +16,10 @@ export function NavLink({ item, collapsed }: { item: NavItem; collapsed?: boolea
       href={item.href}
       aria-current={isActive ? "page" : undefined}
       className={cn(
-        "flex items-center gap-3 rounded-control px-3 py-2.5 text-sm font-medium transition-colors",
+        "flex items-center gap-3 rounded-control border-[1.5px] px-3 py-2.5 text-sm font-medium transition-colors",
         isActive
-          ? "bg-accent/10 text-accent"
-          : "text-text-secondary hover:bg-bg hover:text-text-primary",
+          ? "-rotate-[0.5deg] border-ink/75 bg-surface font-semibold text-accent shadow-sm"
+          : "border-transparent text-text-secondary hover:border-dashed hover:border-ink/30 hover:text-text-primary",
         item.status === "soon" && "pointer-events-none opacity-60",
       )}
       title={collapsed ? item.label : undefined}

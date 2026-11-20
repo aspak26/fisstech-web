@@ -14,10 +14,12 @@ export function FaqSection() {
     <section id="faq" className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
       <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] lg:gap-16">
         <Reveal className="lg:sticky lg:top-24 lg:self-start">
-          <h2 className="font-display text-4xl font-bold text-text-primary">Merak Edilenler</h2>
+          <h2 className="font-display text-4xl font-bold text-text-primary">
+            Merak <span className="ink-underline">Edilenler</span>
+          </h2>
           <p className="mt-4 max-w-sm text-text-secondary">
             Aradığınız cevabı bulamadınız mı?{" "}
-            <a href="mailto:fisstechapp@gmail.com" className="font-medium text-accent hover:underline">
+            <a href="mailto:fisstechapp@gmail.com" className="font-semibold text-accent underline decoration-wavy decoration-1 underline-offset-4">
               fisstechapp@gmail.com
             </a>
             , yardımcı olalım.
@@ -27,7 +29,7 @@ export function FaqSection() {
               <p className="font-display text-2xl font-bold text-text-primary">{FAQ_ITEMS.length}</p>
               <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">Soru</p>
             </div>
-            <span className="h-10 w-px bg-border" aria-hidden="true" />
+            <span className="h-10 border-l-[1.5px] border-dashed border-ink/40" aria-hidden="true" />
             <div>
               <p className="font-display text-2xl font-bold text-text-primary">7/24</p>
               <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">Destek</p>
@@ -41,10 +43,10 @@ export function FaqSection() {
             return (
               <div
                 key={item.question}
-                className={cn("rounded-xl border bg-surface transition-colors duration-300", open ? "border-accent" : "border-border")}
-                style={
-                  open ? { boxShadow: "0 0 30px -10px color-mix(in srgb, var(--color-accent) 40%, transparent)" } : undefined
-                }
+                className={cn(
+                  "rounded-xl border-[1.5px] bg-surface transition-all duration-300",
+                  open ? "border-ink/80 shadow-md" : "border-ink/40 shadow-xs",
+                )}
               >
                 <button
                   type="button"
@@ -52,7 +54,7 @@ export function FaqSection() {
                   className="flex w-full items-center gap-4 px-5 py-4 text-left"
                   aria-expanded={open}
                 >
-                  <span className={cn("font-display text-sm font-bold", open ? "text-accent" : "text-text-secondary")}>
+                  <span className={cn("font-hand text-2xl font-bold leading-none", open ? "text-accent" : "text-text-secondary")}>
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <span className="flex-1 font-medium text-text-primary">{item.question}</span>
@@ -60,11 +62,11 @@ export function FaqSection() {
                     animate={{ rotate: open ? 45 : 0 }}
                     transition={{ duration: 0.25 }}
                     className={cn(
-                      "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border",
-                      open ? "border-accent bg-accent text-on-accent" : "border-border text-text-secondary",
+                      "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border-[1.5px]",
+                      open ? "border-ink/80 bg-accent text-on-accent" : "border-ink/50 text-text-primary",
                     )}
                   >
-                    <Plus className="h-3.5 w-3.5" />
+                    <Plus className="h-4 w-4" strokeWidth={2.5} />
                   </motion.span>
                 </button>
                 <AnimatePresence initial={false}>

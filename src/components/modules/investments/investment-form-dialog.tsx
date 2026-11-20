@@ -151,7 +151,7 @@ export function InvestmentFormDialog({ open, onClose }: { open: boolean; onClose
               onClick={() => toggleMode(false)}
               className={cn(
                 "rounded-control border py-2.5 text-sm font-medium transition-colors",
-                !totalMode ? "border-2 border-accent bg-accent/10 text-accent" : "border-border text-text-primary hover:border-accent/40",
+                !totalMode ? "border-[1.5px] border-ink/75 bg-accent-soft text-accent shadow-xs" : "border-border text-text-primary hover:border-accent/40",
               )}
             >
               Birim Fiyatı
@@ -161,7 +161,7 @@ export function InvestmentFormDialog({ open, onClose }: { open: boolean; onClose
               onClick={() => toggleMode(true)}
               className={cn(
                 "rounded-control border py-2.5 text-sm font-medium transition-colors",
-                totalMode ? "border-2 border-accent bg-accent/10 text-accent" : "border-border text-text-primary hover:border-accent/40",
+                totalMode ? "border-[1.5px] border-ink/75 bg-accent-soft text-accent shadow-xs" : "border-border text-text-primary hover:border-accent/40",
               )}
             >
               Toplam Tutar
@@ -197,7 +197,7 @@ export function InvestmentFormDialog({ open, onClose }: { open: boolean; onClose
             id="i-note"
             rows={2}
             placeholder="Örn: Ziraat bankasından aldım"
-            className="w-full rounded-control border border-border bg-surface px-3.5 py-2.5 text-base text-text-primary placeholder:text-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="w-full rounded-control border-[1.5px] border-border bg-surface px-3.5 py-2.5 text-base text-text-primary placeholder:text-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             {...register("note")}
           />
         </div>

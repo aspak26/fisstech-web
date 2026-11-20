@@ -1,9 +1,9 @@
 import type { SubscriptionsRow } from "@/lib/types/database";
 
 const STATUS_COLOR: Record<string, string> = {
-  active: "#2E7D32",
-  paused: "#F9A825",
-  cancelled: "#C62828",
+  active: "var(--color-chart-income)",
+  paused: "var(--color-chart-3)",
+  cancelled: "var(--color-chart-expense)",
 };
 
 const MONTH_ABBR_TR = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
@@ -45,14 +45,14 @@ export function SubscriptionTimeline({ subscriptions }: { subscriptions: Subscri
           return (
             <li key={s.id}>
               <p className="mb-1 truncate text-sm text-text-primary">{s.name}</p>
-              <div className="relative h-6 w-full rounded-full bg-bg">
+              <div className="relative h-6 w-full rounded-full border-[1.5px] border-ink/30 bg-surface-alt">
                 <div
-                  className="absolute top-0 flex h-6 items-center justify-center rounded-full text-[10px] font-medium text-white"
+                  className="absolute -top-px flex h-6 items-center justify-center rounded-full border-[1.5px] border-ink/60 text-[10px] font-semibold text-text-primary"
                   style={{
                     left: `${leftFrac * 100}%`,
                     width: `${barFrac * 100}%`,
                     minWidth: 6,
-                    backgroundColor: `${color}BF`,
+                    backgroundColor: `color-mix(in srgb, ${color} 75%, transparent)`,
                   }}
                 >
                   {barFrac > 0.12 && `${durationMonths} ay`}

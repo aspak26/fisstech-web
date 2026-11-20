@@ -83,7 +83,6 @@ export function SectorSolutions() {
                 exit={{ opacity: 0, scale: 0.96 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
                 className="rounded-2xl border border-border bg-surface p-5"
-                style={{ boxShadow: "0 0 50px -12px color-mix(in srgb, var(--color-accent) 35%, transparent)" }}
               >
                 <div className="flex items-center gap-2.5 border-b border-border pb-4">
                   <span className="flex h-10 w-10 items-center justify-center rounded-control bg-accent-soft text-accent">

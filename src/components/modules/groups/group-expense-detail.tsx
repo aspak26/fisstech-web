@@ -121,7 +121,7 @@ export function GroupExpenseDetail({
               onClick={() => handleToggleReaction(type)}
               className={cn(
                 "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm",
-                myReaction === type ? "border-accent bg-accent/10" : "border-border hover:border-accent",
+                myReaction === type ? "border-ink/75 bg-accent-soft shadow-xs" : "border-border hover:border-accent",
               )}
             >
               <span>{REACTION_EMOJI[type]}</span>
@@ -141,7 +141,7 @@ export function GroupExpenseDetail({
             </Button>
           </div>
         ) : (
-          <ul className="divide-y divide-border">
+          <ul className="divide-y divide-dashed divide-ink/20">
             {splits[0].members.map((m) => (
               <li key={m.id} className="flex items-center justify-between py-2.5">
                 <span className="text-text-primary">{m.userName}</span>
@@ -153,7 +153,7 @@ export function GroupExpenseDetail({
                     <button
                       type="button"
                       onClick={() => handleMarkPaid(m.id)}
-                      className="rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent hover:bg-accent/20"
+                      className="rounded-md border border-accent/50 bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent hover:bg-tape/40"
                     >
                       Ödedim
                     </button>

@@ -23,10 +23,10 @@ export function OAuthButtons() {
     <div className="mt-6">
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border"></div>
+          <div className="w-full border-t-[1.5px] border-dashed border-ink/30"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="bg-bg px-2 text-text-secondary">veya</span>
+          <span className="bg-surface px-2 font-hand text-lg text-text-secondary">veya</span>
         </div>
       </div>
       

@@ -80,10 +80,10 @@ const SOCIAL_ICONS = [
 
 export function LandingFooter() {
   return (
-    <footer className="border-t border-border bg-bg">
-      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <div className="grid gap-12 lg:grid-cols-[1.3fr_repeat(4,1fr)] lg:gap-8">
-          <div>
+    <footer className="torn-top relative mt-8 bg-accent-soft pt-[9px]">
+      <div className="mx-auto max-w-6xl px-4 pb-28 pt-16 sm:px-6 lg:pb-16">
+        <div className="grid gap-12 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-[1.3fr_repeat(4,1fr)] lg:gap-8">
+          <div className="sm:col-span-2 md:col-span-4 lg:col-span-1">
             <Link href="/" aria-label="Fişştech anasayfa">
               <LogoHorizontal />
             </Link>
@@ -92,8 +92,8 @@ export function LandingFooter() {
               verileriniz güvende.
             </p>
 
-            <div className="mt-8 space-y-3">
-              <p className="text-xs font-bold uppercase tracking-widest text-text-secondary">Bülten</p>
+            <div className="mt-8 max-w-md space-y-3">
+              <p className="font-hand text-2xl font-bold text-text-primary">Bülten</p>
               <p className="text-sm leading-relaxed text-text-secondary">
                 Akıllı bütçe ipuçları, yeni Fişştech özellikleri ve özel kampanyalardan anında
                 haberdar olmak için e-posta listemize katılın.
@@ -105,7 +105,7 @@ export function LandingFooter() {
 
           {LINK_COLUMNS.map((col) => (
             <div key={col.heading}>
-              <p className="font-display text-sm font-semibold text-text-primary">{col.heading}</p>
+              <p className="font-display text-sm font-bold text-text-primary">{col.heading}</p>
               <ul className="mt-4 space-y-2.5">
                 {col.links.map((link) => (
                   <li key={link.label}>
@@ -119,7 +119,7 @@ export function LandingFooter() {
           ))}
         </div>
 
-        <div className="mt-14 flex flex-col items-center gap-3 border-t border-border pt-8 text-center">
+        <div className="mt-14 flex flex-col items-center gap-3 dashed-rule pt-8 text-center">
           <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-text-secondary">
             <ShieldCheck className="h-3.5 w-3.5 text-accent" />
             Güvenli Ödeme
@@ -130,7 +130,7 @@ export function LandingFooter() {
           </p>
         </div>
 
-        <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 sm:flex-row">
+        <div className="mt-8 flex flex-col items-center justify-between gap-4 dashed-rule pt-6 sm:flex-row">
           <p className="text-xs text-text-secondary">© {new Date().getFullYear()} Fişştech. Tüm hakları saklıdır.</p>
           <div className="flex items-center gap-4">
             {SOCIAL_ICONS.map(({ icon: Icon, label, href }) =>
@@ -141,7 +141,7 @@ export function LandingFooter() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-text-secondary transition-colors hover:border-accent hover:text-accent"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border-[1.5px] border-ink/60 bg-surface text-text-primary shadow-xs transition-colors hover:bg-accent hover:text-on-accent press"
                 >
                   <Icon className="h-4 w-4" />
                 </a>
@@ -150,7 +150,7 @@ export function LandingFooter() {
                   key={label}
                   aria-label={label}
                   title={`${label} — yakında`}
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-text-secondary opacity-50"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border-[1.5px] border-dashed border-ink/40 text-text-secondary opacity-60"
                 >
                   <Icon className="h-4 w-4" />
                 </span>

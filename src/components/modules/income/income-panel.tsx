@@ -167,7 +167,7 @@ export function IncomePanel({
             {incomes.length === 0 ? (
               <EmptyState icon={Wallet} title="Bu dönemde gelir kaydı yok" />
             ) : (
-              <ul className="divide-y divide-border">
+              <ul className="divide-y divide-dashed divide-ink/20">
                 {incomes.map((income) => {
                   const category = incomeCategoryMap.get(income.category_id ?? "");
                   return (
@@ -202,7 +202,7 @@ export function IncomePanel({
             {fixedExpenses.length === 0 ? (
               <EmptyState icon={Repeat} title="Henüz sabit gider eklenmedi" />
             ) : (
-              <ul className="divide-y divide-border">
+              <ul className="divide-y divide-dashed divide-ink/20">
                 {fixedExpenses.map((fe) => {
                   const category = fixedCategoryMap.get(fe.category_id ?? "");
                   return (
@@ -261,7 +261,7 @@ export function IncomePanel({
             {expenses.length === 0 ? (
               <EmptyState icon={ShoppingBag} title="Bu dönemde harcama kaydı yok" />
             ) : (
-              <ul className="divide-y divide-border">
+              <ul className="divide-y divide-dashed divide-ink/20">
                 {expenses.map((expense) => (
                   <li key={expense.id} className="flex items-center justify-between gap-3 py-3">
                     <div className="min-w-0 flex-1">

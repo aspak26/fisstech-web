@@ -10,11 +10,14 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<Variant, string> = {
-  primary: "bg-accent text-on-accent hover:bg-accent-hover",
+  // Kâğıt: dolu düğmeler mürekkep kenarlı karton + kesip yapıştırma gölgesi;
+  // basınca gölge kapanıp kâğıt yerine oturur (bkz. globals.css `press`).
+  primary:
+    "bg-accent text-on-accent border-[1.5px] border-ink/80 shadow-sm hover:bg-accent-hover press",
   secondary:
-    "bg-surface text-text-primary border border-border hover:border-accent",
-  ghost: "bg-transparent text-text-primary hover:bg-surface",
-  danger: "bg-danger text-white hover:opacity-90",
+    "bg-surface text-text-primary border-[1.5px] border-ink/70 shadow-sm hover:bg-surface-alt press",
+  ghost: "bg-transparent text-text-primary hover:bg-surface-alt",
+  danger: "bg-danger text-on-accent border-[1.5px] border-ink/80 shadow-sm hover:opacity-90 press",
 };
 
 const sizeClasses: Record<Size, string> = {
@@ -28,7 +31,7 @@ const sizeClasses: Record<Size, string> = {
  * `<a>` is invalid HTML/a11y, so those compose this instead of `<Button>`). */
 export function buttonVariants(variant: Variant = "primary", size: Size = "md", className?: string) {
   return cn(
-    "inline-flex items-center justify-center gap-2 rounded-control font-medium transition-colors",
+    "inline-flex items-center justify-center gap-2 rounded-control font-semibold transition-colors",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
     "disabled:opacity-50 disabled:cursor-not-allowed",
     variantClasses[variant],
